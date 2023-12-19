@@ -1,0 +1,21 @@
+{
+    "__class_name": "Diskette",
+    "_checkout": null,
+    "_output_dir": "/home/emencia/Projects/Apps",
+    "_repo_dir": "/home/emencia/Projects/Apps/Cookies-dev/Djangoapp",
+    "_sveetch_djangoapp_version": "0.7.0",
+    "_template": "/home/emencia/Projects/Apps/Cookies-dev/Djangoapp",
+    "app_name": "diskette",
+    "author_email": "support@emencia.com",
+    "author_name": "David Thenon",
+    "author_username": "emencia",
+    "include_api": false,
+    "include_cmsplugin": false,
+    "include_frontend": false,
+    "init_git_repository": true,
+    "package_name": "diskette",
+    "project_name": "Diskette",
+    "project_short_description": "Export and import Django application data and medias",
+    "pypi_username": "sveetch",
+    "version": "0.1.0"
+}

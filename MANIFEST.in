@@ -1,0 +1,13 @@
+include MANIFEST.in
+include LICENCE.txt
+include README.rst
+
+recursive-include diskette/templates *
+recursive-include diskette/static *
+recursive-include diskette/locale *
+
+recursive-exclude docs *
+recursive-exclude tests *
+recursive-exclude sandbox *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
