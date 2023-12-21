@@ -1,0 +1,43 @@
+[
+    [
+        "django.contrib.sites", {
+            "comments": "django.contrib.sites",
+            "natural_foreign": true,
+            "models": "sites"
+        }
+    ],
+    [
+        "django.contrib.auth", {
+            "comments": "django.contrib.auth: user and groups, no perms",
+            "natural_foreign": true,
+            "models": ["auth.group","auth.user"]
+        }
+    ],
+    [
+        "django-taggit", {
+            "comments": "django-taggit: natural keys is not supported",
+            "natural_foreign": false,
+            "models": "taggit"
+        }
+    ],
+    [
+        "lotus", {
+            "comments": "django-taggit: natural keys is not supported",
+            "natural_foreign": false,
+            "models": "lotus",
+            "excludes": [
+                "lotus.author"
+            ]
+        }
+    ],
+    [
+        "drain", {
+            "is_drain": true,
+            "excludes": [
+                "auth.permission",
+                "contenttypes.contenttype",
+                "thumbnail.kvstore"
+            ]
+        }
+    ]
+]

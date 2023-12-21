@@ -10,6 +10,7 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+import datetime
 import os
 import sys
 
@@ -30,8 +31,9 @@ from diskette import __version__ as diskette_version
 
 # -- Project information -----------------------------------------------------
 
+now = datetime.date.today()
 project = "Diskette"
-copyright = "2023, David Thenon"
+copyright = "2023-{}, Emencia".format(now.year)
 author = "David Thenon"
 
 # The short X.Y version

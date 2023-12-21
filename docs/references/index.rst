@@ -7,4 +7,4 @@ References
 .. toctree::
    :maxdepth: 2
 
-   dump.rst
+   core.rst

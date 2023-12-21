@@ -5,36 +5,36 @@ from freezegun import freeze_time
 
 from django.core.management.base import CommandError
 
-from diskette.dump.models import ApplicationModel
-from diskette.dump.serializers import DjangoDumpDataSerializer
+from diskette.core.models import ApplicationModel
+from diskette.core.serializers import DumpDataSerializer
 from diskette.utils.factories import UserFactory
 
 
 @freeze_time("2012-10-15 10:00:00")
-def test_serializer_command(db, tmp_path):
+def test_command(db, tmp_path):
     """
     Serializer should correctly call the dumpdata command that will return JSON for
     application datas.
     """
-    serializer = DjangoDumpDataSerializer()
+    serializer = DumpDataSerializer()
 
     # With a non existing model
     app_foo = ApplicationModel("foo.bar", ["bar"])
-    assert serializer.command(app_foo) == "dumpdata bar"
+    assert serializer.serialize_command(app_foo) == "dumpdata bar"
 
 
 @freeze_time("2012-10-15 10:00:00")
-def test_serializer_call(db, tmp_path):
+def test_call(db, tmp_path):
     """
     Serializer should correctly call the dumpdata command that will return JSON for
     application datas.
     """
-    serializer = DjangoDumpDataSerializer()
+    serializer = DumpDataSerializer()
 
     # With a non existing model
     app_foo = ApplicationModel("foo.bar", ["bar"])
     with pytest.raises(CommandError) as excinfo:
-        serializer.call(app_foo)
+        serializer.call_dumpdata(app_foo)
 
     assert str(excinfo.value) == "No installed app with label 'bar'."
 
@@ -45,7 +45,7 @@ def test_serializer_call(db, tmp_path):
     picsou.save()
 
     app_auth = ApplicationModel("Django auth", ["auth.group", "auth.user"])
-    results = serializer.call(app_auth)
+    results = serializer.call_dumpdata(app_auth)
     deserialized = json.loads(results)
     assert deserialized == [
         {

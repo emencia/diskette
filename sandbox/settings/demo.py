@@ -16,6 +16,26 @@ DATABASES = {
     }
 }
 
+DISKETTE_APPS = [
+    [
+        "django.contrib.sites", {
+            "comments": "django.contrib.sites",
+            "natural_foreign": True,
+            "models": "sites"
+        }
+    ],
+    [
+        "django.contrib.auth", {
+            "comments": "django.contrib.auth: user and groups, no perms",
+            "natural_foreign": True,
+            "models": ["auth.group","auth.user"]
+        }
+    ]
+]
+
+DISKETTE_STORAGES = [MEDIA_ROOT]
+DISKETTE_STORAGES_EXCLUDES = ["cache/*"]
+
 # Import local settings if any
 try:
     from .local import *  # noqa: F401,F403

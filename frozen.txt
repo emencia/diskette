@@ -1,4 +1,4 @@
-# Frozen requirement versions from '0.1.0' installation
+# Frozen requirement versions from '0.2.0' installation
 Django==4.2.8
 django-blog-lotus==0.8.1
 django-sendfile2==0.7.0

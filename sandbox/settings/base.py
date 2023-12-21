@@ -170,6 +170,7 @@ INSTALLED_APPS[0:0] = [
 ]
 
 INSTALLED_APPS.extend([
+    "sorl.thumbnail",
     "smart_media",
     "taggit",
     "lotus",

@@ -1,0 +1,16 @@
+[
+    [
+        "django.contrib.sites", {
+            "comments": "django.contrib.sites",
+            "natural_foreign": true,
+            "models": "sites"
+        }
+    ],
+    [
+        "django.contrib.auth", {
+            "comments": "django.contrib.auth: user and groups, no perms",
+            "natural_foreign": true,
+            "models": ["auth.group","auth.user"]
+        }
+    ]
+]
