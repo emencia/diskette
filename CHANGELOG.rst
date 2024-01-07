@@ -3,6 +3,12 @@
 Changelog
 =========
 
+Version 0.3.0 - Unreleased
+--------------------------
+
+TODO
+
+
 Version 0.2.0 - Not released as a package
 -----------------------------------------
 

@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 import diskette
+from diskette.core.manager import DumpManager
 
 
 class FixturesSettingsTestMixin(object):
@@ -78,3 +79,19 @@ def tests_settings():
                 print(tests_settings.format("Application version: {VERSION}"))
     """
     return FixturesSettingsTestMixin()
+
+
+@pytest.fixture
+def manifest_version(monkeypatch):
+    """
+    Mock DumpManager.get_diskette_version to return a stable dummy version.
+
+    This is required so tests can assert on a stable string, since real package version
+    will change.
+    """
+    def mock_version(*args, **kwargs):
+        return "0.0.0-test"
+
+    monkeypatch.setattr(DumpManager, "get_diskette_version", mock_version)
+
+    return mock_version

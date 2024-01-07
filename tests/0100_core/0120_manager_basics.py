@@ -1,4 +1,8 @@
+import json
+import shutil
+
 import pytest
+from freezegun import freeze_time
 
 from diskette.core.manager import DumpManager
 from diskette.exceptions import DumpManagerError, ApplicationRegistryError
@@ -173,3 +177,55 @@ def test_get_involved_models():
         "pages",
         "pages.revision",
     ]
+
+
+@freeze_time("2012-10-15 10:00:00")
+def test_build_dump_manifest(manifest_version, tmp_path, tests_settings):
+    """
+    Dump manifest should contains every dumped files, archived storages and some
+    context informations.
+    """
+    # Make storages samples
+    storage_samples = tests_settings.fixtures_path / "storage_samples"
+    storage_tmp = tmp_path / "storages"
+    storage_tmp.mkdir(parents=True)
+    storage_1 = storage_tmp / "storage-1"
+    storage_2 = storage_tmp / "storage-2"
+    shutil.copytree(storage_samples / "storage-1", storage_1)
+    shutil.copytree(storage_samples / "storage-2", storage_2)
+
+    # Make data samples
+    data_tmp = tmp_path / "data"
+    data_tmp.mkdir(parents=True)
+    dummy_data_dump = data_tmp / "foo.json"
+    dummy_data_dump.write_text("{\"dummy\": True}")
+
+    # Configure manager
+    manager = DumpManager(
+        [],
+        basepath=tmp_path,
+        storages=[
+            storage_1,
+            storage_2
+        ]
+    )
+
+    manifest_path = manager.build_dump_manifest(
+        tmp_path,
+        data_tmp,
+        with_data=True,
+        with_storages=True
+    )
+    manifest = json.loads(manifest_path.read_text())
+
+    assert manifest == {
+        "version": "0.0.0-test",
+        "creation": "2012-10-15T10:00:00",
+        "datas": [
+            "data/foo.json"
+        ],
+        "storages": [
+            "storages/storage-1",
+            "storages/storage-2"
+        ]
+    }

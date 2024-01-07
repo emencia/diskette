@@ -5,6 +5,7 @@ import tarfile
 import tempfile
 from pathlib import Path
 
+from .. import __version__
 from ..exceptions import (
     ApplicationModelError, ApplicationRegistryError, DumpManagerError
 )
@@ -50,6 +51,17 @@ class DumpManager(DumpStorageAbstract, DumpDataSerializerAbstract):
         self.storages_excludes = storages_excludes or []
 
         self.apps = self.load(apps)
+
+    def get_diskette_version(self):
+        """
+        Shortand to return diskette version.
+
+        Useful with manifest building so it can be easily mocked from tests.
+
+        Returns:
+            string: The version string.
+        """
+        return __version__
 
     def load(self, apps):
         """
@@ -244,27 +256,58 @@ class DumpManager(DumpStorageAbstract, DumpDataSerializerAbstract):
 
         return filename.format(features=filename_features)
 
-    def build_dump_manifest(self, destination, data_destination, with_data=True,
+    def build_dump_manifest(self, destination, data_path, with_data=True,
                             with_storages=True):
         """
         Build dump JSON manifest.
-        """
-        manifest_path = destination / self.MANIFEST_FILENAME
-        manifest_path.write_text(
-            json.dumps({
-                "creation": datetime.datetime.now().isoformat(timespec="seconds"),
+
+        Example of built file (real build is not indented): ::
+
+            {
+                "version": "0.0.0",
+                "creation": "2024-01-01T12:12:12",
                 "datas": [
-                    str(dump.relative_to(destination))
-                    for dump in data_destination.iterdir()
-                    if with_data is True
+                    "data/djangocontribsites.json",
+                    "data/djangocontribauth.json"
                 ],
                 "storages": [
-                    str(storage.relative_to(self.basepath))
-                    for storage in self.storages
-                    if with_storages is True
-                ],
-            })
-        )
+                    "var/media"
+                ]
+            }
+
+        .. Note::
+            Involves relative path resolving so it implies that storage paths are
+            proper children of given destination path (that is removed from lead of
+            storage paths). EG: Storage paths must all start with value from DumpManager
+            attribute ``basepath``.
+        """
+        print()
+        print("build_dump_manifest:destination:", destination)
+        print()
+        manifest_path = destination / self.MANIFEST_FILENAME
+        data = {
+            "version": self.get_diskette_version(),
+            "creation": datetime.datetime.now().isoformat(timespec="seconds"),
+            "datas": None,
+            "storages": None,
+        }
+
+        print()
+        print("build_dump_manifest:data-iterdir:", list(data_path.iterdir()))
+        print()
+        if with_data is True:
+            data["datas"] = [
+                str(dump.relative_to(destination))
+                for dump in data_path.iterdir()
+            ]
+
+        if with_storages is True:
+            data["storages"] = [
+                str(storage.relative_to(self.basepath))
+                for storage in self.storages
+            ]
+
+        manifest_path.write_text(json.dumps(data))
 
         return manifest_path
 

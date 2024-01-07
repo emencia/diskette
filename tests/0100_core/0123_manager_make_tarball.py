@@ -60,7 +60,7 @@ def test_tarball_data(tmp_path, tarball_initials):
     assert archived == [
         ("data/django-auth.json", 328),
         ("data/django-site.json", 94),
-        ("manifest.json", 112),
+        ("manifest.json", 134),
     ]
 
     assert tarball_path.name == "foo_data.tar.gz"
@@ -98,7 +98,7 @@ def test_tarball_storages(tmp_path, tarball_initials):
         ("tests/data_fixtures/storage_samples/storage-1/plop/green.png", 1681),
         ("tests/data_fixtures/storage_samples/storage-2/pong/sample.nope", 11),
         ("tests/data_fixtures/storage_samples/storage-2/ping/grey.png", 1646),
-        ("manifest.json", 160),
+        ("manifest.json", 182),
     ]
 
     assert tarball_path.name == "foo_storages.tar.gz"
@@ -147,7 +147,7 @@ def test_tarball_all(tmp_path, tarball_initials):
         ("tests/data_fixtures/storage_samples/storage-1/plop/green.png", 1681),
         ("tests/data_fixtures/storage_samples/storage-2/pong/sample.nope", 11),
         ("tests/data_fixtures/storage_samples/storage-2/ping/grey.png", 1646),
-        ("manifest.json", 208),
+        ("manifest.json", 228),
     ]
 
     assert tarball_path.name == "foo_data_storages.tar.gz"
@@ -197,5 +197,5 @@ def test_tarball_excludes(tmp_path, tarball_initials):
         ("tests/data_fixtures/storage_samples/storage-1/sample.txt", 11),
         ("tests/data_fixtures/storage_samples/storage-1/foo/grass.png", 1659),
         ("tests/data_fixtures/storage_samples/storage-2/ping/grey.png", 1646),
-        ("manifest.json", 208),
+        ("manifest.json", 228),
     ]
