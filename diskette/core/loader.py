@@ -51,15 +51,16 @@ class DumpLoader(DumpStorageAbstract, DumpDataSerializerAbstract):
         manifest_path = path / self.MANIFEST_FILENAME
         if not manifest_path.exists():
             self.logger.critical(
-                "Dump archive is invalid, it does not include a manifest file"
+                "Dump archive is invalid, it does not include manifest file "
+                "'manifest.json'"
             )
 
         try:
             manifest = json.loads(manifest_path.read_text())
-        except DumpManagerError as e:
+        except json.JSONDecodeError as e:
             self.logger.critical(
                 "Dump archive is invalid, included manifest file has invalid JSON "
-                "syntax"
+                "syntax: {}".format(str(e))
             )
 
         if "datas" not in manifest:
@@ -72,11 +73,11 @@ class DumpLoader(DumpStorageAbstract, DumpDataSerializerAbstract):
                 "Dump archive is invalid, manifest does not include 'storages' field."
             )
 
-        return destination_tmpdir
+        return manifest
 
-    def load(self, archive_path, destination):
+    def deploy(self, archive_path, destination):
         """
-        Load archive and place its content.
+        Load archive and deploy its content.
 
         1. extractall to a tmp dir
         2. remove archive once extraction is over
