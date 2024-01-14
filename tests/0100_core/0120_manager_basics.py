@@ -183,7 +183,7 @@ def test_get_involved_models():
 def test_build_dump_manifest(manifest_version, tmp_path, tests_settings):
     """
     Dump manifest should contains every dumped files, archived storages and some
-    context informations.
+    context informations. Data dump list should respect order of applications.
     """
     # Make storages samples
     storage_samples = tests_settings.fixtures_path / "storage_samples"
@@ -197,12 +197,17 @@ def test_build_dump_manifest(manifest_version, tmp_path, tests_settings):
     # Make data samples
     data_tmp = tmp_path / "data"
     data_tmp.mkdir(parents=True)
-    dummy_data_dump = data_tmp / "foo.json"
-    dummy_data_dump.write_text("{\"dummy\": True}")
+    foobar_data_dump = data_tmp / "foo-bar.json"
+    foobar_data_dump.write_text("{\"dummy\": True}")
+    users_data_dump = data_tmp / "users.json"
+    users_data_dump.write_text("{\"dummy\": True}")
 
     # Configure manager
     manager = DumpManager(
-        [],
+        [
+            ("users", {"models": ["author.user"], "filename": "users.json"}),
+            ("foo.bar", {"models": "bar", "filename": "foo-bar.json"}),
+        ],
         basepath=tmp_path,
         storages=[
             storage_1,
@@ -222,7 +227,8 @@ def test_build_dump_manifest(manifest_version, tmp_path, tests_settings):
         "version": "0.0.0-test",
         "creation": "2012-10-15T10:00:00",
         "datas": [
-            "data/foo.json"
+            "data/users.json",
+            "data/foo-bar.json"
         ],
         "storages": [
             "storages/storage-1",

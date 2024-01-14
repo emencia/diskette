@@ -36,8 +36,8 @@ def test_tarball_data(tmp_path, tarball_initials):
     """
     manager = DumpManager(
         [
-            ("Django auth", {"models": ["auth.group", "auth.user"]}),
             ("Django site", {"models": ["sites"]}),
+            ("Django auth", {"models": ["auth.group", "auth.user"]}),
         ],
         storages=tarball_initials["storages"],
     )
@@ -161,8 +161,8 @@ def test_tarball_excludes(tmp_path, tarball_initials):
     """
     manager = DumpManager(
         [
-            ("Django auth", {"models": ["auth.group", "auth.user"]}),
             ("Django site", {"models": ["sites"]}),
+            ("Django auth", {"models": ["auth.group", "auth.user"]}),
         ],
         storages=tarball_initials["storages"],
         storages_excludes=[

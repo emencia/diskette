@@ -1,5 +1,6 @@
 import json
 import shutil
+from pathlib import Path
 
 import pytest
 from freezegun import freeze_time
@@ -24,10 +25,11 @@ def test_open(caplog, manifest_version, tmp_path, tests_settings):
     loader = DumpLoader()
     extracted = loader.open(archive_path)
 
-    assert [str(v) for v in extracted.iterdir()] == [
+    assert sorted([str(v) for v in extracted.iterdir()]) == [
         "{}/data".format(extracted),
-        "{}/var".format(extracted),
         "{}/manifest.json".format(extracted),
+        "{}/storage-1".format(extracted),
+        "{}/storage-2".format(extracted),
     ]
 
 
@@ -95,7 +97,7 @@ def test_manifest_invalid_structure(tmp_path):
 
 def test_manifest(caplog, tmp_path, tests_settings):
     """
-    TODO: Correct manifest should be returned
+    Correct manifest should be returned.
     """
     manifest_path = tmp_path / "manifest.json"
     shutil.copy(
@@ -103,16 +105,24 @@ def test_manifest(caplog, tmp_path, tests_settings):
         manifest_path
     )
 
-    print()
-    print(list(tmp_path.iterdir()))
-    print()
-
     loader = DumpLoader()
     manifest = loader.get_manifest(tmp_path)
 
-    assert 1 == 42
+    assert manifest == {
+        "version": "0.0.0-test",
+        "creation": "2012-10-15T10:00:00",
+        "datas": [
+            Path("data/djangocontribsites.json"),
+            Path("data/djangocontribauth.json")
+        ],
+        "storages": [
+            Path("storages/storage-1"),
+            Path("storages/storage-2")
+        ]
+    }
 
 
+@pytest.mark.skip("Pending to dump storage and manifest issue fix")
 @freeze_time("2012-10-15 10:00:00")
 def test_deploy(caplog, tmp_path, tests_settings):
     """
@@ -127,5 +137,7 @@ def test_deploy(caplog, tmp_path, tests_settings):
 
     loader = DumpLoader()
     extracted = loader.deploy(archive_path, tmp_path)
+
+    print(list(tmp_path.iterdir()))
 
     assert 1 == 42

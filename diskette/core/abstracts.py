@@ -8,7 +8,9 @@ from .manager import DumpManager
 
 class DumpCommandAbstract:
     """
-    Abstraction layer between DumpManager and the management command.
+    Abstraction layer between DumpManager and the management command, it holds getters
+    to get and validate values for manager options and provide a shortand to
+    dump or load contents with options.
 
     This relies on ``logger`` attribute that is not provided here. The logger object
     should be one of compatible classes from ``diskette.utils.loggers``.

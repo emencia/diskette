@@ -19,7 +19,7 @@ from .storages import DumpStorageAbstract
 
 class DumpManager(DumpStorageAbstract, DumpDataSerializerAbstract):
     """
-    Dump manager in in charge of storing application model objects, return serialized
+    Dump manager is in charge of storing application model objects, return serialized
     datas and storage files to dump them.
 
     .. Note::
@@ -280,10 +280,11 @@ class DumpManager(DumpStorageAbstract, DumpDataSerializerAbstract):
             proper children of given destination path (that is removed from lead of
             storage paths). EG: Storage paths must all start with value from DumpManager
             attribute ``basepath``.
+
+        .. Note::
+            Manifest preserve order of registered applications when writing data dump
+            list so it safe for loading them.
         """
-        print()
-        print("build_dump_manifest:destination:", destination)
-        print()
         manifest_path = destination / self.MANIFEST_FILENAME
         data = {
             "version": self.get_diskette_version(),
@@ -292,21 +293,21 @@ class DumpManager(DumpStorageAbstract, DumpDataSerializerAbstract):
             "storages": None,
         }
 
-        print()
-        print("build_dump_manifest:data-iterdir:", list(data_path.iterdir()))
-        print()
+        # Build a list of expected data dump filenames from registered applications
         if with_data is True:
             data["datas"] = [
-                str(dump.relative_to(destination))
-                for dump in data_path.iterdir()
+                str((data_path / app.filename).relative_to(destination))
+                for app in self.apps
             ]
 
+        # Build a list of expected storage dump directories from registered storages
         if with_storages is True:
             data["storages"] = [
                 str(storage.relative_to(self.basepath))
                 for storage in self.storages
             ]
 
+        # Write built manifest into destination path
         manifest_path.write_text(json.dumps(data))
 
         return manifest_path
@@ -321,8 +322,7 @@ class DumpManager(DumpStorageAbstract, DumpDataSerializerAbstract):
     def make_tarball(self, destination, filename, with_data=True, with_storages=True,
                      with_storages_excludes=True, destination_chmod=0o644):
         """
-        Check if given path match is allowed to be collected depending it match or not
-        any exclude patterns.
+        Dump data and storages then archive everything in a tarball.
 
         .. Note::
             Arguments 'with_data' and 'with_storages' can not be both disabled, at

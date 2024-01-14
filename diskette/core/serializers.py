@@ -15,7 +15,8 @@ class DumpDataSerializerAbstract:
     For now, this is JSON format only, 'format' option may be implemented later.
     """
     COMMAND_NAME = "dumpdata"
-    COMMAND_TEMPLATE = "{executable}dumpdata {options}"
+    COMMAND_DUMP_TEMPLATE = "{executable}dumpdata {options}"
+    COMMAND_LOAD_TEMPLATE = "{executable}loaddata {options}"
 
     def merge_excludes(self, source, extra):
         """
@@ -33,6 +34,8 @@ class DumpDataSerializerAbstract:
                           extra_excludes=None):
         """
         Build command line to dump application.
+
+        TODO: Rename to command_dumpdata
 
         Arguments:
             application (ApplicationModel):
@@ -74,7 +77,7 @@ class DumpDataSerializerAbstract:
                 str(Path(destination) / application.filename)
             ))
 
-        return self.COMMAND_TEMPLATE.format(
+        return self.COMMAND_DUMP_TEMPLATE.format(
             executable=self.executable,
             name=application.name,
             options=" ".join(options),
@@ -83,7 +86,59 @@ class DumpDataSerializerAbstract:
     def call_dumpdata(self, application, destination=None, indent=None,
                       extra_excludes=None):
         """
-        Programmatically use the Django dumpdata command to dump application.
+        Programmatically use the Django ``dumpdata`` command to dump application.
+
+        Arguments:
+            application (ApplicationModel):
+
+        Keyword Arguments:
+            destination (Pathlib):
+            indent (integer):
+            extra_excludes (list):
+
+        Returns:
+            string: A JSON payload of call results. On default, this is the JSON
+            output from dumpdata. However if destination has been given, dumpdata has
+            written output to a file and so the returned JSON will just be a
+            dictionnary with an item ``destination`` with written file path.
+        """
+        data = application.as_options()
+
+        models = data.pop("models")
+        filename = data.pop("filename")
+
+        # Build args for command
+        if destination:
+            data["output"] = destination / filename
+
+        if indent:
+            data["indent"] = indent
+
+        data["exclude"] = self.merge_excludes(data.pop("excludes"), extra_excludes)
+
+        self.logger.info("Dumping data for application '{}'".format(application.name))
+
+        # Execute command without output guided to string buffer
+        out = StringIO()
+        management.call_command(self.COMMAND_NAME, models, stdout=out, **data)
+
+        # If the file has a destination, write to the FS, write the destination path
+        # onto the application object
+        if destination:
+            out.close()
+            application._written = destination / filename
+            return json.dumps({"destination": str(application._written)})
+
+        # No destination to write just write it into the string buffer
+        content = out.getvalue()
+        out.close()
+
+        return content
+
+    def load_dumpdata(self, application, destination=None, indent=None,
+                      extra_excludes=None):
+        """
+        Programmatically use the Django ``loaddata`` command to dump application.
 
         Arguments:
             application (ApplicationModel):
