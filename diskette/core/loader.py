@@ -5,9 +5,12 @@ import tarfile
 import tempfile
 from pathlib import Path
 
+from django.template.defaultfilters import filesizeformat
+
 from ..exceptions import (
     ApplicationModelError, ApplicationRegistryError, DumpManagerError
 )
+from ..utils.filesystem import directory_size
 from ..utils.lists import get_duplicates
 from ..utils.loggers import NoOperationLogger
 
@@ -26,7 +29,8 @@ class DumpLoader(DumpStorageAbstract, DumpDataSerializerAbstract):
     MANIFEST_FILENAME = "manifest.json"
     TEMPDIR_PREFIX = "diskette_"
 
-    def __init__(self, logger=None):
+    def __init__(self, basepath=None, logger=None):
+        self.basepath = basepath or Path.cwd()
         self.logger = logger or NoOperationLogger()
 
     def open(self, archive_path):
@@ -46,6 +50,8 @@ class DumpLoader(DumpStorageAbstract, DumpDataSerializerAbstract):
             archive.extractall(destination_tmpdir)
 
         # Remove archive
+        # TODO: An option should allow to keep archive file but with a warning message
+        # with its path
         archive_path.unlink()
 
         return destination_tmpdir
@@ -95,7 +101,51 @@ class DumpLoader(DumpStorageAbstract, DumpDataSerializerAbstract):
 
         return manifest
 
-    def deploy(self, archive_path, destination):
+    def deploy_storages(self, extracted, manifest, destination):
+        """
+        Deploy storages directories in given destination
+
+        Returns:
+            list: List of tuple with source & destination paths for deployed storage.
+        """
+        deployed = []
+
+        for dump_path in manifest["storages"]:
+            storage_source = extracted / dump_path
+            storage_destination = destination / dump_path
+
+            # Create complete destination path structure if needed
+            if not storage_destination.parent.exists():
+                self.logger.debug(
+                    "Creating storage parent directory: {}".format(
+                        storage_destination.parent
+                    )
+                )
+                storage_destination.parent.mkdir(parents=True)
+
+            # Remove possible existing storage
+            if storage_destination.exists():
+                self.logger.debug(
+                    "Removing previous storage version directory: {}".format(
+                        storage_destination
+                    )
+                )
+                shutil.rmtree(storage_destination.parent)
+
+            # Move storage dump to destination
+            self.logger.info(
+                "Restoring storage directory ({}): {}".format(
+                    filesizeformat(directory_size(storage_source)),
+                    dump_path
+                )
+            )
+            shutil.move(storage_source, storage_destination)
+
+            deployed.append((storage_source, storage_destination))
+
+        return deployed
+
+    def deploy(self, archive_path, storages_destination):
         """
         Load archive and deploy its content.
 
@@ -106,7 +156,9 @@ class DumpLoader(DumpStorageAbstract, DumpDataSerializerAbstract):
         5. remove temporary directory
 
         Arguments:
-            path (Path):
+            archive_path (Path): The tarball archive to open and extract dumps.
+            storages_destination (Path): Destination where to deploy all storage
+                directories.
 
         Returns:
             list:
@@ -120,7 +172,6 @@ class DumpLoader(DumpStorageAbstract, DumpDataSerializerAbstract):
         for dump in manifest["datas"]:
             print("- Should loaddata with:", tmpdir / dump)
 
-        for dump in manifest["storages"]:
-            print("- Should move files for storage:", dump)
+        self.deploy_storages(tmpdir, manifest, storages_destination)
 
         return

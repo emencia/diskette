@@ -161,84 +161,56 @@ def test_dump(caplog, settings, db, tests_settings, tmp_path):
 
     assert caplog.record_tuples == [
         (
-            "diskette",
-            20,
-            "=== Starting dump ==="
+            "diskette", logging.INFO, "=== Starting dump ==="
         ),
         (
-            "diskette",
-            10,
-            "- Tarball will be written into: {}".format(tmp_path)
+            "diskette", logging.DEBUG, "- Tarball will be written into: {}".format(
+                tmp_path
+            )
         ),
         (
-            "diskette",
-            10,
-            "- Tarball filename pattern: diskette{features}.tar.gz"
+            "diskette", logging.DEBUG, (
+                "- Tarball filename pattern: diskette{features}.tar.gz"
+            )
         ),
         (
-            "diskette",
-            10,
-            "- Data dump enabled for application:"
+            "diskette", logging.DEBUG, "- Data dump enabled for application:"
         ),
         (
-            "diskette",
-            10,
-            "  ├── Django auth"
+            "diskette", logging.DEBUG, "  ├── Django auth"
         ),
         (
-            "diskette",
-            10,
-            "  └── Django site"
+            "diskette", logging.DEBUG, "  └── Django site"
         ),
         (
-            "diskette",
-            10,
-            "- Storage dump enabled for:"
+            "diskette", logging.DEBUG, "- Storage dump enabled for:"
         ),
         (
-            "diskette",
-            10,
-            "  ├── {}/storage-1".format(storage_samples)
+            "diskette", logging.DEBUG, "  ├── {}/storage-1".format(storage_samples)
         ),
         (
-            "diskette",
-            10,
-            "  └── {}/storage-2".format(storage_samples)
+            "diskette", logging.DEBUG, "  └── {}/storage-2".format(storage_samples)
         ),
         (
-            "diskette",
-            10,
-            "- Storage exclude patterns enabled:"
+            "diskette", logging.DEBUG, "- Storage exclude patterns enabled:"
         ),
         (
-            "diskette",
-            10,
-            "  └── foo/*"
+            "diskette", logging.DEBUG, "  └── foo/*"
         ),
         (
-            "diskette",
-            20,
-            "Dumping data for application 'Django auth'"
+            "diskette", logging.INFO, "Dumping data for application 'Django auth'"
         ),
         (
-            "diskette",
-            20,
-            "Dumping data for application 'Django site'"
+            "diskette", logging.INFO, "Dumping data for application 'Django site'"
         ),
         (
-            "diskette",
-            20,
-            "Appending data to the archive"
+            "diskette", logging.INFO, "Appending data to the archive"
         ),
         (
-            "diskette",
-            20,
-            "Appending storages to the archive"
+            "diskette", logging.INFO, "Appending storages to the archive"
         ),
         (
-            "diskette",
-            20,
-            (
+            "diskette", logging.INFO, (
                 "Dump tarball was created at: {}/diskette_data_storages.tar.gz".format(
                     tmp_path
                 )

@@ -5,7 +5,11 @@
 Diskette
 ========
 
-Export and import Django application data and medias.
+Export and import Django application data and storages.
+
+Application datas are using Django fixtures in JSON.
+
+Storages are not Django storages, only a set of directories to copy.
 
 
 Dependancies

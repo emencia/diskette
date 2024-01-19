@@ -9,6 +9,11 @@ from ..utils.loggers import NoOperationLogger
 class DumpStorageAbstract:
     """
     Storage manager is in charge to collect storage file paths.
+
+    .. Note::
+        ``self.storages_basepath`` value  determine if storages are valid (they must be
+        a children of it) and how they will be stored in archive since they are
+        made relative from the ``storages_basepath``
     """
     def validate_storages(self):
         """
@@ -64,7 +69,7 @@ class DumpStorageAbstract:
                         not allow_excludes or
                         self.is_allowed_path(path.relative_to(storage))
                     ):
-                        yield path, path.relative_to(self.basepath)
+                        yield path, path.relative_to(self.storages_basepath)
 
 
 class DumpStorage(DumpStorageAbstract):
@@ -72,7 +77,7 @@ class DumpStorage(DumpStorageAbstract):
     Concrete basic implementation for ``DumpStorageAbstract``.
 
     Keyword Arguments:
-        basepath (Path): Basepath for reference in some path resolution. Currently
+        storages_basepath (Path): Basepath for reference in some path resolution. Currently
             used by storage dump to make relative path for storage files. On default
             this is based on current working directory. If given, the storage paths
             must be in the same leaf else this will be an error.
@@ -80,9 +85,9 @@ class DumpStorage(DumpStorageAbstract):
         storages_excludes (list): A list of patterns to exclude storage files from dump.
         logger (object):
     """
-    def __init__(self, basepath=None, storages=None, storages_excludes=None,
+    def __init__(self, storages_basepath=None, storages=None, storages_excludes=None,
                  logger=None):
-        self.basepath = basepath or Path.cwd()
+        self.storages_basepath = storages_basepath or Path.cwd()
         self.logger = logger or NoOperationLogger()
         self.storages = storages or []
         self.storages_excludes = storages_excludes or []

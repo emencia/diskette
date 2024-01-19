@@ -31,20 +31,20 @@ class DumpManager(DumpStorageAbstract, DumpDataSerializerAbstract):
             django-admin (or equivalent). This path will suffixed with a single space
             to ensure separation with command arguments. This is only used with
             ``serialize_command``.
-        basepath (Path): Basepath for reference in some path resolution. Currently
+        storages (list): A list of storage Path objects.
+        storages_basepath (Path): Basepath for reference in some path resolution. Currently
             used by storage dump to make relative path for storage files. On default
             this is based on current working directory. If given, the storage paths
             must be in the same leaf else this will be an error.
-        storages (list): A list of storage Path objects.
         storages_excludes (list): A list of patterns to exclude storage files from dump.
         logger (object):
     """
     MANIFEST_FILENAME = "manifest.json"
     TEMPDIR_PREFIX = "diskette_"
 
-    def __init__(self, apps, executable=None, basepath=None, storages=None,
+    def __init__(self, apps, executable=None, storages_basepath=None, storages=None,
                  storages_excludes=None, logger=None):
-        self.basepath = basepath or Path.cwd()
+        self.storages_basepath = storages_basepath or Path.cwd()
         self.executable = executable + " " if executable else ""
         self.logger = logger or NoOperationLogger()
         self.storages = storages or []
@@ -278,8 +278,11 @@ class DumpManager(DumpStorageAbstract, DumpDataSerializerAbstract):
         .. Note::
             Involves relative path resolving so it implies that storage paths are
             proper children of given destination path (that is removed from lead of
-            storage paths). EG: Storage paths must all start with value from DumpManager
-            attribute ``basepath``.
+            storage paths). EG: Storage paths must all start with a starting portion
+            of value from DumpManager attribute ``storages_basepath``.
+
+            Eg: /foo/bar/storage would not be in a 'storages_basepath' "/ping/" (so it
+            is invalid) but would be (and valid) in "/foo" or "/foo/bar".
 
         .. Note::
             Manifest preserve order of registered applications when writing data dump
@@ -303,7 +306,7 @@ class DumpManager(DumpStorageAbstract, DumpDataSerializerAbstract):
         # Build a list of expected storage dump directories from registered storages
         if with_storages is True:
             data["storages"] = [
-                str(storage.relative_to(self.basepath))
+                str(storage.relative_to(self.storages_basepath))
                 for storage in self.storages
             ]
 

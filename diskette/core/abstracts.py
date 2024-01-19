@@ -207,7 +207,7 @@ class DumpCommandAbstract:
         manager = DumpManager(
             application_configurations,
             logger=self.logger,
-            basepath=storages_basepath,
+            storages_basepath=storages_basepath,
             storages=storages,
             storages_excludes=storages_excludes,
         )

@@ -208,7 +208,7 @@ def test_build_dump_manifest(manifest_version, tmp_path, tests_settings):
             ("users", {"models": ["author.user"], "filename": "users.json"}),
             ("foo.bar", {"models": "bar", "filename": "foo-bar.json"}),
         ],
-        basepath=tmp_path,
+        storages_basepath=tmp_path,
         storages=[
             storage_1,
             storage_2
