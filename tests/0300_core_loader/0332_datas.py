@@ -7,7 +7,7 @@ from freezegun import freeze_time
 from django.apps import apps
 from django.contrib.sites.models import Site
 
-from diskette.core.loader import DumpLoader
+from diskette.core.loader import Loader
 from diskette.utils.loggers import LoggingOutput
 
 
@@ -38,7 +38,7 @@ def test_deploy_datas(caplog, db, tmp_path, settings, tests_settings):
     }
 
     # Deploy
-    loader = DumpLoader(logger=LoggingOutput())
+    loader = Loader(logger=LoggingOutput())
     loader.deploy_datas(archive, manifest)
 
     assert caplog.record_tuples == [

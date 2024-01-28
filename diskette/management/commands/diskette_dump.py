@@ -11,7 +11,7 @@ class Command(BaseCommand, DumpCommandAbstract):
     Diskette dump command
     """
     help = (
-        "Dump application datas and storage files into a tarball file (TAR GZ)."
+        "Dump application datas and storage files into a archive file (TAR GZ)."
     )
 
     def add_arguments(self, parser):
@@ -21,7 +21,7 @@ class Command(BaseCommand, DumpCommandAbstract):
             metavar="PATH",
             default=None,
             help=(
-                "Directory path where to write the dump tarball. If given path does "
+                "Directory path where to write the dump archive. If given path does "
                 "not exists it will be created. Default to current working directory."
             )
         )
@@ -31,7 +31,7 @@ class Command(BaseCommand, DumpCommandAbstract):
             metavar="FILENAME",
             default=None,
             help=(
-                "Custom tarball filename to use for this dump. This is only the "
+                "Custom archive filename to use for this dump. This is only the "
                 "filename, don't include directory path here. Your filename must ends "
                 "with 'tar.gz'."
             )
@@ -95,7 +95,7 @@ class Command(BaseCommand, DumpCommandAbstract):
 
         self.dump(
             options["destination"],
-            tarball_filename=options["filename"],
+            archive_filename=options["filename"],
             application_configurations=options["appconf"],
             storages=options["storage"],
             storages_basepath=options["storages_basepath"],

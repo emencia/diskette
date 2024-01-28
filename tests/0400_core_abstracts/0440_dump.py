@@ -12,7 +12,7 @@ from diskette.utils.loggers import LoggingOutput
     ("foo", "bar", "bar"),
     (None, "bar", "bar"),
 ])
-def test_tarball_destination_valid(settings, setting, arg, expected):
+def test_archive_destination_valid(settings, setting, arg, expected):
     """
     Command properly discover the destination to use
     """
@@ -20,19 +20,19 @@ def test_tarball_destination_valid(settings, setting, arg, expected):
     commander.logger = LoggingOutput()
 
     settings.DISKETTE_DUMP_PATH = setting
-    assert commander.get_tarball_destination(arg) == expected
+    assert commander.get_archive_destination(arg) == expected
 
 
-def test_tarball_destination_invalid(settings):
+def test_archive_destination_invalid(settings):
     """
-    Command should raise an error when resolved value for tarball destination is empty.
+    Command should raise an error when resolved value for archive destination is empty.
     """
     commander = DumpCommandAbstract()
     commander.logger = LoggingOutput()
 
     settings.DISKETTE_DUMP_PATH = None
     with pytest.raises(DisketteError) as excinfo:
-        commander.get_tarball_destination("")
+        commander.get_archive_destination("")
 
     assert str(excinfo.value) == "Destination path can not be an empty value"
 
@@ -141,7 +141,7 @@ def test_dump(caplog, settings, db, tests_settings, tmp_path):
     commander = DumpCommandAbstract()
     commander.logger = LoggingOutput()
 
-    tarball = commander.dump(
+    archive = commander.dump(
         tmp_path,
         no_data=False,
         no_storages=False,
@@ -157,7 +157,7 @@ def test_dump(caplog, settings, db, tests_settings, tmp_path):
         storages_excludes=["foo/*"],
     )
 
-    assert tarball.exists() is True
+    assert archive.exists() is True
 
     assert caplog.record_tuples == [
         (
@@ -211,7 +211,7 @@ def test_dump(caplog, settings, db, tests_settings, tmp_path):
         ),
         (
             "diskette", logging.INFO, (
-                "Dump tarball was created at: {}/diskette_data_storages.tar.gz".format(
+                "Dump archive was created at: {}/diskette_data_storages.tar.gz".format(
                     tmp_path
                 )
             )

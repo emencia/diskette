@@ -20,14 +20,14 @@ class DisketteError(DisketteBaseException):
     pass
 
 
-class ApplicationModelError(DisketteBaseException):
+class ApplicationConfigError(DisketteBaseException):
     """
-    For an error from model ApplicationModel.
+    For an error from model ApplicationConfig.
     """
     pass
 
 
-class DumpManagerError(DisketteBaseException):
+class DumperError(DisketteBaseException):
     """
     For an error from dump manager.
     """

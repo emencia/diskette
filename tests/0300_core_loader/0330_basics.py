@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from diskette.core.loader import DumpLoader
+from diskette.core.loader import Loader
 from diskette.exceptions import DisketteError
 
 
@@ -18,7 +18,7 @@ def test_open(caplog, manifest_version, tmp_path, tests_settings):
         archive_path
     )
 
-    loader = DumpLoader()
+    loader = Loader()
     extracted = loader.open(archive_path)
 
     assert sorted([str(v) for v in extracted.iterdir()]) == [
@@ -32,7 +32,7 @@ def test_manifest_invalid_path(tmp_path):
     """
     'get_manifest' method should raise an error when manifest path does not exist.
     """
-    loader = DumpLoader()
+    loader = Loader()
 
     with pytest.raises(DisketteError) as excinfo:
         loader.get_manifest(tmp_path / "nope")
@@ -49,7 +49,7 @@ def test_manifest_invalid_json(tmp_path):
     archive_path = tmp_path / "manifest.json"
     archive_path.write_text("I'm not JSON")
 
-    loader = DumpLoader()
+    loader = Loader()
 
     with pytest.raises(DisketteError) as excinfo:
         loader.get_manifest(tmp_path)
@@ -68,7 +68,7 @@ def test_manifest_invalid_structure(tmp_path):
     archive_path = tmp_path / "manifest.json"
     archive_path.write_text("{\"foo\": true}")
 
-    loader = DumpLoader()
+    loader = Loader()
 
     with pytest.raises(DisketteError) as excinfo:
         loader.get_manifest(tmp_path)
@@ -80,7 +80,7 @@ def test_manifest_invalid_structure(tmp_path):
     archive_path = tmp_path / "manifest.json"
     archive_path.write_text("{\"datas\": true}")
 
-    loader = DumpLoader()
+    loader = Loader()
 
     with pytest.raises(DisketteError) as excinfo:
         loader.get_manifest(tmp_path)
@@ -100,7 +100,7 @@ def test_manifest(caplog, tmp_path, tests_settings):
         manifest_path
     )
 
-    loader = DumpLoader()
+    loader = Loader()
     manifest = loader.get_manifest(tmp_path)
 
     assert manifest == {

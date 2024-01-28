@@ -1,19 +1,19 @@
 import pytest
 
-from diskette.core.models import ApplicationModel, ApplicationDrainModel
-from diskette.exceptions import ApplicationModelError
+from diskette.core.applications import ApplicationConfig, DrainApplicationConfig
+from diskette.exceptions import ApplicationConfigError
 
 
 def test_application_invalid_excludes():
     """
     Application should raise an error from invalid 'excludes' type.
     """
-    app = ApplicationModel("foo.bar", models=["bar"], excludes="nope")
-    with pytest.raises(ApplicationModelError) as excinfo:
+    app = ApplicationConfig("foo.bar", models=["bar"], excludes="nope")
+    with pytest.raises(ApplicationConfigError) as excinfo:
         app.validate()
 
     assert str(excinfo.value) == (
-        "<ApplicationModel: foo.bar>: 'excludes' argument must be a list."
+        "<ApplicationConfig: foo.bar>: 'excludes' argument must be a list."
     )
 
 
@@ -21,12 +21,12 @@ def test_application_invalid_models():
     """
     Application should raise an error when 'models' is empty.
     """
-    app = ApplicationModel("foo.bar")
-    with pytest.raises(ApplicationModelError) as excinfo:
+    app = ApplicationConfig("foo.bar")
+    with pytest.raises(ApplicationConfigError) as excinfo:
         app.validate()
 
     assert str(excinfo.value) == (
-        "<ApplicationModel: foo.bar>: 'models' must not be an empty value."
+        "<ApplicationConfig: foo.bar>: 'models' must not be an empty value."
     )
 
 
@@ -35,21 +35,21 @@ def test_application_invalid_format():
     Application should raise an error from invalid 'filename' extension.
     """
     # Empty file extension
-    app = ApplicationModel("foo.bar", models=["bar"], filename="nope")
-    with pytest.raises(ApplicationModelError) as excinfo:
+    app = ApplicationConfig("foo.bar", models=["bar"], filename="nope")
+    with pytest.raises(ApplicationConfigError) as excinfo:
         app.validate()
     assert str(excinfo.value) == (
-        "<ApplicationModel: foo.bar>: Given file name 'nope' must have a file "
+        "<ApplicationConfig: foo.bar>: Given file name 'nope' must have a file "
         "extension to discover format."
     )
 
     # Non allowed file extension
-    app = ApplicationModel("foo.bar", models=["bar"], filename="nope.txt")
-    with pytest.raises(ApplicationModelError) as excinfo:
+    app = ApplicationConfig("foo.bar", models=["bar"], filename="nope.txt")
+    with pytest.raises(ApplicationConfigError) as excinfo:
         app.validate()
 
     assert str(excinfo.value) == (
-        "<ApplicationModel: foo.bar>: Given file name 'nope.txt' must use a file "
+        "<ApplicationConfig: foo.bar>: Given file name 'nope.txt' must use a file "
         "extension from allowed formats: json, jsonl, xml, yaml"
     )
 
@@ -59,8 +59,8 @@ def test_application_valid():
     With correct values, Application object should be correctly created.
     """
     # Basic with required arguments
-    app_foo = ApplicationModel("foo.bar", models=["bar"])
-    assert repr(app_foo) == "<ApplicationModel: foo.bar>"
+    app_foo = ApplicationConfig("foo.bar", models=["bar"])
+    assert repr(app_foo) == "<ApplicationConfig: foo.bar>"
     assert app_foo.as_config() == {
         "name": "foo.bar",
         "comments": None,
@@ -85,7 +85,7 @@ def test_application_valid():
     }
 
     # Fullfill every arguments
-    app_ping = ApplicationModel(
+    app_ping = ApplicationConfig(
         "Ping",
         models=["ping"],
         comments="Lorem ipsum",
@@ -94,7 +94,7 @@ def test_application_valid():
         excludes=["ping.nope"],
         filename="ping_pong.json",
     )
-    assert repr(app_ping) == "<ApplicationModel: Ping>"
+    assert repr(app_ping) == "<ApplicationConfig: Ping>"
     assert app_ping.as_config() == {
         "name": "Ping",
         "comments": "Lorem ipsum",
@@ -127,7 +127,7 @@ def test_drain_empty_models():
     """
     Drain application does not require 'models' argument.
     """
-    app = ApplicationDrainModel("foo.bar")
+    app = DrainApplicationConfig("foo.bar")
     app.validate()
 
     assert app.models == []
@@ -137,7 +137,7 @@ def test_drain_payload():
     """
     Drain application should have some different items in its payload.
     """
-    app = ApplicationDrainModel("foo.bar")
+    app = DrainApplicationConfig("foo.bar")
     app.validate()
 
     assert app.as_config() == {

@@ -3,21 +3,21 @@ from pathlib import Path
 
 from django.conf import settings
 
-from .manager import DumpManager
+from .dumper import Dumper
 
 
 class DumpCommandAbstract:
     """
-    Abstraction layer between DumpManager and the management command, it holds getters
+    Abstraction layer between Dumper and the management command, it holds getters
     to get and validate values for manager options and provide a shortand to
     dump or load contents with options.
 
     This relies on ``logger`` attribute that is not provided here. The logger object
     should be one of compatible classes from ``diskette.utils.loggers``.
     """
-    def get_tarball_destination(self, path=None):
+    def get_archive_destination(self, path=None):
         """
-        Either get the tarball destination path from given argument if given else from
+        Either get the archive destination path from given argument if given else from
         ``settings.DISKETTE_DUMP_PATH``.
 
         Arguments:
@@ -37,9 +37,9 @@ class DumpCommandAbstract:
 
         return path
 
-    def get_tarball_filename(self, filename=None):
+    def get_archive_filename(self, filename=None):
         """
-        Either get the tarball destination filename from given argument if given else
+        Either get the archive destination filename from given argument if given else
         from ``settings.DISKETTE_DUMP_FILENAME``.
 
         Keyword Arguments:
@@ -168,21 +168,21 @@ class DumpCommandAbstract:
 
         return True, patterns
 
-    def dump(self, tarball_destination, tarball_filename=None,
+    def dump(self, archive_destination, archive_filename=None,
              application_configurations=None, storages=None, storages_basepath=None,
              storages_excludes=None, no_data=False, no_storages=False,
              no_storages_excludes=False):
         """
-        Proceed to dump to a tarball archive.
+        Proceed to dump to a archive.
 
         .. Note::
             This does not involve argument validation methods like
-            ``get_tarball_destination`` and others here.
+            ``get_archive_destination`` and others here.
         """
         self.logger.info("=== Starting dump ===")
 
-        tarball_destination = self.get_tarball_destination(tarball_destination)
-        tarball_filename = self.get_tarball_filename(tarball_filename)
+        archive_destination = self.get_archive_destination(archive_destination)
+        archive_filename = self.get_archive_filename(archive_filename)
 
         with_data, application_configurations = self.get_application_configurations(
             appconfs=application_configurations,
@@ -204,7 +204,7 @@ class DumpCommandAbstract:
                 "type must be enabled."
             )
 
-        manager = DumpManager(
+        manager = Dumper(
             application_configurations,
             logger=self.logger,
             storages_basepath=storages_basepath,
@@ -215,14 +215,14 @@ class DumpCommandAbstract:
         # Validate configurations
         manager.validate()
 
-        tarball_path = manager.make_tarball(
-            tarball_destination,
-            tarball_filename,
+        archive_path = manager.make_archive(
+            archive_destination,
+            archive_filename,
             with_data=with_data,
             with_storages=with_storages,
             with_storages_excludes=with_storages_excludes,
         )
 
-        self.logger.info("Dump tarball was created at: {}".format(tarball_path))
+        self.logger.info("Dump archive was created at: {}".format(archive_path))
 
-        return tarball_path
+        return archive_path

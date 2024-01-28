@@ -3,14 +3,14 @@ import tarfile
 import pytest
 from freezegun import freeze_time
 
-from diskette.core.manager import DumpManager
+from diskette.core.dumper import Dumper
 from diskette.utils.factories import UserFactory
 
 
 @pytest.fixture(scope="function")
-def tarball_initials(tests_settings, db):
+def archive_initials(tests_settings, db):
     """
-    Fixture to create common initial datas and settings for tarball testing
+    Fixture to create common initial datas and settings for archive testing
     """
     storage_samples = tests_settings.fixtures_path / "storage_samples"
 
@@ -30,26 +30,26 @@ def tarball_initials(tests_settings, db):
 
 
 @freeze_time("2012-10-15 10:00:00")
-def test_tarball_data(tmp_path, tarball_initials):
+def test_archive_data(manifest_version, tmp_path, archive_initials):
     """
     Tarball should be created with data dumps only.
     """
-    manager = DumpManager(
+    manager = Dumper(
         [
             ("Django site", {"models": ["sites"]}),
             ("Django auth", {"models": ["auth.group", "auth.user"]}),
         ],
-        storages=tarball_initials["storages"],
+        storages=archive_initials["storages"],
     )
     manager.validate()
-    tarball_path = manager.make_tarball(
+    archive_path = manager.make_archive(
         tmp_path,
         "foo{features}.tar.gz",
         with_storages=False
     )
 
-    # Read tarball members to get archived files
-    with tarfile.open(tarball_path, "r:gz") as archive:
+    # Read archive members to get archived files
+    with tarfile.open(archive_path, "r:gz") as archive:
         archived = [
             (tarinfo.name, tarinfo.size)
             for tarinfo in archive.getmembers()
@@ -60,27 +60,27 @@ def test_tarball_data(tmp_path, tarball_initials):
     assert archived == [
         ("data/django-auth.json", 328),
         ("data/django-site.json", 94),
-        ("manifest.json", 134),
+        ("manifest.json", 139),
     ]
 
-    assert tarball_path.name == "foo_data.tar.gz"
+    assert archive_path.name == "foo_data.tar.gz"
 
 
 @freeze_time("2012-10-15 10:00:00")
-def test_tarball_storages(tmp_path, tarball_initials):
+def test_archive_storages(manifest_version, tmp_path, archive_initials):
     """
     Tarball should be created with storages dumps only.
     """
-    manager = DumpManager([], storages=tarball_initials["storages"])
+    manager = Dumper([], storages=archive_initials["storages"])
     manager.validate()
-    tarball_path = manager.make_tarball(
+    archive_path = manager.make_archive(
         tmp_path,
         "foo{features}.tar.gz",
         with_data=False
     )
 
-    # Read tarball members to get archived files
-    with tarfile.open(tarball_path, "r:gz") as archive:
+    # Read archive members to get archived files
+    with tarfile.open(archive_path, "r:gz") as archive:
         archived = [
             (tarinfo.name, tarinfo.size)
             for tarinfo in archive.getmembers()
@@ -98,32 +98,32 @@ def test_tarball_storages(tmp_path, tarball_initials):
         ("tests/data_fixtures/storage_samples/storage-1/plop/green.png", 1681),
         ("tests/data_fixtures/storage_samples/storage-2/pong/sample.nope", 11),
         ("tests/data_fixtures/storage_samples/storage-2/ping/grey.png", 1646),
-        ("manifest.json", 182),
+        ("manifest.json", 187),
     ]
 
-    assert tarball_path.name == "foo_storages.tar.gz"
+    assert archive_path.name == "foo_storages.tar.gz"
 
 
 @freeze_time("2012-10-15 10:00:00")
-def test_tarball_all(tmp_path, tarball_initials):
+def test_archive_all(manifest_version, tmp_path, archive_initials):
     """
     Tarball should be created with every dumps.
     """
-    manager = DumpManager(
+    manager = Dumper(
         [
             ("Django auth", {"models": ["auth.group", "auth.user"]}),
             ("Django site", {"models": ["sites"]}),
         ],
-        storages=tarball_initials["storages"]
+        storages=archive_initials["storages"]
     )
     manager.validate()
-    tarball_path = manager.make_tarball(
+    archive_path = manager.make_archive(
         tmp_path,
         "foo{features}.tar.gz",
     )
 
-    # Read tarball members to get archived files
-    with tarfile.open(tarball_path, "r:gz") as archive:
+    # Read archive members to get archived files
+    with tarfile.open(archive_path, "r:gz") as archive:
         archived = [
             (tarinfo.name, tarinfo.size)
             for tarinfo in archive.getmembers()
@@ -147,24 +147,24 @@ def test_tarball_all(tmp_path, tarball_initials):
         ("tests/data_fixtures/storage_samples/storage-1/plop/green.png", 1681),
         ("tests/data_fixtures/storage_samples/storage-2/pong/sample.nope", 11),
         ("tests/data_fixtures/storage_samples/storage-2/ping/grey.png", 1646),
-        ("manifest.json", 228),
+        ("manifest.json", 233),
     ]
 
-    assert tarball_path.name == "foo_data_storages.tar.gz"
+    assert archive_path.name == "foo_data_storages.tar.gz"
 
 
 @freeze_time("2012-10-15 10:00:00")
-def test_tarball_excludes(tmp_path, tarball_initials):
+def test_archive_excludes(manifest_version, tmp_path, archive_initials):
     """
     Tarball should be created with every dumps and properly follow excluding filters
     when collecting storage files.
     """
-    manager = DumpManager(
+    manager = Dumper(
         [
             ("Django site", {"models": ["sites"]}),
             ("Django auth", {"models": ["auth.group", "auth.user"]}),
         ],
-        storages=tarball_initials["storages"],
+        storages=archive_initials["storages"],
         storages_excludes=[
             "*.nope",
             "foo/*.txt",
@@ -172,13 +172,13 @@ def test_tarball_excludes(tmp_path, tarball_initials):
         ],
     )
     manager.validate()
-    tarball_path = manager.make_tarball(
+    archive_path = manager.make_archive(
         tmp_path,
         "foo{features}.tar.gz",
     )
 
-    # Read tarball members to get archived files
-    with tarfile.open(tarball_path, "r:gz") as archive:
+    # Read archive members to get archived files
+    with tarfile.open(archive_path, "r:gz") as archive:
         archived = [
             (tarinfo.name, tarinfo.size)
             for tarinfo in archive.getmembers()
@@ -197,5 +197,5 @@ def test_tarball_excludes(tmp_path, tarball_initials):
         ("tests/data_fixtures/storage_samples/storage-1/sample.txt", 11),
         ("tests/data_fixtures/storage_samples/storage-1/foo/grass.png", 1659),
         ("tests/data_fixtures/storage_samples/storage-2/ping/grey.png", 1646),
-        ("manifest.json", 228),
+        ("manifest.json", 233),
     ]

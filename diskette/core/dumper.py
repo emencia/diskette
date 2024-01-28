@@ -7,17 +7,17 @@ from pathlib import Path
 
 from .. import __version__
 from ..exceptions import (
-    ApplicationModelError, ApplicationRegistryError, DumpManagerError
+    ApplicationConfigError, ApplicationRegistryError, DumperError
 )
 from ..utils.lists import get_duplicates
 from ..utils.loggers import NoOperationLogger
 
-from .models import ApplicationModel, ApplicationDrainModel
-from .serializers import DumpDataSerializerAbstract
-from .storages import DumpStorageAbstract
+from .applications import ApplicationConfig, DrainApplicationConfig
+from .serializers import DumpdataSerializerAbstract
+from .storages import StorageMixin
 
 
-class DumpManager(DumpStorageAbstract, DumpDataSerializerAbstract):
+class Dumper(StorageMixin, DumpdataSerializerAbstract):
     """
     Dump manager is in charge of storing application model objects, return serialized
     datas and storage files to dump them.
@@ -30,7 +30,7 @@ class DumpManager(DumpStorageAbstract, DumpDataSerializerAbstract):
         executable (string): A path to prefix commands, commonly the path to
             django-admin (or equivalent). This path will suffixed with a single space
             to ensure separation with command arguments. This is only used with
-            ``serialize_command``.
+            ``command``.
         storages (list): A list of storage Path objects.
         storages_basepath (Path): Basepath for reference in some path resolution.
             Currently used by storage dump to make relative path for storage files.
@@ -66,7 +66,7 @@ class DumpManager(DumpStorageAbstract, DumpDataSerializerAbstract):
 
     def load(self, apps):
         """
-        Load ApplicationModel objects from given Application datas.
+        Load ApplicationConfig objects from given Application datas.
 
         Arguments:
             apps (list):
@@ -80,7 +80,7 @@ class DumpManager(DumpStorageAbstract, DumpDataSerializerAbstract):
         # Check for duplicated name
         twices = list(get_duplicates([name for name, options in apps]))
         if twices:
-            raise DumpManagerError(
+            raise DumperError(
                 "There was some duplicate names from applications: {}".format(
                     ", ".join(twices)
                 )
@@ -88,9 +88,9 @@ class DumpManager(DumpStorageAbstract, DumpDataSerializerAbstract):
 
         for name, options in apps:
             if options.pop("is_drain", False):
-                drains.append(ApplicationDrainModel(name, **options))
+                drains.append(DrainApplicationConfig(name, **options))
             else:
-                objects.append(ApplicationModel(name, **options))
+                objects.append(ApplicationConfig(name, **options))
 
         return objects + drains
 
@@ -163,14 +163,14 @@ class DumpManager(DumpStorageAbstract, DumpDataSerializerAbstract):
         return [
             (
                 app.name,
-                self.serialize_command(app, destination=destination, indent=indent)
+                self.command(app, destination=destination, indent=indent)
             )
             for app in self.apps
             if app.is_drain is not True
         ] + [
             (
                 app.name,
-                self.serialize_command(
+                self.command(
                     app,
                     destination=destination,
                     indent=indent,
@@ -197,14 +197,14 @@ class DumpManager(DumpStorageAbstract, DumpDataSerializerAbstract):
         return [
             (
                 app.name,
-                self.call_dumpdata(app, destination=destination, indent=indent)
+                self.call(app, destination=destination, indent=indent)
             )
             for app in self.apps
             if app.is_drain is not True
         ] + [
             (
                 app.name,
-                self.call_dumpdata(
+                self.call(
                     app,
                     destination=destination,
                     indent=indent,
@@ -227,7 +227,7 @@ class DumpManager(DumpStorageAbstract, DumpDataSerializerAbstract):
         for app in self.apps:
             try:
                 app.validate()
-            except ApplicationModelError as e:
+            except ApplicationConfigError as e:
                 errors[app.name] = str(e)
 
         # Raise a single exception containing all collected errors
@@ -280,7 +280,7 @@ class DumpManager(DumpStorageAbstract, DumpDataSerializerAbstract):
             Involves relative path resolving so it implies that storage paths are
             proper children of given destination path (that is removed from lead of
             storage paths). EG: Storage paths must all start with a starting portion
-            of value from DumpManager attribute ``storages_basepath``.
+            of value from Dumper attribute ``storages_basepath``.
 
             Eg: /foo/bar/storage would not be in a 'storages_basepath' "/ping/" (so it
             is invalid) but would be (and valid) in "/foo" or "/foo/bar".
@@ -323,7 +323,7 @@ class DumpManager(DumpStorageAbstract, DumpDataSerializerAbstract):
         self.validate_applications()
         self.validate_storages()
 
-    def make_tarball(self, destination, filename, with_data=True, with_storages=True,
+    def make_archive(self, destination, filename, with_data=True, with_storages=True,
                      with_storages_excludes=True, destination_chmod=0o644):
         """
         Dump data and storages then archive everything in a tarball.
@@ -349,7 +349,7 @@ class DumpManager(DumpStorageAbstract, DumpDataSerializerAbstract):
             Path: Written tarball file path.
         """
         if not with_data and not with_storages:
-            raise DumpManagerError(
+            raise DumperError(
                 "Arguments 'with_data' and 'with_storages' can not be both 'False'"
             )
 

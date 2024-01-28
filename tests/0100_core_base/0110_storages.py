@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from diskette.core.storages import DumpStorage
-from diskette.exceptions import DumpManagerError
+from diskette.core.storages import StorageManager
+from diskette.exceptions import DumperError
 
 
 def test_validate(tests_settings):
@@ -13,20 +13,20 @@ def test_validate(tests_settings):
     """
     storage_samples = tests_settings.fixtures_path / "storage_samples"
 
-    manager = DumpStorage(storages=[
+    manager = StorageManager(storages=[
         storage_samples / "storage-1",
         storage_samples / "storage-2"
     ])
     manager.validate_storages()
 
-    manager = DumpStorage(storages=["nope"])
-    with pytest.raises(DumpManagerError) as excinfo:
+    manager = StorageManager(storages=["nope"])
+    with pytest.raises(DumperError) as excinfo:
         manager.validate_storages()
 
     assert str(excinfo.value) == "Storage path is not a 'pathlib.Path' object: nope"
 
-    manager = DumpStorage(storages=[storage_samples / "nope"])
-    with pytest.raises(DumpManagerError) as excinfo:
+    manager = StorageManager(storages=[storage_samples / "nope"])
+    with pytest.raises(DumperError) as excinfo:
         manager.validate_storages()
 
     assert str(excinfo.value) == (
@@ -35,8 +35,8 @@ def test_validate(tests_settings):
         )
     )
 
-    manager = DumpStorage(storages=[storage_samples / "storage-1/sample.txt"])
-    with pytest.raises(DumpManagerError) as excinfo:
+    manager = StorageManager(storages=[storage_samples / "storage-1/sample.txt"])
+    with pytest.raises(DumperError) as excinfo:
         manager.validate_storages()
 
     assert str(excinfo.value) == (
@@ -127,7 +127,7 @@ def test_iter_storages_files(settings, tests_settings, excludes, expected):
         storage_samples / "storage-2"
     ]
 
-    manager = DumpStorage(
+    manager = StorageManager(
         storages=[
             storage_samples / "storage-1",
             storage_samples / "storage-2"

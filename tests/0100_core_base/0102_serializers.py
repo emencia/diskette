@@ -6,8 +6,8 @@ from freezegun import freeze_time
 
 from django.core.management.base import CommandError
 
-from diskette.core.models import ApplicationModel
-from diskette.core.serializers import DumpDataSerializer, LoadDataSerializer
+from diskette.core.applications import ApplicationConfig
+from diskette.core.serializers import DumpdataSerializer, LoaddataSerializer
 from diskette.utils.factories import UserFactory
 from diskette.utils.loggers import LoggingOutput
 
@@ -21,10 +21,10 @@ def test_dump_command(db, tmp_path):
     .. Note::
         The test is pretty basic and does not care (yet) of command options.
     """
-    serializer = DumpDataSerializer()
+    serializer = DumpdataSerializer()
 
-    app_foo = ApplicationModel("foo.bar", ["bar"])
-    assert serializer.serialize_command(app_foo) == "dumpdata bar"
+    app_foo = ApplicationConfig("foo.bar", ["bar"])
+    assert serializer.command(app_foo) == "dumpdata bar"
 
 
 @freeze_time("2012-10-15 10:00:00")
@@ -33,12 +33,12 @@ def test_dump_call(db, tmp_path):
     Serializer should correctly call the dumpdata command to return JSON for
     application datas.
     """
-    serializer = DumpDataSerializer()
+    serializer = DumpdataSerializer()
 
     # With a non existing model
-    app_foo = ApplicationModel("foo.bar", ["bar"])
+    app_foo = ApplicationConfig("foo.bar", ["bar"])
     with pytest.raises(CommandError) as excinfo:
-        serializer.call_dumpdata(app_foo)
+        serializer.call(app_foo)
 
     assert str(excinfo.value) == "No installed app with label 'bar'."
 
@@ -48,8 +48,8 @@ def test_dump_call(db, tmp_path):
     picsou.password = "dummy"
     picsou.save()
 
-    app_auth = ApplicationModel("Django auth", ["auth.group", "auth.user"])
-    results = serializer.call_dumpdata(app_auth)
+    app_auth = ApplicationConfig("Django auth", ["auth.group", "auth.user"])
+    results = serializer.call(app_auth)
     deserialized = json.loads(results)
     assert deserialized == [
         {
@@ -86,7 +86,7 @@ def test_load_call(caplog, db, tests_settings, tmp_path):
 
     data_samples = tests_settings.fixtures_path / "data_samples"
 
-    serializer = LoadDataSerializer(logger=LoggingOutput())
+    serializer = LoaddataSerializer(logger=LoggingOutput())
 
     assert serializer.call(data_samples / "django-site.json") == (
         "Installed 1 object(s) from 1 fixture(s)"
@@ -101,7 +101,7 @@ def test_load_command(db, tests_settings, tmp_path):
     """
     data_samples = tests_settings.fixtures_path / "data_samples"
 
-    serializer = LoadDataSerializer()
+    serializer = LoaddataSerializer()
 
     dump = data_samples / "django-site.json"
 

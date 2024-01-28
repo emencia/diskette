@@ -4,8 +4,8 @@ import shutil
 import pytest
 from freezegun import freeze_time
 
-from diskette.core.manager import DumpManager
-from diskette.exceptions import DumpManagerError, ApplicationRegistryError
+from diskette.core.dumper import Dumper
+from diskette.exceptions import DumperError, ApplicationRegistryError
 
 from tests.samples import SAMPLE_APPS
 
@@ -15,7 +15,7 @@ def test_validate_applications():
     Application validation should raise an ApplicationRegistryError exception that
     contains detail messages for model errors.
     """
-    manager = DumpManager([
+    manager = Dumper([
         ("meh", {}),
         ("foo.bar", {"models": "bar", "excludes": "nope"}),
     ])
@@ -26,8 +26,8 @@ def test_validate_applications():
         "Some defined applications have errors: meh, foo.bar"
     )
     assert excinfo.value.get_payload_details() == [
-        "<ApplicationModel: meh>: 'models' must not be an empty value.",
-        "<ApplicationModel: foo.bar>: 'excludes' argument must be a list.",
+        "<ApplicationConfig: meh>: 'models' must not be an empty value.",
+        "<ApplicationConfig: foo.bar>: 'excludes' argument must be a list.",
     ]
 
 
@@ -35,8 +35,8 @@ def test_invalid_duplicate():
     """
     An error should be raised when given application list have duplicate names.
     """
-    with pytest.raises(DumpManagerError) as excinfo:
-        DumpManager([
+    with pytest.raises(DumperError) as excinfo:
+        Dumper([
             ("bang", {"models": "bang"}),
             ("foo.bar", {"models": "bar"}),
             ("foo.bar", {"models": "bar"}),
@@ -54,7 +54,7 @@ def test_payload():
     """
     Manager should return a normalized dict for application options or payload.
     """
-    manager = DumpManager(SAMPLE_APPS)
+    manager = Dumper(SAMPLE_APPS)
     assert manager.dump_options() == [
         {
             "models": [
@@ -123,7 +123,7 @@ def test_payload():
     ]
 
     # Simple check with enabled 'named' and 'commented' options
-    manager = DumpManager([
+    manager = Dumper([
         ("foo.bar", {"models": "bar"}),
     ])
     assert manager.payload() == [
@@ -149,7 +149,7 @@ def test_get_involved_models():
     optionally with the excluded ones.
     """
     # Only processed models (without exludes)
-    manager = DumpManager(SAMPLE_APPS)
+    manager = Dumper(SAMPLE_APPS)
     assert manager.get_involved_models(with_excluded=False) == [
         "blog",
         "tags",
@@ -162,7 +162,7 @@ def test_get_involved_models():
     ]
 
     # Processed models and their excluded ones
-    manager = DumpManager(SAMPLE_APPS)
+    manager = Dumper(SAMPLE_APPS)
     # print()
     # print(json.dumps(manager.get_involved_models(with_excluded=True), indent=4))
     # print()
@@ -203,7 +203,7 @@ def test_build_dump_manifest(manifest_version, tmp_path, tests_settings):
     users_data_dump.write_text("{\"dummy\": True}")
 
     # Configure manager
-    manager = DumpManager(
+    manager = Dumper(
         [
             ("users", {"models": ["author.user"], "filename": "users.json"}),
             ("foo.bar", {"models": "bar", "filename": "foo-bar.json"}),

@@ -2,12 +2,12 @@ from pathlib import Path
 
 from django.utils.text import slugify
 
-from ..exceptions import ApplicationModelError
+from ..exceptions import ApplicationConfigError
 
 from .defaults import DEFAULT_FORMAT, AVAILABLE_FORMATS
 
 
-class ApplicationModel:
+class ApplicationConfig:
     """
     Application model to validate and store application details.
 
@@ -109,18 +109,18 @@ class ApplicationModel:
         Validate Application data.
 
         Raises:
-            ApplicationModelError: In case of invalide value from data.
+            ApplicationConfigError: In case of invalide value from data.
         """
         if not isinstance(self.excludes, list):
             msg = "{obj}: 'excludes' argument must be a list."
-            raise ApplicationModelError(msg.format(
+            raise ApplicationConfigError(msg.format(
                 obj=self.__repr__(),
             ))
 
         # Models are required but not for an application drain object
         if not self.models and self.is_drain is False:
             msg = "{obj}: 'models' must not be an empty value."
-            raise ApplicationModelError(msg.format(
+            raise ApplicationConfigError(msg.format(
                 obj=self.__repr__(),
             ))
 
@@ -131,7 +131,7 @@ class ApplicationModel:
                 "{obj}: Given file name '{filename}' must have a file extension to "
                 "discover format."
             )
-            raise ApplicationModelError(msg.format(
+            raise ApplicationConfigError(msg.format(
                 obj=self.__repr__(),
                 filename=self.filename,
             ))
@@ -144,14 +144,14 @@ class ApplicationModel:
                     "{obj}: Given file name '{filename}' must use a file extension "
                     "from allowed formats: {formats}"
                 )
-                raise ApplicationModelError(msg.format(
+                raise ApplicationConfigError(msg.format(
                     obj=self.__repr__(),
                     filename=self.filename,
                     formats=", ".join(AVAILABLE_FORMATS),
                 ))
 
 
-class ApplicationDrainModel(ApplicationModel):
+class DrainApplicationConfig(ApplicationConfig):
     """
     Special application to drain remaining models.
     """

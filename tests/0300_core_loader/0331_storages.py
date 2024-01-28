@@ -2,7 +2,7 @@ import logging
 import shutil
 from pathlib import Path
 
-from diskette.core.loader import DumpLoader
+from diskette.core.loader import Loader
 from diskette.utils.loggers import LoggingOutput
 
 
@@ -36,7 +36,7 @@ def test_deploy_storages(caplog, tmp_path, tests_settings):
     shutil.copytree(storage_samples, archive / "storages")
 
     # Deploy storages
-    loader = DumpLoader(logger=LoggingOutput())
+    loader = Loader(logger=LoggingOutput())
     loader.deploy_storages(
         archive,
         manifest,

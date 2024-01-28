@@ -2,11 +2,11 @@ import fnmatch
 import os
 from pathlib import Path
 
-from ..exceptions import DumpManagerError
+from ..exceptions import DumperError
 from ..utils.loggers import NoOperationLogger
 
 
-class DumpStorageAbstract:
+class StorageMixin:
     """
     Storage manager is in charge to collect storage file paths.
 
@@ -23,21 +23,21 @@ class DumpStorageAbstract:
         directory.
 
         Raises:
-            DumpManagerError: In case of error with a storage path.
+            DumperError: In case of error with a storage path.
         """
         for storage in self.storages:
             if not isinstance(storage, Path):
-                raise DumpManagerError(
+                raise DumperError(
                     "Storage path is not a 'pathlib.Path' object: {}".format(storage)
                 )
 
             if not storage.exists():
-                raise DumpManagerError(
+                raise DumperError(
                     "Storage path does not exist: {}".format(storage)
                 )
 
             if not storage.is_dir():
-                raise DumpManagerError(
+                raise DumperError(
                     "Storage path is not a directory: {}".format(storage)
                 )
 
@@ -72,7 +72,7 @@ class DumpStorageAbstract:
                         yield path, path.relative_to(self.storages_basepath)
 
 
-class DumpStorage(DumpStorageAbstract):
+class StorageManager(StorageMixin):
     """
     Concrete basic implementation for ``DumpStorageAbstract``.
 

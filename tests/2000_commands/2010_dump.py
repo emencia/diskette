@@ -7,11 +7,11 @@ from django.core import management
 
 def test_dump_cmd(caplog, db, settings, tests_settings, tmp_path):
     """
-    Dump command should respect arguments and build a proper dump tarball.
+    Dump command should respect arguments and build a proper dump archive.
     """
     appconf = tests_settings.fixtures_path / "basic_apps.json"
     storage_1 = tests_settings.fixtures_path / "storage_samples" / "storage-1"
-    tarball_path = tmp_path / "foo_data_storages.tar.gz"
+    archive_path = tmp_path / "foo_data_storages.tar.gz"
 
     out = StringIO()
 
@@ -27,10 +27,10 @@ def test_dump_cmd(caplog, db, settings, tests_settings, tmp_path):
     # content = out.getvalue()
     out.close()
 
-    assert tarball_path.exists() is True
+    assert archive_path.exists() is True
 
-    # Read tarball members to get archived files
-    with tarfile.open(tarball_path, "r:gz") as archive:
+    # Read archive members to get archived files
+    with tarfile.open(archive_path, "r:gz") as archive:
         archived = [
             tarinfo.name
             for tarinfo in archive.getmembers()

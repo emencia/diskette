@@ -1,6 +1,6 @@
 import pytest
 
-from diskette.core.manager import DumpManager
+from diskette.core.dumper import Dumper
 
 from tests.samples import SAMPLE_APPS
 
@@ -157,6 +157,6 @@ def test_build_commands(apps, manager_options, command_options, expected):
     """
     Manager should correctly build command line for each app including drain.
     """
-    manager = DumpManager(apps, **manager_options)
+    manager = Dumper(apps, **manager_options)
     # print(json.dumps(manager.build_commands(**command_options), indent=4))
     assert manager.build_commands(**command_options) == expected

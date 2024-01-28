@@ -9,11 +9,11 @@ from django.template.defaultfilters import filesizeformat
 from ..utils.filesystem import directory_size
 from ..utils.loggers import NoOperationLogger
 
-from .serializers import LoadDataSerializerAbstract
-from .storages import DumpStorageAbstract
+from .serializers import LoaddataSerializerAbstract
+from .storages import StorageMixin
 
 
-class DumpLoader(DumpStorageAbstract, LoadDataSerializerAbstract):
+class Loader(StorageMixin, LoaddataSerializerAbstract):
     """
     Dump loader
 

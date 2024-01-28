@@ -6,7 +6,7 @@ from freezegun import freeze_time
 from django.apps import apps
 from django.contrib.sites.models import Site
 
-from diskette.core.loader import DumpLoader
+from diskette.core.loader import Loader
 from diskette.utils.loggers import LoggingOutput
 
 
@@ -24,7 +24,7 @@ def test_deploy(caplog, db, settings, tests_settings, tmp_path):
         archive_path
     )
 
-    loader = DumpLoader(logger=LoggingOutput())
+    loader = Loader(logger=LoggingOutput())
     deployed = loader.deploy(archive_path, tmp_path)
 
     # Every storages should be present in destination and not empty

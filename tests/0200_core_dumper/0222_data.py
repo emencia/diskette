@@ -4,7 +4,7 @@ from freezegun import freeze_time
 
 from lotus.factories import ArticleFactory, CategoryFactory
 
-from diskette.core.manager import DumpManager
+from diskette.core.dumper import Dumper
 from diskette.utils.factories import UserFactory
 
 
@@ -21,7 +21,7 @@ def test_dump_data(db, tmp_path):
     donald.password = "dummy"
     donald.save()
 
-    manager = DumpManager([
+    manager = Dumper([
         ("Django auth", {"models": ["auth.group", "auth.user"]}),
         ("Django site", {"models": ["sites"]}),
     ])
@@ -104,7 +104,7 @@ def test_dump_data_destination(db, tmp_path):
     donald.password = "dummy"
     donald.save()
 
-    manager = DumpManager([
+    manager = Dumper([
         ("Django auth", {"models": ["auth.group", "auth.user"]}),
         ("Django site", {"models": ["sites"]}),
     ])
@@ -190,7 +190,7 @@ def test_dump_data_drained(db, tmp_path):
     category = CategoryFactory()
     article = ArticleFactory(fill_categories=[category])
 
-    manager = DumpManager([
+    manager = Dumper([
         ("Django auth", {"models": ["auth.group", "auth.user"]}),
         ("Lotus articles", {"models": ["lotus.article"]}),
         ("Drainage", {
