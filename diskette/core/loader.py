@@ -1,4 +1,3 @@
-import datetime
 import json
 import shutil
 import tarfile
@@ -7,23 +6,19 @@ from pathlib import Path
 
 from django.template.defaultfilters import filesizeformat
 
-from ..exceptions import (
-    ApplicationModelError, ApplicationRegistryError, DumpManagerError
-)
 from ..utils.filesystem import directory_size
-from ..utils.lists import get_duplicates
 from ..utils.loggers import NoOperationLogger
 
-from .models import ApplicationModel, ApplicationDrainModel
-from .serializers import DumpDataSerializerAbstract
+from .serializers import LoadDataSerializerAbstract
 from .storages import DumpStorageAbstract
 
 
-class DumpLoader(DumpStorageAbstract, DumpDataSerializerAbstract):
+class DumpLoader(DumpStorageAbstract, LoadDataSerializerAbstract):
     """
     Dump loader
 
     Keyword Arguments:
+        basepath (Path):
         logger (object):
     """
     MANIFEST_FILENAME = "manifest.json"
@@ -33,12 +28,14 @@ class DumpLoader(DumpStorageAbstract, DumpDataSerializerAbstract):
         self.basepath = basepath or Path.cwd()
         self.logger = logger or NoOperationLogger()
 
-    def open(self, archive_path):
+    def open(self, archive_path, keep=False):
         """
         Extract archive files in a temporary directory.
 
         Arguments:
             archive_path (Path): A Path object to the archive to open.
+            keep (boolean): Archive won't be removed from filesystem if True, else the
+                archive file is removed once it have been extracted.
 
         Returns:
             Path: The temporary directory where archive files have been extracted.
@@ -49,9 +46,7 @@ class DumpLoader(DumpStorageAbstract, DumpDataSerializerAbstract):
         with tarfile.open(archive_path, "r:gz") as archive:
             archive.extractall(destination_tmpdir)
 
-        # Remove archive
-        # TODO: An option should allow to keep archive file but with a warning message
-        # with its path
+        # TODO: Option to keep archive file with a warning about it
         archive_path.unlink()
 
         return destination_tmpdir
@@ -105,8 +100,13 @@ class DumpLoader(DumpStorageAbstract, DumpDataSerializerAbstract):
         """
         Deploy storages directories in given destination
 
+        Arguments:
+            extracted (Path):
+            manifest (dict):
+            destination (Path):
+
         Returns:
-            list: List of tuple with source & destination paths for deployed storage.
+            list: List of tuples for source & destination paths for deployed storages.
         """
         deployed = []
 
@@ -145,6 +145,23 @@ class DumpLoader(DumpStorageAbstract, DumpDataSerializerAbstract):
 
         return deployed
 
+    def deploy_datas(self, extracted, manifest):
+        """
+        Deploy storages directories in given destination
+
+        Arguments:
+            extracted (Path):
+            manifest (dict):
+            destination (Path):
+
+        Returns:
+            list: List of tuples for source & loaddata output for deployed dumps.
+        """
+        return [
+            (dump.name, self.call(extracted / dump))
+            for dump in manifest["datas"]
+        ]
+
     def deploy(self, archive_path, storages_destination):
         """
         Load archive and deploy its content.
@@ -166,12 +183,17 @@ class DumpLoader(DumpStorageAbstract, DumpDataSerializerAbstract):
         tmpdir = self.open(archive_path)
         manifest = self.get_manifest(tmpdir)
 
-        print()
-        print(manifest)
+        try:
+            stats = {
+                "storages": self.deploy_storages(
+                    tmpdir,
+                    manifest,
+                    storages_destination
+                ),
+                "datas": self.deploy_datas(tmpdir, manifest),
+            }
+        finally:
+            # TODO: Option to keep temp dir with a warning
+            shutil.rmtree(tmpdir)
 
-        for dump in manifest["datas"]:
-            print("- Should loaddata with:", tmpdir / dump)
-
-        self.deploy_storages(tmpdir, manifest, storages_destination)
-
-        return
+        return stats

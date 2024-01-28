@@ -3,20 +3,20 @@ from pathlib import Path
 from io import StringIO
 
 from django.core import management
+from django.template.defaultfilters import filesizeformat
 
 from ..utils.loggers import NoOperationLogger
 
 
 class DumpDataSerializerAbstract:
     """
-    Django dump serializer is in charge to serialize applications with Django dumpdata
-    methods.
+    Dump data serializer is in charge to serialize applications with Django dumpdata
+    command.
 
     For now, this is JSON format only, 'format' option may be implemented later.
     """
     COMMAND_NAME = "dumpdata"
-    COMMAND_DUMP_TEMPLATE = "{executable}dumpdata {options}"
-    COMMAND_LOAD_TEMPLATE = "{executable}loaddata {options}"
+    COMMAND_TEMPLATE = "{executable}dumpdata {options}"
 
     def merge_excludes(self, source, extra):
         """
@@ -33,9 +33,9 @@ class DumpDataSerializerAbstract:
     def serialize_command(self, application, destination=None, indent=None,
                           extra_excludes=None):
         """
-        Build command line to dump application.
+        Build command line to use ``dumpdata``.
 
-        TODO: Rename to command_dumpdata
+        TODO: Rename to "command"
 
         Arguments:
             application (ApplicationModel):
@@ -46,7 +46,7 @@ class DumpDataSerializerAbstract:
             extra_excludes (list):
 
         Returns:
-            string:
+            string: Command line to run a dumpdata job.
         """
         options = []
 
@@ -77,7 +77,7 @@ class DumpDataSerializerAbstract:
                 str(Path(destination) / application.filename)
             ))
 
-        return self.COMMAND_DUMP_TEMPLATE.format(
+        return self.COMMAND_TEMPLATE.format(
             executable=self.executable,
             name=application.name,
             options=" ".join(options),
@@ -87,6 +87,8 @@ class DumpDataSerializerAbstract:
                       extra_excludes=None):
         """
         Programmatically use the Django ``dumpdata`` command to dump application.
+
+        TODO: Rename to "call"
 
         Arguments:
             application (ApplicationModel):
@@ -102,25 +104,28 @@ class DumpDataSerializerAbstract:
             written output to a file and so the returned JSON will just be a
             dictionnary with an item ``destination`` with written file path.
         """
-        data = application.as_options()
+        options = application.as_options()
 
-        models = data.pop("models")
-        filename = data.pop("filename")
+        models = options.pop("models")
+        filename = options.pop("filename")
 
         # Build args for command
         if destination:
-            data["output"] = destination / filename
+            options["output"] = destination / filename
 
         if indent:
-            data["indent"] = indent
+            options["indent"] = indent
 
-        data["exclude"] = self.merge_excludes(data.pop("excludes"), extra_excludes)
+        options["exclude"] = self.merge_excludes(
+            options.pop("excludes"),
+            extra_excludes
+        )
 
         self.logger.info("Dumping data for application '{}'".format(application.name))
 
         # Execute command without output guided to string buffer
         out = StringIO()
-        management.call_command(self.COMMAND_NAME, models, stdout=out, **data)
+        management.call_command(self.COMMAND_NAME, models, stdout=out, **options)
 
         # If the file has a destination, write to the FS, write the destination path
         # onto the application object
@@ -135,18 +140,63 @@ class DumpDataSerializerAbstract:
 
         return content
 
-    def load_dumpdata(self, application, destination=None, indent=None,
-                      extra_excludes=None):
+
+class LoadDataSerializerAbstract:
+    """
+    Data loader serializer is in charge to load data fixtures in database with Django
+    loaddata command.
+
+    For now, this is JSON format only, 'format' option may be implemented later.
+    """
+    COMMAND_NAME = "loaddata"
+    COMMAND_TEMPLATE = "{executable}loaddata {options}"
+
+    def command(self, dump, app=None, excludes=None, ignorenonexistent=False):
+        """
+        Build command line to use ``loaddata``.
+
+        Arguments:
+            dump (Path):
+
+        Keyword Arguments:
+            app (string):
+            excludes (list):
+            ignorenonexistent (boolean):
+
+        Returns:
+            string: Command line to run a loaddata job.
+        """
+        options = [str(dump)]
+
+        if app:
+            options.append("--app={}".format(app))
+
+        if ignorenonexistent:
+            options.append("--ignorenonexistent")
+
+        if excludes:
+            options.append(" ".join([
+                "--exclude {}".format(item)
+                for item in excludes
+            ]))
+
+        return self.COMMAND_TEMPLATE.format(
+            executable=self.executable,
+            dump=dump,
+            options=" ".join(options),
+        )
+
+    def call(self, dump, app=None, excludes=None, ignorenonexistent=False):
         """
         Programmatically use the Django ``loaddata`` command to dump application.
 
         Arguments:
-            application (ApplicationModel):
+            dump (Path):
 
         Keyword Arguments:
-            destination (Pathlib):
-            indent (integer):
-            extra_excludes (list):
+            app (string):
+            excludes (list):
+            ignorenonexistent (boolean):
 
         Returns:
             string: A JSON payload of call results. On default, this is the JSON
@@ -154,37 +204,45 @@ class DumpDataSerializerAbstract:
             written output to a file and so the returned JSON will just be a
             dictionnary with an item ``destination`` with written file path.
         """
-        data = application.as_options()
+        options = {
+            "app": app,
+            "ignorenonexistent": ignorenonexistent,
+            "exclude": excludes or [],
+        }
 
-        models = data.pop("models")
-        filename = data.pop("filename")
-
-        if destination:
-            data["output"] = destination / filename
-
-        if indent:
-            data["indent"] = indent
-
-        data["exclude"] = self.merge_excludes(data.pop("excludes"), extra_excludes)
-
-        self.logger.info("Dumping data for application '{}'".format(application.name))
+        self.logger.info("Loading data from dump '{path}' ({size})".format(
+            path=dump.name,
+            size=filesizeformat(dump.stat().st_size)))
 
         out = StringIO()
-        management.call_command(self.COMMAND_NAME, models, stdout=out, **data)
-
-        if destination:
-            out.close()
-            return json.dumps({"destination": str(destination / filename)})
+        management.call_command(self.COMMAND_NAME, dump, stdout=out, **options)
 
         content = out.getvalue()
         out.close()
 
-        return content
+        self.logger.debug(content.strip())
+
+        return content.strip()
 
 
 class DumpDataSerializer(DumpDataSerializerAbstract):
     """
     Concrete basic implementation for ``DumpStorageAbstract``.
+
+    Keyword Arguments:
+        executable (string): A path to prefix commands, commonly the path to
+            django-admin (or equivalent). This path will suffixed with a single space
+            to ensure separation with command arguments.
+        logger (object):
+    """
+    def __init__(self, executable=None, logger=None):
+        self.executable = executable + " " if executable else ""
+        self.logger = logger or NoOperationLogger()
+
+
+class LoadDataSerializer(LoadDataSerializerAbstract):
+    """
+    Concrete basic implementation for ``LoadDataSerializerAbstract``.
 
     Keyword Arguments:
         executable (string): A path to prefix commands, commonly the path to

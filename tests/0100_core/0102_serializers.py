@@ -1,4 +1,5 @@
 import json
+import logging
 
 import pytest
 from freezegun import freeze_time
@@ -6,27 +7,30 @@ from freezegun import freeze_time
 from django.core.management.base import CommandError
 
 from diskette.core.models import ApplicationModel
-from diskette.core.serializers import DumpDataSerializer
+from diskette.core.serializers import DumpDataSerializer, LoadDataSerializer
 from diskette.utils.factories import UserFactory
+from diskette.utils.loggers import LoggingOutput
 
 
 @freeze_time("2012-10-15 10:00:00")
-def test_command(db, tmp_path):
+def test_dump_command(db, tmp_path):
     """
-    Serializer should correctly call the dumpdata command that will return JSON for
+    Serializer should correctly build the dumpdata command that will return JSON for
     application datas.
+
+    .. Note::
+        The test is pretty basic and does not care (yet) of command options.
     """
     serializer = DumpDataSerializer()
 
-    # With a non existing model
     app_foo = ApplicationModel("foo.bar", ["bar"])
     assert serializer.serialize_command(app_foo) == "dumpdata bar"
 
 
 @freeze_time("2012-10-15 10:00:00")
-def test_call(db, tmp_path):
+def test_dump_call(db, tmp_path):
     """
-    Serializer should correctly call the dumpdata command that will return JSON for
+    Serializer should correctly call the dumpdata command to return JSON for
     application datas.
     """
     serializer = DumpDataSerializer()
@@ -67,3 +71,48 @@ def test_call(db, tmp_path):
             }
         }
     ]
+
+
+@freeze_time("2012-10-15 10:00:00")
+def test_load_call(caplog, db, tests_settings, tmp_path):
+    """
+    Serializer should correctly call the loaddata command to load JSON for
+    application datas.
+
+    .. Note::
+        The test is pretty basic and does not care (yet) of command options.
+    """
+    caplog.set_level(logging.DEBUG)
+
+    data_samples = tests_settings.fixtures_path / "data_samples"
+
+    serializer = LoadDataSerializer(logger=LoggingOutput())
+
+    assert serializer.call(data_samples / "django-site.json") == (
+        "Installed 1 object(s) from 1 fixture(s)"
+    )
+
+
+@freeze_time("2012-10-15 10:00:00")
+def test_load_command(db, tests_settings, tmp_path):
+    """
+    Serializer should correctly build the loaddata command to load JSON for
+    application datas.
+    """
+    data_samples = tests_settings.fixtures_path / "data_samples"
+
+    serializer = LoadDataSerializer()
+
+    dump = data_samples / "django-site.json"
+
+    # Without any option
+    assert serializer.command(dump) == (
+        "loaddata {}/django-site.json".format(data_samples)
+    )
+
+    # Without some options
+    command = serializer.command(dump, ignorenonexistent=True, excludes=["foo", "bar"])
+    assert command == (
+        "loaddata {}/django-site.json"
+        " --ignorenonexistent --exclude foo --exclude bar"
+    ).format(data_samples)

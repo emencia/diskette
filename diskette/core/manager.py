@@ -32,11 +32,12 @@ class DumpManager(DumpStorageAbstract, DumpDataSerializerAbstract):
             to ensure separation with command arguments. This is only used with
             ``serialize_command``.
         storages (list): A list of storage Path objects.
-        storages_basepath (Path): Basepath for reference in some path resolution. Currently
-            used by storage dump to make relative path for storage files. On default
-            this is based on current working directory. If given, the storage paths
-            must be in the same leaf else this will be an error.
-        storages_excludes (list): A list of patterns to exclude storage files from dump.
+        storages_basepath (Path): Basepath for reference in some path resolution.
+            Currently used by storage dump to make relative path for storage files.
+            On default this is based on current working directory. If given, the
+            storage paths must be in the same leaf else this will be an error.
+        storages_excludes (list): A list of patterns to exclude storage files from
+            dump.
         logger (object):
     """
     MANIFEST_FILENAME = "manifest.json"
