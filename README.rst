@@ -1,5 +1,6 @@
 .. _Python: https://www.python.org/
 .. _Django: https://www.djangoproject.com/
+.. _django-sendfile2: https://github.com/moggers87/django-sendfile2
 
 ========
 Diskette
@@ -17,6 +18,7 @@ Dependancies
 
 * `Python`_>=3.9;
 * `Django`_>=4.0,<5.0;
+* `django-sendfile2`_>=0.7.0;
 
 
 Links

@@ -65,6 +65,7 @@ def test_load(caplog, settings, db, tests_settings, tmp_path):
         no_storages=False,
     )
 
+    # Archive has been removed once extracted
     assert archive_path.exists() is False
 
     # Query Site and User to check expected data from dumps
@@ -78,6 +79,7 @@ def test_load(caplog, settings, db, tests_settings, tmp_path):
         assert stored.exists() is True
         assert len(list(stored.iterdir())) > 0
 
+    # Check logging output
     assert caplog.record_tuples == [
         ("diskette", logging.INFO, "=== Starting restoration ==="),
         (
