@@ -28,7 +28,11 @@ You may find more details on these pattern syntax in Python builtin module ``fnm
 
 DISKETTE_DUMP_PATH = Path.cwd()
 """
-For where are stored created dump
+For where are stored created dump.
+
+This is not really important since the archive is meant to be deleted once extracted.
+However you may want to write elsewhere so give it any valid path you want, this won't
+impact the dump process.
 """
 
 DISKETTE_DUMP_FILENAME = "diskette{features}.tar.gz"
