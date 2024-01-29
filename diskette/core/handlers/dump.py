@@ -3,10 +3,10 @@ from pathlib import Path
 
 from django.conf import settings
 
-from .dumper import Dumper
+from ..dumper import Dumper
 
 
-class DumpCommandAbstract:
+class DumpCommandHandler:
     """
     Abstraction layer between Dumper and the management command, it holds getters
     to get and validate values for manager options and provide a shortand to

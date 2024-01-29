@@ -3,7 +3,6 @@ from pathlib import Path
 from io import StringIO
 
 from django.core import management
-from django.template.defaultfilters import filesizeformat
 
 from ...utils.loggers import NoOperationLogger
 
@@ -30,8 +29,7 @@ class DumpdataSerializerAbstract:
 
         return merged
 
-    def command(self, application, destination=None, indent=None,
-                          extra_excludes=None):
+    def command(self, application, destination=None, indent=None, extra_excludes=None):
         """
         Build command line to use ``dumpdata``.
 

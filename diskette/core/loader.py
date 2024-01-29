@@ -24,8 +24,7 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
     MANIFEST_FILENAME = "manifest.json"
     TEMPDIR_PREFIX = "diskette_"
 
-    def __init__(self, basepath=None, logger=None):
-        self.basepath = basepath or Path.cwd()
+    def __init__(self, logger=None):
         self.logger = logger or NoOperationLogger()
 
     def open(self, archive_path, keep=False):
@@ -40,6 +39,15 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
         Returns:
             Path: The temporary directory where archive files have been extracted.
         """
+        if (
+            isinstance(archive_path, str) and
+            archive_path.startswith(("http://", "https://"))
+        ):
+            # TODO: Download file with request in a temporary path, to remove once
+            # extracted
+            # archive_path = Path(..)
+            raise NotImplementedError("Loader does not support archive URL yet.")
+
         destination_tmpdir = Path(tempfile.mkdtemp(prefix=self.TEMPDIR_PREFIX))
 
         # Extract everything in temporary directory
@@ -95,6 +103,37 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
         manifest["storages"] = [Path(v) for v in manifest["storages"]]
 
         return manifest
+
+    def validate_datas(self):
+        """
+        Call validators from all enabled data dumps.
+
+        .. Note::
+            There is currently no validator needed.
+
+        Returns:
+            boolean: Always return True since there is nothing to validate actually.
+        """
+        return True
+
+    def validate_storages(self):
+        """
+        Call validators from all enabled storages.
+
+        .. Note::
+            There is currently no validator needed.
+
+        Returns:
+            boolean: Always return True since there is nothing to validate actually.
+        """
+        return True
+
+    def validate(self):
+        """
+        Call all validators
+        """
+        self.validate_datas()
+        self.validate_storages()
 
     def deploy_storages(self, extracted, manifest, destination):
         """
@@ -162,23 +201,22 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
             for dump in manifest["datas"]
         ]
 
-    def deploy(self, archive_path, storages_destination):
+    def deploy(self, archive_path, storages_destination, with_data=True,
+               with_storages=True):
         """
         Load archive and deploy its content.
-
-        1. extractall to a tmp dir
-        2. remove archive once extraction is over
-        3. read manifest and increase it with the tmp dir path to use to get files
-        4. restore dump data & files
-        5. remove temporary directory
 
         Arguments:
             archive_path (Path): The tarball archive to open and extract dumps.
             storages_destination (Path): Destination where to deploy all storage
                 directories.
 
+        Keyword Arguments:
+            with_data (boolean): Enable application datas loading.
+            with_storages (boolean): Enabled media storages loading.
+
         Returns:
-            list:
+            dict: Statistics of restored storages and datas.
         """
         tmpdir = self.open(archive_path)
         manifest = self.get_manifest(tmpdir)

@@ -38,7 +38,7 @@ Filename for dump tarball file. It must ends with ``.tar.gz``. The pattern
 (data, storages, all) else every dump kind will overwrite each other.
 """
 
-DISKETTE_LOAD_PATH = Path.cwd()
+DISKETTE_LOAD_STORAGES_PATH = Path.cwd()
 """
-For where to extract downloaded archive dumps
+For where to extract archive storages contents
 """

@@ -2,7 +2,7 @@ import logging
 
 import pytest
 
-from diskette.core.abstracts import DumpCommandAbstract
+from diskette.core.handlers import DumpCommandHandler
 from diskette.exceptions import DisketteError
 from diskette.utils.loggers import LoggingOutput
 
@@ -16,7 +16,7 @@ def test_archive_destination_valid(settings, setting, arg, expected):
     """
     Command properly discover the destination to use
     """
-    commander = DumpCommandAbstract()
+    commander = DumpCommandHandler()
     commander.logger = LoggingOutput()
 
     settings.DISKETTE_DUMP_PATH = setting
@@ -27,7 +27,7 @@ def test_archive_destination_invalid(settings):
     """
     Command should raise an error when resolved value for archive destination is empty.
     """
-    commander = DumpCommandAbstract()
+    commander = DumpCommandHandler()
     commander.logger = LoggingOutput()
 
     settings.DISKETTE_DUMP_PATH = None
@@ -61,7 +61,7 @@ def test_application_configurations(settings, tmp_path, setting, value, disabled
     Application configurations should be correctly discovered from either settings or
     argument.
     """
-    commander = DumpCommandAbstract()
+    commander = DumpCommandHandler()
     commander.logger = LoggingOutput()
 
     # Dummy JSON source to open if needed
@@ -96,7 +96,7 @@ def test_storage_paths(settings, tmp_path, setting, value, disabled, expected):
     """
     Storage paths should be correctly discovered from either settings or argument.
     """
-    commander = DumpCommandAbstract()
+    commander = DumpCommandHandler()
     commander.logger = LoggingOutput()
 
     settings.DISKETTE_STORAGES = setting
@@ -121,7 +121,7 @@ def test_storage_excludes(settings, tmp_path, setting, value, disabled, expected
     Storage excluding patterns should be correctly discovered from either settings or
     argument.
     """
-    commander = DumpCommandAbstract()
+    commander = DumpCommandHandler()
     commander.logger = LoggingOutput()
 
     settings.DISKETTE_STORAGES_EXCLUDES = setting
@@ -138,7 +138,7 @@ def test_dump(caplog, settings, db, tests_settings, tmp_path):
 
     storage_samples = tests_settings.fixtures_path / "storage_samples"
 
-    commander = DumpCommandAbstract()
+    commander = DumpCommandHandler()
     commander.logger = LoggingOutput()
 
     archive = commander.dump(

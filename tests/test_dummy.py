@@ -7,7 +7,7 @@ from freezegun import freeze_time
 
 from diskette.utils.factories import UserFactory
 from diskette.utils.loggers import LoggingOutput
-from diskette.core.abstracts import DumpCommandAbstract
+from diskette.core.handlers import DumpCommandHandler
 
 
 @pytest.mark.skip("Only to be used during test development")
@@ -25,7 +25,7 @@ def test_create_fixture_basic_tarball(caplog, tests_settings, db, tmp_path):
     picsou.password = "dummy"
     picsou.save()
 
-    commander = DumpCommandAbstract()
+    commander = DumpCommandHandler()
     commander.logger = LoggingOutput()
 
     tarball = commander.dump(

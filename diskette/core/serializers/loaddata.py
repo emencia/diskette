@@ -1,5 +1,3 @@
-import json
-from pathlib import Path
 from io import StringIO
 
 from django.core import management

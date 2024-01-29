@@ -2,11 +2,11 @@ from pathlib import Path
 
 from django.core.management.base import BaseCommand
 
-from ...core.abstracts import DumpCommandAbstract
+from ...core.handlers import DumpCommandHandler
 from ...utils.loggers import DjangoCommandOutput
 
 
-class Command(BaseCommand, DumpCommandAbstract):
+class Command(BaseCommand, DumpCommandHandler):
     """
     Diskette dump command
     """
