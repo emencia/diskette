@@ -7,7 +7,7 @@ from freezegun import freeze_time
 
 from django.contrib.sites.models import Site
 
-from diskette.utils.factories import UserFactory
+from diskette.factories import UserFactory
 from diskette.utils.loggers import LoggingOutput
 from diskette.core.handlers import DumpCommandHandler
 

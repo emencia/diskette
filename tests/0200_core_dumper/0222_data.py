@@ -5,7 +5,7 @@ from freezegun import freeze_time
 from lotus.factories import ArticleFactory, CategoryFactory
 
 from diskette.core.dumper import Dumper
-from diskette.utils.factories import UserFactory
+from diskette.factories import UserFactory
 
 
 @freeze_time("2012-10-15 10:00:00")

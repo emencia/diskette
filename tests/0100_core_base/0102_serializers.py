@@ -8,7 +8,7 @@ from django.core.management.base import CommandError
 
 from diskette.core.applications import ApplicationConfig
 from diskette.core.serializers import DumpdataSerializer, LoaddataSerializer
-from diskette.utils.factories import UserFactory
+from diskette.factories import UserFactory
 from diskette.utils.loggers import LoggingOutput
 
 

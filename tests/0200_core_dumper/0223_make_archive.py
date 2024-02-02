@@ -4,7 +4,7 @@ import pytest
 from freezegun import freeze_time
 
 from diskette.core.dumper import Dumper
-from diskette.utils.factories import UserFactory
+from diskette.factories import UserFactory
 
 
 @pytest.fixture(scope="function")
