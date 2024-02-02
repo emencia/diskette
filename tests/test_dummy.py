@@ -5,6 +5,8 @@ import logging
 import pytest
 from freezegun import freeze_time
 
+from django.contrib.sites.models import Site
+
 from diskette.utils.factories import UserFactory
 from diskette.utils.loggers import LoggingOutput
 from diskette.core.handlers import DumpCommandHandler
@@ -21,9 +23,22 @@ def test_create_fixture_basic_tarball(caplog, tests_settings, db, tmp_path):
     storage_samples = tests_settings.fixtures_path / "storage_samples"
 
     # Create users
+    sarah = UserFactory(
+        first_name="Sarah", last_name="Connor", username="sarah",
+        flag_is_superuser=True
+    )
+    sarah.password = "dummy"
+    sarah.save()
     picsou = UserFactory(first_name="Picsou", last_name="Balthazar", username="picsou")
     picsou.password = "dummy"
     picsou.save()
+    donald = UserFactory(first_name="Donald", last_name="Duck", username="donald")
+    donald.password = "dummy"
+    donald.save()
+
+    # Add a Site object in addition of the default one from Site migration
+    new_site = Site(name="The batcave", domain="batcave.localhost")
+    new_site.save()
 
     commander = DumpCommandHandler()
     commander.logger = LoggingOutput()
@@ -40,7 +55,7 @@ def test_create_fixture_basic_tarball(caplog, tests_settings, db, tmp_path):
         ],
         storages_basepath=tests_settings.fixtures_path,
         storages_excludes=["foo/*"],
-        tarball_filename="basic{features}.tar.gz",
+        archive_filename="basic{features}.tar.gz",
     )
 
     # Read tarball members to get archived files
