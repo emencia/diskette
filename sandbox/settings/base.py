@@ -146,6 +146,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.forms",
     "diskette",
+    "sandbox.djangoapp_sample",
 ]
 
 LOGIN_REDIRECT_URL = "/"
