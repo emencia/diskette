@@ -89,7 +89,7 @@ def test_load_call(caplog, db, tests_settings, tmp_path):
     serializer = LoaddataSerializer(logger=LoggingOutput())
 
     assert serializer.call(data_samples / "django-site.json") == (
-        "Installed 1 object(s) from 1 fixture(s)"
+        "Installed 2 object(s) from 1 fixture(s)"
     )
 
 

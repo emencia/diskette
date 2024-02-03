@@ -43,17 +43,17 @@ def test_deploy_datas(caplog, db, tmp_path, settings, tests_settings):
 
     assert caplog.record_tuples == [
         ("diskette", logging.INFO, (
-            "Loading data from dump 'django-site.json' (94 bytes)"
+            "Loading data from dump 'django-site.json' (194 bytes)"
         )),
-        ("diskette", logging.DEBUG, "Installed 1 object(s) from 1 fixture(s)"),
+        ("diskette", logging.DEBUG, "Installed 2 object(s) from 1 fixture(s)"),
         ("diskette", logging.INFO, (
-            "Loading data from dump 'django-auth.json' (324 bytes)"
+            "Loading data from dump 'django-auth.json' (959 bytes)"
         )),
-        ("diskette", logging.DEBUG, "Installed 1 object(s) from 1 fixture(s)"),
+        ("diskette", logging.DEBUG, "Installed 3 object(s) from 1 fixture(s)"),
     ]
 
     # Query Site and User to check expected data from dumps
     user_app, user_model = settings.AUTH_USER_MODEL.split(".")
     User = apps.get_registered_model(user_app, user_model)
-    assert User.objects.count() == 1
-    assert Site.objects.count() == 1
+    assert User.objects.count() == 3
+    assert Site.objects.count() == 2

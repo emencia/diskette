@@ -14,20 +14,11 @@
         }
     ],
     [
-        "django-taggit", {
-            "comments": "django-taggit: natural keys is not supported",
+        "blog", {
+            "comments": "internal blog sample app",
             "natural_foreign": false,
-            "models": "taggit"
-        }
-    ],
-    [
-        "lotus", {
-            "comments": "django-taggit: natural keys is not supported",
-            "natural_foreign": false,
-            "models": "lotus",
-            "excludes": [
-                "lotus.author"
-            ]
+            "models": "djangoapp_sample",
+            "excludes": []
         }
     ],
     [
@@ -36,7 +27,7 @@
             "excludes": [
                 "auth.permission",
                 "contenttypes.contenttype",
-                "thumbnail.kvstore"
+                "unexisting.model"
             ]
         }
     ]

@@ -1,6 +1,16 @@
+from django.apps import apps
+from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+
+
+def safe_get_user_model():
+    """
+    Safe loading of the User model, customized or not.
+    """
+    user_app, user_model = settings.AUTH_USER_MODEL.split(".")
+    return apps.get_registered_model(user_app, user_model)
 
 
 class Blog(models.Model):
@@ -57,13 +67,26 @@ class Article(models.Model):
         blog (models.ForeignKey): Required related Blog object.
         title (models.CharField): Required title string.
         content (models.TextField): Optionnal text content.
-        categories (models.ManyToManyField): TODO.
+        categories (models.ManyToManyField): Related categories.
         publish_start (models.DateTimeField): Required publication date determine
             when article will be available.
     """
     blog = models.ForeignKey(
         Blog,
         verbose_name="Related blog",
+        on_delete=models.CASCADE
+    )
+
+    categories = models.ManyToManyField(
+        Category,
+        verbose_name=_("categories"),
+        blank=True,
+    )
+
+    author = models.ForeignKey(
+        safe_get_user_model(),
+        blank=True,
+        null=True,
         on_delete=models.CASCADE
     )
 

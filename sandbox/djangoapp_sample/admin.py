@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from ..models import Article, Blog, Category
+from sandbox.djangoapp_sample.models import Article, Blog, Category
 
 
 @admin.register(Blog)

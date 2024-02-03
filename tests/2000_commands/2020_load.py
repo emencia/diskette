@@ -36,8 +36,8 @@ def test_load_cmd(caplog, db, settings, tests_settings, tmp_path):
     # Query Site and User to check expected data from dumps
     user_app, user_model = settings.AUTH_USER_MODEL.split(".")
     User = apps.get_registered_model(user_app, user_model)
-    assert User.objects.count() == 1
-    assert Site.objects.count() == 1
+    assert User.objects.count() == 3
+    assert Site.objects.count() == 2
 
     # Collect deployed storages files as a list of relative paths
     storages_files = []
