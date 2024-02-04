@@ -87,6 +87,8 @@ from tests.samples import SAMPLE_APPS
         ],
     ),
     # Drain does not include application excluded models if the app don't allow it
+    # TODO: drain_excluded is enabled but results is exactly the same than disabled,
+    # this is not working.
     (
         [
             ("Blog", {"models": "blog", "excludes": ["blog.article_tags"]}),
@@ -117,7 +119,7 @@ from tests.samples import SAMPLE_APPS
             ("Drainage", "dumpdata --all --exclude blog --exclude blog.article_tags"),
         ],
     ),
-    #
+    # TODO: Drop SAMPLE_APPS usage in profit of more concise data variant
     (
         SAMPLE_APPS + [
             ("Drainage", {

@@ -2,7 +2,9 @@ import json
 
 from freezegun import freeze_time
 
-from lotus.factories import ArticleFactory, CategoryFactory
+from sandbox.djangoapp_sample.factories import (
+    ArticleFactory, BlogFactory, CategoryFactory
+)
 
 from diskette.core.dumper import Dumper
 from diskette.factories import UserFactory
@@ -181,18 +183,24 @@ def test_dump_data_drained(db, tmp_path):
     """
     With a drain application, every remaining models that have not been excluded should
     be dumped to the drain entry.
+
+    TODO: Blog app definitions does not allow drain but its remaining models are still
+    dumped in drain, seems invalid behavior of drain.
     """
     picsou = UserFactory()
     # Force a dummy string password easier to assert
     picsou.password = "dummy"
     picsou.save()
 
+    blog = BlogFactory()
     category = CategoryFactory()
-    article = ArticleFactory(fill_categories=[category])
+    article = ArticleFactory(blog=blog, fill_categories=[category])
 
     manager = Dumper([
         ("Django auth", {"models": ["auth.group", "auth.user"]}),
-        ("Lotus articles", {"models": ["lotus.article"]}),
+        ("Blog sample", {
+            "models": ["djangoapp_sample.blog", "djangoapp_sample.category"]
+        }),
         ("Drainage", {
             "is_drain": True,
             "excludes": ["contenttypes", "auth.permission"],
@@ -205,7 +213,11 @@ def test_dump_data_drained(db, tmp_path):
         (k, json.loads(v))
         for k, v in results
     ]
-    # print(json.dumps(deserialized, indent=4))
+
+    print()
+    print(json.dumps(deserialized, indent=4))
+    print()
+
     assert deserialized == [
         (
             "Django auth",
@@ -231,34 +243,20 @@ def test_dump_data_drained(db, tmp_path):
             ]
         ),
         (
-            "Lotus articles",
+            "Blog sample",
             [
                 {
-                    "model": "lotus.article",
-                    "pk": article.id,
+                    "model": "djangoapp_sample.blog",
+                    "pk": blog.id,
                     "fields": {
-                        "language": article.language,
-                        "original": None,
-                        "status": article.status,
-                        "featured": False,
-                        "pinned": False,
-                        "private": False,
-                        "publish_date": "2012-10-15",
-                        "publish_time": "10:00:00",
-                        "publish_end": None,
-                        "last_update": "2012-10-15T10:00:00Z",
-                        "title": article.title,
-                        "slug": article.slug,
-                        "seo_title": article.seo_title,
-                        "lead": article.lead,
-                        "introduction": article.introduction,
-                        "content": article.content,
-                        "cover": article.cover.name,
-                        "image": article.image.name,
-                        "album": None,
-                        "categories": [category.id],
-                        "authors": [],
-                        "related": []
+                        "title": blog.title
+                    }
+                },
+                {
+                    "model": "djangoapp_sample.category",
+                    "pk": category.id,
+                    "fields": {
+                        "title": category.title
                     }
                 }
             ]
@@ -275,17 +273,17 @@ def test_dump_data_drained(db, tmp_path):
                     }
                 },
                 {
-                    "model": "lotus.category",
-                    "pk": category.id,
+                    "model": "djangoapp_sample.article",
+                    "pk": article.id,
                     "fields": {
-                        "language": category.language,
-                        "original": None,
-                        "modified": "2012-10-15T10:00:00Z",
-                        "title": category.title,
-                        "slug": category.slug,
-                        "lead": category.lead,
-                        "description": category.description,
-                        "cover": category.cover.name
+                        "blog": article.blog.id,
+                        "author": None,
+                        "title": article.title,
+                        "content": article.content,
+                        "publish_start": "2012-10-15T10:00:00Z",
+                        "categories": [
+                            1
+                        ]
                     }
                 }
             ]

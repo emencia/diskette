@@ -12,12 +12,7 @@ from django.urls import include, path
 urlpatterns = [
     path("admin/", admin.site.urls),
     # path("", include("diskette.urls")),
-    path("ckeditor/", include("ckeditor_uploader.urls")),
-    path("i18n/", include("django.conf.urls.i18n")),
 ]
-urlpatterns += i18n_patterns(
-    path("", include("lotus.urls")),
-)
 
 # This is only needed when using runserver with settings "DEBUG" enabled
 if settings.DEBUG:

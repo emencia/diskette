@@ -94,14 +94,14 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
 
         return objects + drains
 
-    def get_involved_models(self, with_excluded=True):
+    def get_involved_models(self, drain_excluded=True):
         """
-        Get all app models from application definitions.
+        Get all defined app model names from application definitions.
 
         This method purpose is essentially to collect all models to exclude from drain.
 
         Keyword Arguments:
-            with_excluded (boolean): If True, the excluded models are also returned for
+            drain_excluded (boolean): If True, the excluded models are also returned for
                 application which allows it with their ``allow_drain`` option. If False
                 the excluded model won't be included. Default is True.
 
@@ -112,8 +112,9 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
 
         for app in self.apps:
             models.extend(app.models)
-            # Consided application excluded model as involved also
-            if with_excluded is True and app.allow_drain is True:
+            # TODO: allow_drain itself should allow to drain missing app models ?
+            # Consider application excluded models as involved also
+            if drain_excluded is True and app.allow_drain is True:
                 # Append without duplicates
                 models.extend([
                     item
@@ -175,7 +176,7 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
                     destination=destination,
                     indent=indent,
                     extra_excludes=self.get_involved_models(
-                        with_excluded=app.drain_excluded
+                        drain_excluded=app.drain_excluded
                     ),
                 )
             )
@@ -209,7 +210,7 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
                     destination=destination,
                     indent=indent,
                     extra_excludes=self.get_involved_models(
-                        with_excluded=app.drain_excluded
+                        drain_excluded=app.drain_excluded
                     ),
                 )
             )

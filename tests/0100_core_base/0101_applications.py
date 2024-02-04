@@ -93,13 +93,14 @@ def test_application_valid():
         natural_primary=True,
         excludes=["ping.nope"],
         filename="ping_pong.json",
+        allow_drain=True,
     )
     assert repr(app_ping) == "<ApplicationConfig: Ping>"
     assert app_ping.as_config() == {
         "name": "Ping",
         "comments": "Lorem ipsum",
         "is_drain": False,
-        "allow_drain": False,
+        "allow_drain": True,
         "models": [
             "ping"
         ],

@@ -158,36 +158,6 @@ FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 
 """
-Lotus and its dependancies configurations
-"""
-INSTALLED_APPS[0:0] = [
-    "ckeditor",
-    # "ckeditor_uploader",
-]
-
-INSTALLED_APPS[0:0] = [
-    "dal",
-    "dal_select2",
-]
-
-INSTALLED_APPS.extend([
-    "sorl.thumbnail",
-    "smart_media",
-    "taggit",
-    "lotus",
-])
-
-CKEDITOR_UPLOAD_PATH = "uploads/"
-CKEDITOR_ALLOW_NONIMAGE_FILES = False
-CKEDITOR_RESTRICT_BY_DATE = False
-CKEDITOR_IMAGE_BACKEND = "ckeditor_uploader.backends.PillowBackend"
-CKEDITOR_BROWSE_SHOW_DIRS = True
-
-from smart_media.settings import *  # noqa: E402,F401,F403
-from lotus.settings import *  # noqa: E402,F401,F403
-
-
-"""
 SPECIFIC BASE APPLICATIONS SETTINGS BELOW
 """
 from diskette.settings import *  # noqa: E402,F401,F403

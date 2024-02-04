@@ -12,8 +12,9 @@ class ApplicationConfig:
     Application model to validate and store application details.
 
     Arguments:
-        name (string):
-        models (list):
+        name (string): Application name, almost anything but it may be slugified for
+            internal usages so avoid too much longer text and special characters.
+        models (list): List of model names.
 
     Keyword Arguments:
         filename (string): The filename to use if application dump is to be written in
@@ -24,13 +25,17 @@ class ApplicationConfig:
             slugified ``name`` with default format.
         excludes (list): The list of excluded models that won't be collected into the
             application dump.
-        natural_foreign (boolean):
-        natural_primary (boolean):
-        comments (string): Free text which is not used from manager or serializer.
-        allow_drain (boolean): If True, the application explicitely allows to drain
-            its excluded models. If False, the application won't allow to drain them.
-            Default is False to avoid implicit draining of data that may not be
-            wanted.
+        natural_foreign (boolean): Enable usage of natural foreign key.
+        natural_primary (boolean): Enable usage of natural primary key.
+        comments (string): Free text not used internally.
+        allow_drain (boolean): Define if application allows its excluded models to be
+            drained. Default is ``False`` to avoid implicit draining of data that may
+            not be wanted.
+
+    Attributes:
+        is_drain (boolean): Declare application as a special drain application. This
+            should always be ``False`` for a common application, ``True`` value is
+            reserved to ``DrainApplicationConfig``.
     """
     CONFIG_ATTRS = [
         "name", "models", "excludes", "natural_foreign", "natural_primary", "comments",
@@ -90,7 +95,7 @@ class ApplicationConfig:
 
     def as_options(self):
         """
-        Returns Application options suitable for dumpdata.
+        Returns Application options suitable to pass to dumpdata command.
 
         Keyword Arguments:
             name (boolean): To include or not the name into the dict.
@@ -154,6 +159,9 @@ class ApplicationConfig:
 class DrainApplicationConfig(ApplicationConfig):
     """
     Special application to drain remaining models.
+
+    Attributes:
+        drain_excluded (boolean): TODO
     """
     CONFIG_ATTRS = [
         "name", "models", "excludes", "natural_foreign", "natural_primary", "comments",
