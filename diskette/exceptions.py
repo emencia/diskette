@@ -27,6 +27,13 @@ class ApplicationConfigError(DisketteBaseException):
     pass
 
 
+class AppModelResolverError(DisketteBaseException):
+    """
+    For an error from AppModelResolver.
+    """
+    pass
+
+
 class DumperError(DisketteBaseException):
     """
     For an error from dump manager.
