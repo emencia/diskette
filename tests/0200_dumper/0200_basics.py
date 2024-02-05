@@ -7,8 +7,6 @@ from freezegun import freeze_time
 from diskette.core.dumper import Dumper
 from diskette.exceptions import DumperError, ApplicationRegistryError
 
-from tests.samples import SAMPLE_APPS
-
 
 def test_validate_applications():
     """
@@ -54,167 +52,107 @@ def test_exported_dicts():
     """
     Manager should return a normalized dict for application options or payload.
     """
-    manager = Dumper(SAMPLE_APPS)
+    manager = Dumper([
+        (
+            "django.contrib.sites", {
+                "comments": "django.contrib.sites",
+                "natural_foreign": True,
+                "models": "sites"
+            }
+        ),
+        (
+            "django.contrib.auth", {
+                "comments": "django.contrib.auth: user and groups, no perms",
+                "natural_foreign": True,
+                "models": ["auth.group","auth.user"]
+            }
+        ),
+        (
+            "blog", {
+                "comments": "internal blog sample app",
+                "models": "djangoapp_sample",
+                "excludes": ["blog.category"],
+                "comments": "Lorem ipsum",
+                "natural_foreign": False,
+                "natural_primary": True,
+                "filename": "blog.json",
+                "allow_drain": True,
+            }
+        ),
+    ])
+
     assert manager.dump_options() == [
         {
-            "models": [
-                "blog"
-            ],
-            "excludes": [],
-            "natural_foreign": False,
-            "natural_primary": False,
-            "filename": "blog.json",
-        },
-        {
-            "models": [
-                "tags"
-            ],
+            "models": ["sites.Site"],
             "excludes": [],
             "natural_foreign": True,
-            "natural_primary": True,
-            "filename": "tags.json",
-        },
-        {
-            "models": [
-                "authors.user",
-                "authors.pin"
-            ],
-            "excludes": [
-                "authors.pin"
-            ],
-            "natural_foreign": False,
             "natural_primary": False,
-            "filename": "authors.json",
+            "filename": "djangocontribsites.json"
         },
         {
-            "models": [
-                "contacts"
-            ],
-            "excludes": [
-                "contacts.token"
-            ],
-            "natural_foreign": False,
-            "natural_primary": False,
-            "filename": "contacts.json",
-        },
-        {
-            "models": [
-                "cart.item",
-                "cart.payment"
-            ],
-            "excludes": [
-                "cart.payment"
-            ],
-            "natural_foreign": False,
-            "natural_primary": False,
-            "filename": "cart.json",
-        },
-        {
-            "models": [
-                "pages"
-            ],
-            "excludes": [
-                "pages.revision"
-            ],
+            "models": ["auth.group", "auth.user"],
+            "excludes": [],
             "natural_foreign": True,
+            "natural_primary": False,
+            "filename": "djangocontribauth.json"
+        },
+        {
+            "models": [
+                "djangoapp_sample.Blog",
+                "djangoapp_sample.Category",
+                "djangoapp_sample.Article_categories",
+                "djangoapp_sample.Article"
+            ],
+            "excludes": ["blog.category"],
+            "natural_foreign": False,
             "natural_primary": True,
-            "filename": "cmspages.json",
+            "filename": "blog.json"
         }
     ]
 
     assert manager.payload() == [
         {
-            "name": "Blog",
-            "models": [
-                "blog"
-            ],
-            "excludes": [],
-            "natural_foreign": False,
-            "natural_primary": False,
-            "comments": None,
-            "filename": "blog.json",
-            "is_drain": False,
-            "allow_drain": False
-        },
-        {
-            "name": "Tags",
-            "models": [
-                "tags"
-            ],
+            "name": "django.contrib.sites",
+            "models": ["sites.Site"],
             "excludes": [],
             "natural_foreign": True,
-            "natural_primary": True,
-            "comments": None,
-            "filename": "tags.json",
+            "natural_primary": False,
+            "comments": "django.contrib.sites",
+            "filename": "djangocontribsites.json",
             "is_drain": False,
             "allow_drain": False
         },
         {
-            "name": "Authors",
-            "models": [
-                "authors.user",
-                "authors.pin"
-            ],
-            "excludes": [
-                "authors.pin"
-            ],
-            "natural_foreign": False,
-            "natural_primary": False,
-            "comments": None,
-            "filename": "authors.json",
-            "is_drain": False,
-            "allow_drain": False
-        },
-        {
-            "name": "Contacts",
-            "models": [
-                "contacts"
-            ],
-            "excludes": [
-                "contacts.token"
-            ],
-            "natural_foreign": False,
-            "natural_primary": False,
-            "comments": None,
-            "filename": "contacts.json",
-            "is_drain": False,
-            "allow_drain": False
-        },
-        {
-            "name": "Cart",
-            "models": [
-                "cart.item",
-                "cart.payment"
-            ],
-            "excludes": [
-                "cart.payment"
-            ],
-            "natural_foreign": False,
-            "natural_primary": False,
-            "comments": None,
-            "filename": "cart.json",
-            "is_drain": False,
-            "allow_drain": True
-        },
-        {
-            "name": "Pages",
-            "models": [
-                "pages"
-            ],
-            "excludes": [
-                "pages.revision"
-            ],
+            "name": "django.contrib.auth",
+            "models": ["auth.group", "auth.user"],
+            "excludes": [],
             "natural_foreign": True,
+            "natural_primary": False,
+            "comments": "django.contrib.auth: user and groups, no perms",
+            "filename": "djangocontribauth.json",
+            "is_drain": False,
+            "allow_drain": False
+        },
+        {
+            "name": "blog",
+            "models": [
+                "djangoapp_sample.Blog",
+                "djangoapp_sample.Category",
+                "djangoapp_sample.Article_categories",
+                "djangoapp_sample.Article"
+            ],
+            "excludes": ["blog.category"],
+            "natural_foreign": False,
             "natural_primary": True,
             "comments": "Lorem ipsum",
-            "filename": "cmspages.json",
+            "filename": "blog.json",
             "is_drain": False,
             "allow_drain": True
         }
     ]
 
 
-@pytest.mark.skip("Until the drainage schism is resolved")
+@pytest.mark.skip("Refactoring drainage, resolver and excludes, Part 1")
 def test_get_involved_models_sample_apps():
     """
     Method should returns the list of involved models from application definitions,

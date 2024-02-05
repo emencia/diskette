@@ -17,7 +17,7 @@ def test_application_invalid_excludes():
     )
 
 
-def test_application_invalid_models():
+def test_application_empty_models():
     """
     Application should raise an error when 'models' is empty.
     """
@@ -30,64 +30,74 @@ def test_application_invalid_models():
     )
 
 
+def test_application_invalid_models():
+    """
+    Application should raise an error when 'models' is an invalid application label.
+    """
+    app = ApplicationConfig("foo", models="bar")
+    with pytest.raises(LookupError) as excinfo:
+        app.validate()
+
+    assert str(excinfo.value) == "No installed app with label 'bar'."
+
+
 def test_application_invalid_format():
     """
     Application should raise an error from invalid 'filename' extension.
     """
     # Empty file extension
-    app = ApplicationConfig("foo.bar", models=["bar"], filename="nope")
+    app = ApplicationConfig("sites", models=["sites"], filename="nope")
     with pytest.raises(ApplicationConfigError) as excinfo:
         app.validate()
     assert str(excinfo.value) == (
-        "<ApplicationConfig: foo.bar>: Given file name 'nope' must have a file "
+        "<ApplicationConfig: sites>: Given file name 'nope' must have a file "
         "extension to discover format."
     )
 
     # Non allowed file extension
-    app = ApplicationConfig("foo.bar", models=["bar"], filename="nope.txt")
+    app = ApplicationConfig("sites", models=["sites"], filename="nope.txt")
     with pytest.raises(ApplicationConfigError) as excinfo:
         app.validate()
 
     assert str(excinfo.value) == (
-        "<ApplicationConfig: foo.bar>: Given file name 'nope.txt' must use a file "
+        "<ApplicationConfig: sites>: Given file name 'nope.txt' must use a file "
         "extension from allowed formats: json, jsonl, xml, yaml"
     )
 
 
-def test_application_valid():
+def test_application_valid_basic():
     """
-    With correct values, Application object should be correctly created.
+    With minimal correct values, Application object should be correctly created.
     """
-    # Basic with required arguments
-    app_foo = ApplicationConfig("foo.bar", models=["bar"])
-    assert repr(app_foo) == "<ApplicationConfig: foo.bar>"
+    app_foo = ApplicationConfig("Site objects", models=["sites"])
+    assert repr(app_foo) == "<ApplicationConfig: Site objects>"
     assert app_foo.as_config() == {
-        "name": "foo.bar",
+        "name": "Site objects",
         "comments": None,
         "is_drain": False,
         "allow_drain": False,
-        "models": [
-            "bar"
-        ],
+        "models": ["sites.Site"],
         "excludes": [],
         "natural_foreign": False,
         "natural_primary": False,
-        "filename": "foobar.json",
+        "filename": "site-objects.json",
     }
     assert app_foo.as_options() == {
-        "models": [
-            "bar"
-        ],
+        "models": ["sites.Site"],
         "excludes": [],
         "natural_foreign": False,
         "natural_primary": False,
-        "filename": "foobar.json",
+        "filename": "site-objects.json",
     }
 
-    # Fullfill every arguments
+
+def test_application_valid_full():
+    """
+    With all correct values, Application object should be correctly created.
+    """
     app_ping = ApplicationConfig(
-        "Ping",
-        models=["ping"],
+        "Django auth",
+        models=["auth"],
         comments="Lorem ipsum",
         natural_foreign=True,
         natural_primary=True,
@@ -95,29 +105,35 @@ def test_application_valid():
         filename="ping_pong.json",
         allow_drain=True,
     )
-    assert repr(app_ping) == "<ApplicationConfig: Ping>"
+    assert repr(app_ping) == "<ApplicationConfig: Django auth>"
     assert app_ping.as_config() == {
-        "name": "Ping",
+        "name": "Django auth",
         "comments": "Lorem ipsum",
         "is_drain": False,
         "allow_drain": True,
         "models": [
-            "ping"
+            "auth.Permission",
+            "auth.Group_permissions",
+            "auth.Group",
+            "auth.User_groups",
+            "auth.User_user_permissions",
+            "auth.User",
         ],
-        "excludes": [
-            "ping.nope"
-        ],
+        "excludes": ["ping.nope"],
         "natural_foreign": True,
         "natural_primary": True,
         "filename": "ping_pong.json",
     }
     assert app_ping.as_options() == {
         "models": [
-            "ping"
+            "auth.Permission",
+            "auth.Group_permissions",
+            "auth.Group",
+            "auth.User_groups",
+            "auth.User_user_permissions",
+            "auth.User",
         ],
-        "excludes": [
-            "ping.nope"
-        ],
+        "excludes": ["ping.nope"],
         "natural_foreign": True,
         "natural_primary": True,
         "filename": "ping_pong.json",

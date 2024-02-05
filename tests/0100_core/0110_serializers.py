@@ -23,8 +23,8 @@ def test_dump_command(db, tmp_path):
     """
     serializer = DumpdataSerializer()
 
-    app_foo = ApplicationConfig("foo.bar", ["bar"])
-    assert serializer.command(app_foo) == "dumpdata bar"
+    app_foo = ApplicationConfig("Site objects", ["sites"])
+    assert serializer.command(app_foo) == "dumpdata sites.Site"
 
 
 @freeze_time("2012-10-15 10:00:00")
@@ -35,14 +35,6 @@ def test_dump_call(db, tmp_path):
     """
     serializer = DumpdataSerializer()
 
-    # With a non existing model
-    app_foo = ApplicationConfig("foo.bar", ["bar"])
-    with pytest.raises(CommandError) as excinfo:
-        serializer.call(app_foo)
-
-    assert str(excinfo.value) == "No installed app with label 'bar'."
-
-    # With existing model from Django contrib.auth
     picsou = UserFactory()
     # Force a dummy string password easier to assert
     picsou.password = "dummy"

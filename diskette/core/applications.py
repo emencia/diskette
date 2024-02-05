@@ -126,7 +126,9 @@ class ApplicationConfig(AppModelResolverAbstract):
     Arguments:
         name (string): Application name, almost anything but it may be slugified for
             internal usages so avoid too much longer text and special characters.
-        models (list): List of model labels.
+        models (list): List of labels. A label is either an application label like
+            ``auth`` or a full model label like ``auth.user``. Labels are validated,
+            they must exists in Django application registry.
 
     Keyword Arguments:
         filename (string): The filename to use if application dump is to be written in
@@ -135,8 +137,9 @@ class ApplicationConfig(AppModelResolverAbstract):
             it from the filename even you don't plan to write dump to a file.
             Finally if not given, the filename will be automatically defined with
             slugified ``name`` with default format.
-        excludes (list): The list of excluded models that won't be collected into the
-            application dump.
+        excludes (list): The list of excluded model labels that won't be collected
+            into the application dump. Currently, the excluded labels are not
+            validated.
         natural_foreign (boolean): Enable usage of natural foreign key.
         natural_primary (boolean): Enable usage of natural primary key.
         comments (string): Free text not used internally.
@@ -161,7 +164,7 @@ class ApplicationConfig(AppModelResolverAbstract):
                  natural_primary=False, comments=None, filename=None,
                  allow_drain=False):
         self.name = name
-        self.models = [models] if isinstance(models, str) else models
+        self._models = [models] if isinstance(models, str) else models
         self.excludes = excludes or []
         self.natural_foreign = natural_foreign
         self.natural_primary = natural_primary
@@ -175,6 +178,10 @@ class ApplicationConfig(AppModelResolverAbstract):
             klass=self.__class__.__name__,
             name=self.name
         )
+
+    @property
+    def models(self):
+        return self.get_label_model_names(self._models)
 
     def get_filename(self, format_extension=None):
         """
@@ -266,6 +273,11 @@ class ApplicationConfig(AppModelResolverAbstract):
                     filename=self.filename,
                     formats=", ".join(AVAILABLE_FORMATS),
                 ))
+
+        try:
+            self.get_label_model_names(self.models)
+        except ValueError:
+            pass
 
 
 class DrainApplicationConfig(ApplicationConfig):

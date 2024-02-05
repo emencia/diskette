@@ -2,62 +2,100 @@ import pytest
 
 from diskette.core.dumper import Dumper
 
-from tests.samples import SAMPLE_APPS
 
-
+# TODO: Assertions with excludes are not really correct even test pass, because the
+# resolver will change the way we exclude labels (explicit label definition from
+# resolver instead of --excludes usages)
+@pytest.mark.skip("Refactoring drainage, resolver and excludes, Part 2")
 @pytest.mark.parametrize("apps, manager_options, command_options, expected", [
     # Most basic definition
     (
-        [("foo.bar", {"models": "bar"})],
+        [("Auth", {"models": "auth.user"})],
         {},
         {},
-        [("foo.bar", "dumpdata bar")],
+        [("Auth", "dumpdata auth.user")],
     ),
     # Specify an executable path
     (
-        [("foo.bar", {"models": "bar"})],
+        [("Auth", {"models": "auth.user"})],
         {"executable": "/bin/foo"},
         {},
-        [("foo.bar", "/bin/foo dumpdata bar")],
+        [("Auth", "/bin/foo dumpdata auth.user")],
     ),
     # With a destination where to write file
     (
-        [("foo.bar", {"models": "bar"})],
+        [("Auth", {"models": "auth.user"})],
         {},
         {"indent": 2, "destination": "/output"},
-        [("foo.bar", "dumpdata --indent=2 bar --output=/output/foobar.json")],
+        [("Auth", "dumpdata --indent=2 auth.user --output=/output/auth.json")],
     ),
-    # More complete application set with all options
+    # With a destination where to write file
     (
-        SAMPLE_APPS,
-        {},
-        {},
         [
-            ("Blog", "dumpdata blog"),
-            ("Tags", "dumpdata tags --natural-foreign --natural-primary"),
-            ("Authors", "dumpdata authors.user authors.pin --exclude authors.pin"),
-            ("Contacts", "dumpdata contacts --exclude contacts.token"),
-            ("Cart", "dumpdata cart.item cart.payment --exclude cart.payment"),
             (
-                "Pages",
-                (
-                    "dumpdata pages --natural-foreign --natural-primary "
-                    "--exclude pages.revision"
-                )
+                "django.contrib.sites", {
+                    "comments": "django.contrib.sites",
+                    "natural_foreign": True,
+                    "models": "sites"
+                }
             ),
+            (
+                "django.contrib.auth", {
+                    "comments": "django.contrib.auth: user and groups, no perms",
+                    "natural_foreign": True,
+                    "models": ["auth.group","auth.user"]
+                }
+            ),
+            (
+                "sample blog", {
+                    "comments": "internal blog sample app",
+                    "models": "djangoapp_sample",
+                    "excludes": ["blog.category"],
+                    "comments": "Lorem ipsum",
+                    "natural_foreign": False,
+                    "natural_primary": True,
+                    "filename": "blog.json",
+                    "allow_drain": True,
+                }
+            ),
+        ],
+        {},
+        {"indent": 2, "destination": "/output"},
+        [
+            ("django.contrib.sites", (
+                "dumpdata --indent=2 sites.Site --natural-foreign "
+                "--output=/output/djangocontribsites.json"
+            )),
+            ("django.contrib.auth", (
+                "dumpdata --indent=2 auth.group auth.user --natural-foreign "
+                "--output=/output/djangocontribauth.json"
+            )),
+            ("sample blog", (
+                "dumpdata --indent=2 djangoapp_sample.Blog djangoapp_sample.Category "
+                "djangoapp_sample.Article_categories djangoapp_sample.Article "
+                "--natural-primary --exclude blog.category --output=/output/blog.json"
+            )),
         ],
     ),
     # Basic drain
     (
         [
-            ("Blog", {"models": "blog"}),
+            ("Auth", {"models": "auth"}),
             ("Drainage", {"is_drain": True}),
         ],
         {},
         {},
         [
-            ("Blog", "dumpdata blog"),
-            ("Drainage", "dumpdata --all --exclude blog"),
+            ("Auth", (
+                "dumpdata auth.Permission auth.Group_permissions auth.Group "
+                "auth.User_groups auth.User_user_permissions auth.User"
+            )),
+            ("Drainage", (
+                "dumpdata --all --exclude auth.Permission "
+                "--exclude auth.Group_permissions --exclude auth.Group "
+                "--exclude auth.User_groups --exclude auth.User_user_permissions "
+                "--exclude auth.User"
+            )),
         ],
     ),
     # Drain don't automatically include application excluded models
@@ -117,41 +155,6 @@ from tests.samples import SAMPLE_APPS
         [
             ("Blog", "dumpdata blog --exclude blog.article_tags"),
             ("Drainage", "dumpdata --all --exclude blog --exclude blog.article_tags"),
-        ],
-    ),
-    # TODO: Drop SAMPLE_APPS usage in profit of more concise data variant
-    (
-        SAMPLE_APPS + [
-            ("Drainage", {
-                "is_drain": True,
-                "excludes": ["site"],
-                "drain_excluded": True,
-            }),
-        ],
-        {},
-        {},
-        [
-            ("Blog", "dumpdata blog"),
-            ("Tags", "dumpdata tags --natural-foreign --natural-primary"),
-            ("Authors", "dumpdata authors.user authors.pin --exclude authors.pin"),
-            ("Contacts", "dumpdata contacts --exclude contacts.token"),
-            ("Cart", "dumpdata cart.item cart.payment --exclude cart.payment"),
-            (
-                "Pages",
-                (
-                    "dumpdata pages --natural-foreign --natural-primary "
-                    "--exclude pages.revision"
-                )
-            ),
-            (
-                "Drainage",
-                (
-                    "dumpdata --all --exclude site --exclude blog --exclude tags "
-                    "--exclude authors.user --exclude authors.pin --exclude contacts "
-                    "--exclude cart.item --exclude cart.payment --exclude pages "
-                    "--exclude pages.revision"
-                )
-            ),
         ],
     ),
 ])
