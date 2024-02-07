@@ -4,7 +4,7 @@ from diskette.core.applications import ApplicationConfig, DrainApplicationConfig
 from diskette.exceptions import ApplicationConfigError
 
 
-def test_application_invalid_excludes():
+def test_application_invalid_excludes_type():
     """
     Application should raise an error from invalid 'excludes' type.
     """
@@ -14,6 +14,32 @@ def test_application_invalid_excludes():
 
     assert str(excinfo.value) == (
         "<ApplicationConfig: foo.bar>: 'excludes' argument must be a list."
+    )
+
+
+def test_application_invalid_excludes_label():
+    """
+    Application should raise an error for exclude label which are not fully qualified.
+    """
+    # Directly from validation method, returns the list of invalid label
+    app = ApplicationConfig("foo.bar", models=["bar"])
+    assert app.validate_exclude_labels(["nope", "foo.bar", "flipflop"]) == [
+        "nope",
+        "flipflop"
+    ]
+
+    # By the way of main app validate method, raise an exception with invalid labels
+    app = ApplicationConfig("foo.bar", models=["bar"], excludes=[
+        "nope",
+        "foo.bar",
+        "flipflop"
+    ])
+    with pytest.raises(ApplicationConfigError) as excinfo:
+        app.validate()
+
+    assert str(excinfo.value) == (
+        "<ApplicationConfig: foo.bar>: 'excludes' argument can only contains fully "
+        "qualified labels (like 'foo.bar') these ones are invalid: nope, flipflop"
     )
 
 

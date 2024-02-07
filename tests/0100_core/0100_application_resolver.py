@@ -1,6 +1,6 @@
 import pytest
 
-from diskette.exceptions import AppModelResolverError
+from diskette.exceptions import ApplicationConfigError, AppModelResolverError
 from diskette.core.applications import AppModelResolverAbstract
 
 
@@ -38,10 +38,26 @@ def test_get_all_models():
     ]
 
 
-@pytest.mark.parametrize("labels, expected", [
-    # A single app label
+@pytest.mark.parametrize("labels, excludes, expected", [
+    # A single fully qualified label
+    ("auth.group", [], ["auth.group"]),
+    # This demonstrates that fully qualified label (app+model) are not resolved and a
+    # label for a non existing app or model can be given without error at this level.
+    ("nope.foo", None, ["nope.foo"]),
+    # A set of fully qualified labels
+    (["auth.group", "auth.user"], None, ["auth.group", "auth.user"]),
+    # Resulting list may be empty, this upper level code that need to manage this case
+    ("auth.group", ["auth.group"], []),
+    # Exclude filter is case sensitive
+    (
+        ["auth.group", "auth.user"],
+        ["auth.group", "auth.User"],
+        ["auth.user"],
+    ),
+    # A single app label resolved to fully qualified model labels
     (
         "djangoapp_sample",
+        None,
         [
             "djangoapp_sample.Blog",
             "djangoapp_sample.Category",
@@ -49,19 +65,10 @@ def test_get_all_models():
             "djangoapp_sample.Article",
         ],
     ),
-    # A single full label
-    (
-        "auth.group",
-        ["auth.group"],
-    ),
-    # A set of full labels
-    (
-        ["auth.group", "auth.user"],
-        ["auth.group", "auth.user"],
-    ),
-    # A mix of full label and app labels only
+    # A mix of fully qualified and app labels
     (
         ["auth.group", "djangoapp_sample", "sites"],
+        None,
         [
             "auth.group",
             "djangoapp_sample.Blog",
@@ -71,20 +78,30 @@ def test_get_all_models():
             "sites.Site"
         ],
     ),
-    # This show that full label (app+model) are not resolved and a label for a non
-    # existing app or model can be given without error at this level.
+    # Mixed label with some excludes
     (
-        "auth.group",
-        ["auth.group"],
+        ["auth", "djangoapp_sample", "sites"],
+        ["auth.Group", "djangoapp_sample.Article"],
+        [
+            "auth.Permission",
+            "auth.Group_permissions",
+            "auth.User_groups",
+            "auth.User_user_permissions",
+            "auth.User",
+            "djangoapp_sample.Blog",
+            "djangoapp_sample.Category",
+            "djangoapp_sample.Article_categories",
+            "sites.Site"
+        ],
     ),
 ])
-def test_resolve_names_valid(labels, expected):
+def test_resolve_names_valid(labels, excludes, expected):
     """
     Method should resolve the proper model labels from given contents.
     """
     resolver = AppModelResolverAbstract()
 
-    assert resolver.get_label_model_names(labels) == expected
+    assert resolver.resolve_labels(labels, excludes=excludes) == expected
 
 
 def test_resolve_names_invalid():
@@ -94,14 +111,14 @@ def test_resolve_names_invalid():
     resolver = AppModelResolverAbstract()
 
     with pytest.raises(LookupError) as excinfo:
-        resolver.get_label_model_names("foo")
+        resolver.resolve_labels("foo")
 
     assert str(excinfo.value) == (
         "No installed app with label 'foo'."
     )
 
     with pytest.raises(AppModelResolverError) as excinfo:
-        resolver.get_label_model_names(".group")
+        resolver.resolve_labels(".group")
 
     assert str(excinfo.value) == (
         "Label includes a dot without leading application name: .group"

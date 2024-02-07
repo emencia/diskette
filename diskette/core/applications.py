@@ -42,10 +42,10 @@ class AppModelResolverAbstract:
 
     def get_app_models(self, app):
         """
-        Return model labels (as ``APPNAME.MODELNAME``) for given application.
+        Return model labels for given application.
 
         Returns:
-            list:
+            list: Fully qualified model labels formatted as ``APPNAME.MODELNAME``.
         """
         if isinstance(app, str):
             app = apps.get_app_config(app)
@@ -75,7 +75,19 @@ class AppModelResolverAbstract:
 
         return collected
 
-    def get_label_model_names(self, labels):
+    def filter_out_excludes(self, excludes=None):
+        """
+        Return a callable to be used to filter out excluded labels from given iterable.
+
+        Returns:
+            list:
+        """
+        def _curry(item):
+            return True if not excludes else item not in excludes
+
+        return _curry
+
+    def resolve_labels(self, labels, excludes=None):
         """
         Resolve model names for given labels.
 
@@ -88,40 +100,55 @@ class AppModelResolverAbstract:
                     its useful to select all app models.
 
                 Model label
-                    This is just used as it without resolution. so its useful to
-                    explicitely define some models, the ones that are not defined will
-                    be ignored.
+                    Also known as a *fully qualified label*. We use it unchanged
+                    without resolution. so its useful to explicitely define some
+                    models, the ones that are not defined will be ignored.
 
-                    A Model label must be in the form "APP.MODEL", a single part would
-                    be assumed as an Application label.
+                    A Model label must be in the form "APP.MODEL" because without the
+                    second part after the dot is assumed as an Application label.
+
+        Raises:
+            AppModelResolverError: If a label contain an empty app label such
+                ``.user``.
+            LookupError: This is raised by Django application framework when an
+                application label does not exist in application registry. We let it
+                raises to keep a proper stacktrace on purpose.
 
         Returns:
             list: List of resolved model names from given labels.
         """
         names = []
 
+        # Ensure we allways have a list
         labels = [labels] if isinstance(labels, str) else labels
 
         for label in labels:
+            # Try to parse item as a fully qualified label
             try:
                 app_label, model_label = label.split(".")
+            # If not a fully qualified label assume it is an application label and add
+            # all models
             except ValueError:
                 names.extend(self.get_app_models(label))
             else:
+                # Ensure we don"t have a tricky label with empty app label
                 if not app_label:
                     raise AppModelResolverError((
                         "Label includes a dot without leading application "
                         "name: {}".format(label)
                     ))
-
+                # Add the fully qualified label
                 names.append(self.normalize_model_name(model_label, app=app_label))
 
-        return names
+        return list(filter(self.filter_out_excludes(excludes), names))
 
 
 class ApplicationConfig(AppModelResolverAbstract):
     """
     Application model to validate and store application details.
+
+    TODO: Another name would better to avoid mental clash with Django "AppConfig".
+    ApplicationModel (+2) ? ApplicationDataDef (0)? ApplicationDefinition (+3) ?
 
     Arguments:
         name (string): Application name, almost anything but it may be slugified for
@@ -181,7 +208,8 @@ class ApplicationConfig(AppModelResolverAbstract):
 
     @property
     def models(self):
-        return self.get_label_model_names(self._models)
+        # TODO: digest "excludes" to remove excluded label from dumped labels
+        return self.resolve_labels(self._models)
 
     def get_filename(self, format_extension=None):
         """
@@ -228,18 +256,47 @@ class ApplicationConfig(AppModelResolverAbstract):
             for name in self.OPTIONS_ATTRS
         }
 
+    def validate_exclude_labels(self, labels):
+        """
+        Validate given labels are fully qualified.
+
+        Arguments:
+            labels (list): List of label to validate.
+
+        Returns:
+            list: A list of invalid labels.
+        """
+        invalids = [
+            pattern
+            for pattern in labels
+            if len(pattern.split(".")) < 2
+        ]
+
+        return invalids
+
     def validate(self):
         """
         Validate Application data.
 
         Raises:
-            ApplicationConfigError: In case of invalide value from data.
+            ApplicationConfigError: In case of invalid values from options.
         """
         if not isinstance(self.excludes, list):
             msg = "{obj}: 'excludes' argument must be a list."
             raise ApplicationConfigError(msg.format(
                 obj=self.__repr__(),
             ))
+        else:
+            errors = self.validate_exclude_labels(self.excludes)
+            if errors:
+                msg = (
+                    "{obj}: 'excludes' argument can only contains fully qualified "
+                    "labels (like 'foo.bar') these ones are invalid: {labels}"
+                )
+                raise ApplicationConfigError(msg.format(
+                    obj=self.__repr__(),
+                    labels=", ".join(errors),
+                ))
 
         # Models are required but not for an application drain object
         if not self.models and self.is_drain is False:
@@ -274,10 +331,8 @@ class ApplicationConfig(AppModelResolverAbstract):
                     formats=", ".join(AVAILABLE_FORMATS),
                 ))
 
-        try:
-            self.get_label_model_names(self.models)
-        except ValueError:
-            pass
+        # Try to resolve models that should raise exceptions for invalid labels
+        self.resolve_labels(self.models)
 
 
 class DrainApplicationConfig(ApplicationConfig):
