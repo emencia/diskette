@@ -28,18 +28,24 @@ def test_application_invalid_excludes_label():
         "flipflop"
     ]
 
+    app = ApplicationConfig("foo.bar", models=["bar"])
+    assert app.validate_exclude_labels(["nope", "foo.bar", ".flop"]) == [
+        "nope",
+        ".flop"
+    ]
+
     # By the way of main app validate method, raise an exception with invalid labels
     app = ApplicationConfig("foo.bar", models=["bar"], excludes=[
         "nope",
         "foo.bar",
-        "flipflop"
+        ".flop"
     ])
     with pytest.raises(ApplicationConfigError) as excinfo:
         app.validate()
 
     assert str(excinfo.value) == (
         "<ApplicationConfig: foo.bar>: 'excludes' argument can only contains fully "
-        "qualified labels (like 'foo.bar') these ones are invalid: nope, flipflop"
+        "qualified labels (like 'foo.bar') these ones are invalid: nope, .flop"
     )
 
 
@@ -127,7 +133,7 @@ def test_application_valid_full():
         comments="Lorem ipsum",
         natural_foreign=True,
         natural_primary=True,
-        excludes=["ping.nope"],
+        excludes=["auth.Group", "foo"],
         filename="ping_pong.json",
         allow_drain=True,
     )
@@ -140,12 +146,11 @@ def test_application_valid_full():
         "models": [
             "auth.Permission",
             "auth.Group_permissions",
-            "auth.Group",
             "auth.User_groups",
             "auth.User_user_permissions",
             "auth.User",
         ],
-        "excludes": ["ping.nope"],
+        "excludes": ["auth.Group", "foo"],
         "natural_foreign": True,
         "natural_primary": True,
         "filename": "ping_pong.json",
@@ -154,12 +159,11 @@ def test_application_valid_full():
         "models": [
             "auth.Permission",
             "auth.Group_permissions",
-            "auth.Group",
             "auth.User_groups",
             "auth.User_user_permissions",
             "auth.User",
         ],
-        "excludes": ["ping.nope"],
+        "excludes": ["auth.Group", "foo"],
         "natural_foreign": True,
         "natural_primary": True,
         "filename": "ping_pong.json",

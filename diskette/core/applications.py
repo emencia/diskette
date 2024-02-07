@@ -132,6 +132,7 @@ class AppModelResolverAbstract:
                 names.extend(self.get_app_models(label))
             else:
                 # Ensure we don"t have a tricky label with empty app label
+                # DEPRECATED: Recently implemented in "validate_exclude_labels"
                 if not app_label:
                     raise AppModelResolverError((
                         "Label includes a dot without leading application "
@@ -208,8 +209,11 @@ class ApplicationConfig(AppModelResolverAbstract):
 
     @property
     def models(self):
-        # TODO: digest "excludes" to remove excluded label from dumped labels
-        return self.resolve_labels(self._models)
+        """
+        List all fully qualified model labels involved by definition and with exclude
+        labels removed.
+        """
+        return self.resolve_labels(self._models, excludes=self.excludes)
 
     def get_filename(self, format_extension=None):
         """
@@ -260,6 +264,9 @@ class ApplicationConfig(AppModelResolverAbstract):
         """
         Validate given labels are fully qualified.
 
+        Fully qualified label is made of two non empty name parts divided by a dot
+        like ``foo.bar``.
+
         Arguments:
             labels (list): List of label to validate.
 
@@ -269,7 +276,11 @@ class ApplicationConfig(AppModelResolverAbstract):
         invalids = [
             pattern
             for pattern in labels
-            if len(pattern.split(".")) < 2
+            if (
+                len(pattern.split(".")) < 2 or
+                pattern.startswith(".") or
+                pattern.endswith(".")
+            )
         ]
 
         return invalids
