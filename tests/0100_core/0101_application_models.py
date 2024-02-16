@@ -23,13 +23,13 @@ def test_application_invalid_excludes_label():
     """
     # Directly from validation method, returns the list of invalid label
     app = ApplicationConfig("foo.bar", models=["bar"])
-    assert app.validate_exclude_labels(["nope", "foo.bar", "flipflop"]) == [
+    assert app.is_valid_excludes(["nope", "foo.bar", "flipflop"]) == [
         "nope",
         "flipflop"
     ]
 
     app = ApplicationConfig("foo.bar", models=["bar"])
-    assert app.validate_exclude_labels(["nope", "foo.bar", ".flop"]) == [
+    assert app.is_valid_excludes(["nope", "foo.bar", ".flop"]) == [
         "nope",
         ".flop"
     ]

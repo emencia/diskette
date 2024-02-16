@@ -20,6 +20,23 @@ class DisketteError(DisketteBaseException):
     pass
 
 
+class DoesNotExistsFromAppstore(DisketteBaseException):
+    """
+    For an error from DjangoAppLookupStore when trying to get an object from store
+    lead to empty results.
+    """
+    pass
+
+
+class MultipleObjectExistsFromAppstore(DisketteBaseException):
+    """
+    For an error from DjangoAppLookupStore when trying to get an object from store
+    leading to multiple results but a single object is expected. Commonly from "get"
+    methods.
+    """
+    pass
+
+
 class ApplicationConfigError(DisketteBaseException):
     """
     For an error from model ApplicationConfig.

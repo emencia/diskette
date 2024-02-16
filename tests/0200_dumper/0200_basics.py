@@ -13,12 +13,12 @@ def test_validate_applications():
     Application validation should raise an ApplicationRegistryError exception that
     contains detail messages for model errors.
     """
-    manager = Dumper([
+    dumper = Dumper([
         ("meh", {}),
         ("foo.bar", {"models": "bar", "excludes": "nope"}),
     ])
     with pytest.raises(ApplicationRegistryError) as excinfo:
-        manager.validate_applications()
+        dumper.validate_applications()
 
     assert str(excinfo.value) == (
         "Some defined applications have errors: meh, foo.bar"
@@ -52,7 +52,7 @@ def test_exported_dicts():
     """
     Manager should return a normalized dict for application options or payload.
     """
-    manager = Dumper([
+    dumper = Dumper([
         (
             "django.contrib.sites", {
                 "comments": "django.contrib.sites",
@@ -81,7 +81,7 @@ def test_exported_dicts():
         ),
     ])
 
-    assert manager.dump_options() == [
+    assert dumper.dump_options() == [
         {
             "models": ["sites.Site"],
             "excludes": [],
@@ -110,7 +110,7 @@ def test_exported_dicts():
         }
     ]
 
-    assert manager.payload() == [
+    assert dumper.payload() == [
         {
             "name": "django.contrib.sites",
             "models": ["sites.Site"],
@@ -152,36 +152,47 @@ def test_exported_dicts():
     ]
 
 
-@pytest.mark.skip("Refactoring drainage, resolver and excludes, Part 1")
+@pytest.mark.skip("Awaiting appstore implementation, Part 1")
 def test_get_involved_models_sample_apps():
     """
     Method should returns the list of involved models from application definitions,
     optionally with the excluded ones.
     """
     # Only processed models (without exludes)
-    manager = Dumper([
-        ("bang", {
-            "models": "bang",
+    dumper = Dumper([
+        ("django.contrib.sites", {
+            "models": ["sites.Site"],
             "excludes": [],
             "allow_drain": True,
         }),
-        ("foo", {
-            "models": "bar",
+        ("django.contrib.auth", {
+            "models": ["auth"],
             "excludes": ["zip"],
             "allow_drain": True,
         }),
-        ("ping", {
-            "models": "ping",
-            "excludes": ["pong", "pung"],
+        ("djangoapp_sample", {
+            "models": "djangoapp_sample",
+            "excludes": ["djangoapp_sample.Article"],
         }),
     ])
     print()
-    print(manager.get_involved_models())
+    print(dumper.get_involved_models())
     print()
-    assert manager.get_involved_models() == [
-        "bang",
-        "bar",
-        "ping"
+
+    # NOTE: This is the new expectation with resolved labels including excludes diff
+    assert dumper.get_involved_models() == [
+        "sites.Site",
+        "auth.Permission",
+        "auth.Group_permissions",
+        "auth.Group",
+        "auth.User_groups",
+        "auth.User_user_permissions",
+        "auth.User",
+        # TODO: Zip item is returned but it should probably not
+        "zip",
+        "djangoapp_sample.Blog",
+        "djangoapp_sample.Category",
+        "djangoapp_sample.Article_categories",
     ]
 
     assert 1 == 42
@@ -210,8 +221,8 @@ def test_build_dump_manifest(manifest_version, tmp_path, tests_settings):
     users_data_dump = data_tmp / "users.json"
     users_data_dump.write_text("{\"dummy\": True}")
 
-    # Configure manager
-    manager = Dumper(
+    # Configure dumper
+    dumper = Dumper(
         [
             ("users", {"models": ["author.user"], "filename": "users.json"}),
             ("foo.bar", {"models": "bar", "filename": "foo-bar.json"}),
@@ -223,7 +234,7 @@ def test_build_dump_manifest(manifest_version, tmp_path, tests_settings):
         ]
     )
 
-    manifest_path = manager.build_dump_manifest(
+    manifest_path = dumper.build_dump_manifest(
         tmp_path,
         data_tmp,
         with_data=True,

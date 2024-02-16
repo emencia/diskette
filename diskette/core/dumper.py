@@ -112,6 +112,7 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
 
         for app in self.apps:
             models.extend(app.models)
+
             # TODO: allow_drain itself should allow to drain missing app models ?
             # Consider application excluded models as involved also
             if drain_excluded is True and app.allow_drain is True:

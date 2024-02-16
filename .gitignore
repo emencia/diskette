@@ -13,6 +13,7 @@ __pycache__/
 # Site media and builded statics
 /var/
 /sandbox/static
+/diskette/appstore.json
 
 # Settings
 localsettings.py

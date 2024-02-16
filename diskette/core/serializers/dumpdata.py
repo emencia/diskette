@@ -46,6 +46,8 @@ class DumpdataSerializerAbstract:
         """
         options = []
 
+        # TODO: Remove this since it involves a different behavior with model manager
+        # to get everything we just have to give no label at all
         if application.is_drain is True:
             options.append("--all")
 

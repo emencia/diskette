@@ -4,144 +4,10 @@ from django.apps import apps, AppConfig
 from django.db import models
 from django.utils.text import slugify
 
-from ..exceptions import ApplicationConfigError, AppModelResolverError
+from ...exceptions import ApplicationConfigError, AppModelResolverError
+from ..defaults import DEFAULT_FORMAT, AVAILABLE_FORMATS
 
-from .defaults import DEFAULT_FORMAT, AVAILABLE_FORMATS
-
-
-class AppModelResolverAbstract:
-    """
-    Abstract for methods to resolve model labels from applications
-    """
-    def normalize_model_name(self, model, app=None):
-        """
-        Return normalized name for a model.
-
-        Arguments:
-            model (object): Model name as a string or Model object (or at least
-                anything that inherit from ``django.db.models.base.ModelBase``).
-
-        Keyword Arguments:
-            app (Application): Application name or instance, it is optional but
-                commonly you should always give it as model label without app prefix
-                is subject to conflicts.
-
-        Returns:
-            string:
-        """
-        if app and isinstance(app, AppConfig):
-            app = app.label
-
-        if isinstance(model, models.base.ModelBase):
-            model = model.__name__
-
-        if not app:
-            return model
-
-        return "{}.{}".format(app, model)
-
-    def get_app_models(self, app):
-        """
-        Return model labels for given application.
-
-        Returns:
-            list: Fully qualified model labels formatted as ``APPNAME.MODELNAME``.
-        """
-        if isinstance(app, str):
-            app = apps.get_app_config(app)
-
-        return [
-            self.normalize_model_name(model, app=app)
-            for model in app.get_models(
-                include_auto_created=True,
-                include_swapped=True
-            )
-        ]
-
-    def get_all_models(self):
-        """
-        Return all model labels from enabled applications.
-
-        Returns:
-            list:
-        """
-        collected = []
-
-        for app in apps.get_app_configs():
-            names = self.get_app_models(app)
-
-            if names:
-                collected.extend(names)
-
-        return collected
-
-    def filter_out_excludes(self, excludes=None):
-        """
-        Return a callable to be used to filter out excluded labels from given iterable.
-
-        Returns:
-            list:
-        """
-        def _curry(item):
-            return True if not excludes else item not in excludes
-
-        return _curry
-
-    def resolve_labels(self, labels, excludes=None):
-        """
-        Resolve model names for given labels.
-
-        Arguments:
-            labels(string or list): Either labels are model labels (as a string for a
-                single one or a list for more) or application labels.
-
-                Application label
-                    This will be resolved to a list of names for all of its models, so
-                    its useful to select all app models.
-
-                Model label
-                    Also known as a *fully qualified label*. We use it unchanged
-                    without resolution. so its useful to explicitely define some
-                    models, the ones that are not defined will be ignored.
-
-                    A Model label must be in the form "APP.MODEL" because without the
-                    second part after the dot is assumed as an Application label.
-
-        Raises:
-            AppModelResolverError: If a label contain an empty app label such
-                ``.user``.
-            LookupError: This is raised by Django application framework when an
-                application label does not exist in application registry. We let it
-                raises to keep a proper stacktrace on purpose.
-
-        Returns:
-            list: List of resolved model names from given labels.
-        """
-        names = []
-
-        # Ensure we allways have a list
-        labels = [labels] if isinstance(labels, str) else labels
-
-        for label in labels:
-            # Try to parse item as a fully qualified label
-            try:
-                app_label, model_label = label.split(".")
-            # If not a fully qualified label assume it is an application label and add
-            # all models
-            except ValueError:
-                names.extend(self.get_app_models(label))
-            else:
-                # Ensure we don"t have a tricky label with empty app label
-                # DEPRECATED: Recently implemented in "validate_exclude_labels"
-                if not app_label:
-                    raise AppModelResolverError((
-                        "Label includes a dot without leading application "
-                        "name: {}".format(label)
-                    ))
-                # Add the fully qualified label
-                names.append(self.normalize_model_name(model_label, app=app_label))
-
-        return list(filter(self.filter_out_excludes(excludes), names))
+from .resolver import AppModelResolverAbstract
 
 
 class ApplicationConfig(AppModelResolverAbstract):
@@ -150,6 +16,7 @@ class ApplicationConfig(AppModelResolverAbstract):
 
     TODO: Another name would better to avoid mental clash with Django "AppConfig".
     ApplicationModel (+2) ? ApplicationDataDef (0)? ApplicationDefinition (+3) ?
+    DataDefinition (+3) ?
 
     Arguments:
         name (string): Application name, almost anything but it may be slugified for
@@ -210,8 +77,8 @@ class ApplicationConfig(AppModelResolverAbstract):
     @property
     def models(self):
         """
-        List all fully qualified model labels involved by definition and with exclude
-        labels removed.
+        List all fully qualified model labels involved implicitely and explicitely from
+        given ``models`` argument.
         """
         return self.resolve_labels(self._models, excludes=self.excludes)
 
@@ -260,7 +127,7 @@ class ApplicationConfig(AppModelResolverAbstract):
             for name in self.OPTIONS_ATTRS
         }
 
-    def validate_exclude_labels(self, labels):
+    def is_valid_excludes(self, labels):
         """
         Validate given labels are fully qualified.
 
@@ -298,7 +165,7 @@ class ApplicationConfig(AppModelResolverAbstract):
                 obj=self.__repr__(),
             ))
         else:
-            errors = self.validate_exclude_labels(self.excludes)
+            errors = self.is_valid_excludes(self.excludes)
             if errors:
                 msg = (
                     "{obj}: 'excludes' argument can only contains fully qualified "
@@ -351,7 +218,10 @@ class DrainApplicationConfig(ApplicationConfig):
     Special application to drain remaining models.
 
     Attributes:
-        drain_excluded (boolean): TODO
+        drain_excluded (boolean): TODO: Should define if Drain cares of excluded model
+            from app with 'allow_drain' or not. It is useful to have a drain which only
+            care about undefined apps and assume excludes from defined apps are totally
+            to ignore.
     """
     CONFIG_ATTRS = [
         "name", "models", "excludes", "natural_foreign", "natural_primary", "comments",
