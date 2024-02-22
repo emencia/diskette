@@ -406,6 +406,7 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
 
         finally:
             # Always remove temporary working directory
-            shutil.rmtree(destination_tmpdir)
+            if destination_tmpdir.exists():
+                shutil.rmtree(destination_tmpdir)
 
         return tarball_destination

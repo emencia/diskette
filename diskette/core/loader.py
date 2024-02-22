@@ -31,6 +31,12 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
         """
         Extract archive files in a temporary directory.
 
+        .. Warning::
+            Using this method, you are responsible to remove the temporary directory
+            once you are done with it. Your code must be safe about it and remove it
+            even when your code fails or you will produce a lot of remaining temporary
+            directories.
+
         Arguments:
             archive_path (Path): A Path object to the archive to open.
             keep (boolean): Archive won't be removed from filesystem if True, else the
@@ -219,9 +225,9 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
             dict: Statistics of restored storages and datas.
         """
         tmpdir = self.open(archive_path)
-        manifest = self.get_manifest(tmpdir)
 
         try:
+            manifest = self.get_manifest(tmpdir)
             stats = {
                 "storages": self.deploy_storages(
                     tmpdir,
@@ -232,6 +238,7 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
             }
         finally:
             # TODO: Option to keep temp dir with a warning
-            shutil.rmtree(tmpdir)
+            if tmpdir.exists():
+                shutil.rmtree(tmpdir)
 
         return stats
