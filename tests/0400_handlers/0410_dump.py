@@ -146,7 +146,7 @@ def test_dump(caplog, settings, db, tests_settings, tmp_path):
         no_data=False,
         no_storages=False,
         application_configurations=[
-            ("Django auth", {"models": ["auth.group", "auth.user"]}),
+            ("Django auth", {"models": ["auth.Group", "auth.User"]}),
             ("Django site", {"models": ["sites"]}),
         ],
         storages=[

@@ -37,7 +37,7 @@ def test_archive_data(manifest_version, tmp_path, archive_initials):
     manager = Dumper(
         [
             ("Django site", {"models": ["sites"]}),
-            ("Django auth", {"models": ["auth.group", "auth.user"]}),
+            ("Django auth", {"models": ["auth.Group", "auth.User"]}),
         ],
         storages=archive_initials["storages"],
     )
@@ -111,7 +111,7 @@ def test_archive_all(manifest_version, tmp_path, archive_initials):
     """
     manager = Dumper(
         [
-            ("Django auth", {"models": ["auth.group", "auth.user"]}),
+            ("Django auth", {"models": ["auth.Group", "auth.User"]}),
             ("Django site", {"models": ["sites"]}),
         ],
         storages=archive_initials["storages"]
@@ -162,7 +162,7 @@ def test_archive_excludes(manifest_version, tmp_path, archive_initials):
     manager = Dumper(
         [
             ("Django site", {"models": ["sites"]}),
-            ("Django auth", {"models": ["auth.group", "auth.user"]}),
+            ("Django auth", {"models": ["auth.Group", "auth.User"]}),
         ],
         storages=archive_initials["storages"],
         storages_excludes=[

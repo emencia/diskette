@@ -80,16 +80,20 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
         labels = []
 
         for app in apps:
+            # If drain accept exclusions, blindly follow the apps retentions
             if drain_excluded:
                 labels.extend(app.retention)
+            # If drain reject exclusions, ignores app policy and force exclusions
             else:
-                labels.extend(unduplicated_merge_lists(app.retention, app.excludes))
+                labels.extend(
+                    unduplicated_merge_lists(app.retention, app.excludes)
+                )
 
         return labels
 
     def load(self, apps):
         """
-        Load ApplicationConfig objects from given Application datas.
+        Load application objects from given definitions.
 
         Arguments:
             apps (list):
@@ -175,10 +179,6 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
         Returns:
             list:
         """
-        for app in self.apps:
-            print("🚀 Dumper.build_commands:app.name:", app.name)
-            print("🚀   - excludes", app.excludes)
-
         return [
             (
                 app.name,

@@ -32,7 +32,6 @@ class DumpdataSerializerAbstract:
         Returns:
             string: Command line to run a dumpdata job.
         """
-        print("🎨    - excludes:", application.excludes)
         options = []
 
         # NOTE: This should be enabled with the proper option
