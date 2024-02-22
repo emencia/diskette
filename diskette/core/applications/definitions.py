@@ -7,10 +7,13 @@ from django.utils.text import slugify
 from ...exceptions import ApplicationConfigError, AppModelResolverError
 from ..defaults import DEFAULT_FORMAT, AVAILABLE_FORMATS
 
-from .resolver import AppModelResolverAbstract
+from .store import get_appstore
 
 
-class ApplicationConfig(AppModelResolverAbstract):
+appstore = get_appstore()
+
+
+class ApplicationConfig:
     """
     Application model to validate and store application details.
 
@@ -48,8 +51,8 @@ class ApplicationConfig(AppModelResolverAbstract):
             reserved to ``DrainApplicationConfig``.
     """
     CONFIG_ATTRS = [
-        "name", "models", "excludes", "natural_foreign", "natural_primary", "comments",
-        "filename", "is_drain", "allow_drain",
+        "name", "models", "excludes", "retention", "natural_foreign", "natural_primary",
+        "comments", "filename", "is_drain", "allow_drain",
     ]
     OPTIONS_ATTRS = [
         "models", "excludes", "natural_foreign", "natural_primary", "filename",
@@ -57,10 +60,10 @@ class ApplicationConfig(AppModelResolverAbstract):
 
     def __init__(self, name, models=[], excludes=None, natural_foreign=False,
                  natural_primary=False, comments=None, filename=None,
-                 allow_drain=False):
+                 is_drain=None, allow_drain=False):
         self.name = name
         self._models = [models] if isinstance(models, str) else models
-        self.excludes = excludes or []
+        self._excludes = excludes or []
         self.natural_foreign = natural_foreign
         self.natural_primary = natural_primary
         self.comments = comments
@@ -77,10 +80,57 @@ class ApplicationConfig(AppModelResolverAbstract):
     @property
     def models(self):
         """
-        List all fully qualified model labels involved implicitely and explicitely from
-        given ``models`` argument.
+        List all fully qualified model labels to include, either implicitely and
+        explicitely from given ``models`` argument.
+
+        NOTE: models, excludes and retention attributes may be cached since they have
+        no reason to change.
+
+        Returns:
+            list: Fully qualified model labels.
         """
-        return self.resolve_labels(self._models, excludes=self.excludes)
+        return [
+            model.label
+            for model in appstore.get_models_inclusions(
+                self._models, excludes=self._excludes
+            )
+        ]
+
+    @property
+    def excludes(self):
+        """
+        List all fully qualified model labels to exclude, either implicitely and
+        explicitely from given ``_excludes`` argument.
+
+        Returns:
+            list: Fully qualified model labels.
+        """
+        return [
+            model.label
+            for model in appstore.get_models_exclusions(
+                self._models, excludes=self._excludes
+            )
+        ]
+
+    @property
+    def retention(self):
+        """
+        List all fully qualified model labels that are not allowed to be drained from
+        this application.
+
+        Included models are never allowed to be drained and exclusions models may be
+        allowed if ``allow_drain`` is enabled.
+
+        Returns:
+            list: Fully qualified model labels that won't be allowed to be drained.
+                This means labels from ``models`` on defaut and possibly the
+                ``excludes`` one also if application allows for drainage.
+        """
+        if not self.allow_drain:
+            return self.models + self.excludes
+
+        return self.models
+
 
     def get_filename(self, format_extension=None):
         """
@@ -127,45 +177,48 @@ class ApplicationConfig(AppModelResolverAbstract):
             for name in self.OPTIONS_ATTRS
         }
 
-    def is_valid_excludes(self, labels):
+    def validate_includes(self):
         """
-        Validate given labels are fully qualified.
-
-        Fully qualified label is made of two non empty name parts divided by a dot
-        like ``foo.bar``.
-
-        Arguments:
-            labels (list): List of label to validate.
-
-        Returns:
-            list: A list of invalid labels.
+        Validate include labels from ``_models`` attribute.
         """
-        invalids = [
-            pattern
-            for pattern in labels
-            if (
-                len(pattern.split(".")) < 2 or
-                pattern.startswith(".") or
-                pattern.endswith(".")
+        # Models are required but not for an application drain object
+        if not self._models and self.is_drain is False:
+            msg = "{obj}: 'models' must not be an empty value."
+            raise ApplicationConfigError(msg.format(
+                obj=self.__repr__(),
+            ))
+
+        unknow_apps, unknow_models = appstore.check_unexisting_labels(self._models)
+
+        if len(unknow_apps) > 0:
+            msg = (
+                "{obj}: Some given app labels to include does not exists: {labels}"
             )
-        ]
+            raise ApplicationConfigError(msg.format(
+                obj=self.__repr__(),
+                labels=", ".join(unknow_apps),
+            ))
 
-        return invalids
+        if len(unknow_models) > 0:
+            msg = (
+                "{obj}: Some given models labels to include does not exists: {labels}"
+            )
+            raise ApplicationConfigError(msg.format(
+                obj=self.__repr__(),
+                labels=", ".join(unknow_models),
+            ))
 
-    def validate(self):
+    def validate_excludes(self):
         """
-        Validate Application data.
-
-        Raises:
-            ApplicationConfigError: In case of invalid values from options.
+        Validate exclude labels from ``excludes`` attribute.
         """
-        if not isinstance(self.excludes, list):
+        if not isinstance(self._excludes, list):
             msg = "{obj}: 'excludes' argument must be a list."
             raise ApplicationConfigError(msg.format(
                 obj=self.__repr__(),
             ))
         else:
-            errors = self.is_valid_excludes(self.excludes)
+            errors = appstore.is_fully_qualified_labels(self._excludes)
             if errors:
                 msg = (
                     "{obj}: 'excludes' argument can only contains fully qualified "
@@ -176,13 +229,27 @@ class ApplicationConfig(AppModelResolverAbstract):
                     labels=", ".join(errors),
                 ))
 
-        # Models are required but not for an application drain object
-        if not self.models and self.is_drain is False:
-            msg = "{obj}: 'models' must not be an empty value."
+        unknow_apps, unknow_models = appstore.check_unexisting_labels(self._excludes)
+
+        if len(unknow_apps) > 0:
+            msg = (
+                "{obj}: Some given app labels to exclude does not exists: {labels}"
+            )
             raise ApplicationConfigError(msg.format(
                 obj=self.__repr__(),
+                labels=", ".join(unknow_apps),
             ))
 
+        if len(unknow_models) > 0:
+            msg = (
+                "{obj}: Some given models labels to exclude does not exists: {labels}"
+            )
+            raise ApplicationConfigError(msg.format(
+                obj=self.__repr__(),
+                labels=", ".join(unknow_models),
+            ))
+
+    def validate_filename(self):
         # Filename must have a file extension to discover serialization format
         extension = Path(self.filename).suffix
         if not extension:
@@ -209,19 +276,29 @@ class ApplicationConfig(AppModelResolverAbstract):
                     formats=", ".join(AVAILABLE_FORMATS),
                 ))
 
-        # Try to resolve models that should raise exceptions for invalid labels
-        self.resolve_labels(self.models)
+    def validate(self):
+        """
+        Validate Application options.
+
+        Raises:
+            ApplicationConfigError: In case of invalid values from options.
+        """
+        self.validate_filename()
+        self.validate_includes()
+        self.validate_excludes()
 
 
 class DrainApplicationConfig(ApplicationConfig):
     """
-    Special application to drain remaining models.
+    Special application to drain remaining models from apps.
+
+    On default a drain will dump anything that have not been defined from apps. Its
+    base goal is to dump data from undefined applications.
 
     Attributes:
-        drain_excluded (boolean): TODO: Should define if Drain cares of excluded model
-            from app with 'allow_drain' or not. It is useful to have a drain which only
-            care about undefined apps and assume excludes from defined apps are totally
-            to ignore.
+        drain_excluded (boolean): If enabled, the drain will accept to drain exclusion
+            from applications which allow it. Else the drain will exclude also the
+            application exclusion. Default is disabled.
     """
     CONFIG_ATTRS = [
         "name", "models", "excludes", "natural_foreign", "natural_primary", "comments",
@@ -236,5 +313,20 @@ class DrainApplicationConfig(ApplicationConfig):
 
         super().__init__(*args, **kwargs)
 
+        # Drain never allow for any inclusion
+        self._models = []
+        # Force as a drain only
         self.is_drain = True
+        # It is not allowed to be drained itself
         self.allow_drain = False
+
+    @property
+    def excludes(self):
+        """
+        Just returns exclude labels as given since drain excludes are meaningful
+        enough.
+
+        Returns:
+            list: Fully qualified model labels.
+        """
+        return self._excludes

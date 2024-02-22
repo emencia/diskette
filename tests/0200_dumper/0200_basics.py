@@ -15,7 +15,7 @@ def test_validate_applications():
     """
     dumper = Dumper([
         ("meh", {}),
-        ("foo.bar", {"models": "bar", "excludes": "nope"}),
+        ("foo.bar", {"models": "auth", "excludes": "nope"}),
     ])
     with pytest.raises(ApplicationRegistryError) as excinfo:
         dumper.validate_applications()
@@ -64,14 +64,14 @@ def test_exported_dicts():
             "django.contrib.auth", {
                 "comments": "django.contrib.auth: user and groups, no perms",
                 "natural_foreign": True,
-                "models": ["auth.group","auth.user"]
+                "models": ["auth.Group", "auth.User"]
             }
         ),
         (
             "blog", {
                 "comments": "internal blog sample app",
                 "models": "djangoapp_sample",
-                "excludes": ["blog.category"],
+                "excludes": ["djangoapp_sample.Category"],
                 "comments": "Lorem ipsum",
                 "natural_foreign": False,
                 "natural_primary": True,
@@ -90,8 +90,13 @@ def test_exported_dicts():
             "filename": "djangocontribsites.json"
         },
         {
-            "models": ["auth.group", "auth.user"],
-            "excludes": [],
+            "models": ["auth.Group", "auth.User"],
+            "excludes": [
+                "auth.Permission",
+                "auth.Group_permissions",
+                "auth.User_groups",
+                "auth.User_user_permissions",
+            ],
             "natural_foreign": True,
             "natural_primary": False,
             "filename": "djangocontribauth.json"
@@ -99,11 +104,10 @@ def test_exported_dicts():
         {
             "models": [
                 "djangoapp_sample.Blog",
-                "djangoapp_sample.Category",
                 "djangoapp_sample.Article_categories",
                 "djangoapp_sample.Article"
             ],
-            "excludes": ["blog.category"],
+            "excludes": ["djangoapp_sample.Category"],
             "natural_foreign": False,
             "natural_primary": True,
             "filename": "blog.json"
@@ -115,6 +119,7 @@ def test_exported_dicts():
             "name": "django.contrib.sites",
             "models": ["sites.Site"],
             "excludes": [],
+            "retention": ["sites.Site"],
             "natural_foreign": True,
             "natural_primary": False,
             "comments": "django.contrib.sites",
@@ -124,8 +129,21 @@ def test_exported_dicts():
         },
         {
             "name": "django.contrib.auth",
-            "models": ["auth.group", "auth.user"],
-            "excludes": [],
+            "models": ["auth.Group", "auth.User"],
+            "excludes": [
+                "auth.Permission",
+                "auth.Group_permissions",
+                "auth.User_groups",
+                "auth.User_user_permissions",
+            ],
+            "retention": [
+                "auth.Group",
+                "auth.User",
+                "auth.Permission",
+                "auth.Group_permissions",
+                "auth.User_groups",
+                "auth.User_user_permissions",
+            ],
             "natural_foreign": True,
             "natural_primary": False,
             "comments": "django.contrib.auth: user and groups, no perms",
@@ -137,11 +155,17 @@ def test_exported_dicts():
             "name": "blog",
             "models": [
                 "djangoapp_sample.Blog",
-                "djangoapp_sample.Category",
                 "djangoapp_sample.Article_categories",
                 "djangoapp_sample.Article"
             ],
-            "excludes": ["blog.category"],
+            "excludes": [
+                "djangoapp_sample.Category"
+            ],
+            "retention": [
+                "djangoapp_sample.Blog",
+                "djangoapp_sample.Article_categories",
+                "djangoapp_sample.Article"
+            ],
             "natural_foreign": False,
             "natural_primary": True,
             "comments": "Lorem ipsum",
@@ -152,13 +176,11 @@ def test_exported_dicts():
     ]
 
 
-@pytest.mark.skip("Awaiting appstore implementation, Part 1")
-def test_get_involved_models_sample_apps():
+def test_get_drain_exclusions_sample_apps():
     """
     Method should returns the list of involved models from application definitions,
-    optionally with the excluded ones.
+    optionally with the exclusions.
     """
-    # Only processed models (without exludes)
     dumper = Dumper([
         ("django.contrib.sites", {
             "models": ["sites.Site"],
@@ -167,35 +189,43 @@ def test_get_involved_models_sample_apps():
         }),
         ("django.contrib.auth", {
             "models": ["auth"],
-            "excludes": ["zip"],
+            "excludes": ["auth.Group"],
             "allow_drain": True,
         }),
         ("djangoapp_sample", {
             "models": "djangoapp_sample",
             "excludes": ["djangoapp_sample.Article"],
+            "allow_drain": False,
         }),
     ])
-    print()
-    print(dumper.get_involved_models())
-    print()
+    dumper.validate()
 
-    # NOTE: This is the new expectation with resolved labels including excludes diff
-    assert dumper.get_involved_models() == [
+    assert dumper.get_drain_exclusions(dumper.apps, drain_excluded=False) == [
         "sites.Site",
         "auth.Permission",
         "auth.Group_permissions",
-        "auth.Group",
         "auth.User_groups",
         "auth.User_user_permissions",
         "auth.User",
-        # TODO: Zip item is returned but it should probably not
-        "zip",
+        "auth.Group",
         "djangoapp_sample.Blog",
         "djangoapp_sample.Category",
         "djangoapp_sample.Article_categories",
+        "djangoapp_sample.Article",
     ]
 
-    assert 1 == 42
+    assert dumper.get_drain_exclusions(dumper.apps, drain_excluded=True) == [
+        "sites.Site",
+        "auth.Permission",
+        "auth.Group_permissions",
+        "auth.User_groups",
+        "auth.User_user_permissions",
+        "auth.User",
+        "djangoapp_sample.Blog",
+        "djangoapp_sample.Category",
+        "djangoapp_sample.Article_categories",
+        "djangoapp_sample.Article",
+    ]
 
 
 @freeze_time("2012-10-15 10:00:00")

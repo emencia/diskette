@@ -9,7 +9,7 @@ from .. import __version__
 from ..exceptions import (
     ApplicationConfigError, ApplicationRegistryError, DumperError
 )
-from ..utils.lists import get_duplicates
+from ..utils.lists import get_duplicates, unduplicated_merge_lists
 from ..utils.loggers import NoOperationLogger
 
 from .applications import ApplicationConfig, DrainApplicationConfig
@@ -64,6 +64,29 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
         """
         return __version__
 
+    def get_drain_exclusions(self, apps, drain_excluded=False):
+        """
+        Get all model labels that should be excluded from a Drain to respect drainage
+        policy.
+
+        Keyword Arguments:
+            drain_excluded (boolean): If True, the excluded models are also returned for
+                application which allows it with their ``allow_drain`` option. If False
+                the excluded model won't be included. Default is False.
+
+        Returns:
+            list: List of application or model names.
+        """
+        labels = []
+
+        for app in apps:
+            if drain_excluded:
+                labels.extend(app.retention)
+            else:
+                labels.extend(unduplicated_merge_lists(app.retention, app.excludes))
+
+        return labels
+
     def load(self, apps):
         """
         Load ApplicationConfig objects from given Application datas.
@@ -86,44 +109,34 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
                 )
             )
 
+        # Build registry of application models
+        objects = []
         for name, options in apps:
-            if options.pop("is_drain", False):
-                drains.append(DrainApplicationConfig(name, **options))
-            else:
+            if not options.get("is_drain"):
+                # 'is_drain' is not meant to be passed as model argument
+                options.pop("is_drain", None)
+                # Append initialized app model
                 objects.append(ApplicationConfig(name, **options))
 
+        # Add drain models to registry
+        drains = []
+        for name, options in apps:
+            if options.get("is_drain"):
+                # Merge explicit drain exclusions with involved app models to
+                # exclude
+                options["excludes"] = unduplicated_merge_lists(
+                    self.get_drain_exclusions(
+                        objects,
+                        drain_excluded=options.get("drain_excluded", False)
+                    ),
+                    options.get("excludes", []),
+                )
+                # 'is_drain' is not meant to be passed as model argument
+                options.pop("is_drain", None)
+                # Append initialized drain model
+                drains.append(DrainApplicationConfig(name, **options))
+
         return objects + drains
-
-    def get_involved_models(self, drain_excluded=True):
-        """
-        Get all defined app model names from application definitions.
-
-        This method purpose is essentially to collect all models to exclude from drain.
-
-        Keyword Arguments:
-            drain_excluded (boolean): If True, the excluded models are also returned for
-                application which allows it with their ``allow_drain`` option. If False
-                the excluded model won't be included. Default is True.
-
-        Returns:
-            list: List of application or model names.
-        """
-        models = []
-
-        for app in self.apps:
-            models.extend(app.models)
-
-            # TODO: allow_drain itself should allow to drain missing app models ?
-            # Consider application excluded models as involved also
-            if drain_excluded is True and app.allow_drain is True:
-                # Append without duplicates
-                models.extend([
-                    item
-                    for item in app.excludes
-                    if item not in models
-                ])
-
-        return models
 
     def dump_options(self):
         """
@@ -162,27 +175,16 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
         Returns:
             list:
         """
+        for app in self.apps:
+            print("🚀 Dumper.build_commands:app.name:", app.name)
+            print("🚀   - excludes", app.excludes)
+
         return [
             (
                 app.name,
                 self.command(app, destination=destination, indent=indent)
             )
             for app in self.apps
-            if app.is_drain is not True
-        ] + [
-            (
-                app.name,
-                self.command(
-                    app,
-                    destination=destination,
-                    indent=indent,
-                    extra_excludes=self.get_involved_models(
-                        drain_excluded=app.drain_excluded
-                    ),
-                )
-            )
-            for app in self.apps
-            if app.is_drain is True
         ]
 
     def dump_data(self, destination=None, indent=None):
@@ -202,21 +204,6 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
                 self.call(app, destination=destination, indent=indent)
             )
             for app in self.apps
-            if app.is_drain is not True
-        ] + [
-            (
-                app.name,
-                self.call(
-                    app,
-                    destination=destination,
-                    indent=indent,
-                    extra_excludes=self.get_involved_models(
-                        drain_excluded=app.drain_excluded
-                    ),
-                )
-            )
-            for app in self.apps
-            if app.is_drain is True
         ]
 
     def validate_applications(self):

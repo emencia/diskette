@@ -24,7 +24,7 @@ def test_dump_data(db, tmp_path):
     donald.save()
 
     manager = Dumper([
-        ("Django auth", {"models": ["auth.group", "auth.user"]}),
+        ("Django auth", {"models": ["auth.Group", "auth.User"]}),
         ("Django site", {"models": ["sites"]}),
     ])
     results = manager.dump_data()
@@ -107,7 +107,7 @@ def test_dump_data_destination(db, tmp_path):
     donald.save()
 
     manager = Dumper([
-        ("Django auth", {"models": ["auth.group", "auth.user"]}),
+        ("Django auth", {"models": ["auth.Group", "auth.User"]}),
         ("Django site", {"models": ["sites"]}),
     ])
     results = manager.dump_data(destination=tmp_path)
@@ -181,11 +181,8 @@ def test_dump_data_destination(db, tmp_path):
 @freeze_time("2012-10-15 10:00:00")
 def test_dump_data_drained(db, tmp_path):
     """
-    With a drain application, every remaining models that have not been excluded should
-    be dumped to the drain entry.
-
-    TODO: Blog app definitions does not allow drain but its remaining models are still
-    dumped in drain, seems invalid behavior of drain.
+    With a drain application, every remaining models that have been excluded, from app
+    that allow drainage, should be dumped into the drain.
     """
     picsou = UserFactory()
     # Force a dummy string password easier to assert
@@ -197,27 +194,24 @@ def test_dump_data_drained(db, tmp_path):
     article = ArticleFactory(blog=blog, fill_categories=[category])
 
     manager = Dumper([
-        ("Django auth", {"models": ["auth.group", "auth.user"]}),
+        ("Django auth", {"models": ["auth.Group", "auth.User"]}),
         ("Blog sample", {
-            "models": ["djangoapp_sample.blog", "djangoapp_sample.category"]
+            "models": ["djangoapp_sample.Blog", "djangoapp_sample.Category"],
+            "allow_drain": True,
         }),
         ("Drainage", {
             "is_drain": True,
-            "excludes": ["contenttypes", "auth.permission"],
+            "excludes": ["contenttypes", "auth.Permission"],
             "drain_excluded": True,
         }),
     ])
     results = manager.dump_data()
+
     # Parse command string outputs and turn them to JSON
-    deserialized = [
-        (k, json.loads(v))
-        for k, v in results
-    ]
-
-    print()
-    print(json.dumps(deserialized, indent=4))
-    print()
-
+    deserialized = [(k, json.loads(v)) for k, v in results]
+    # print()
+    # print(json.dumps(deserialized, indent=4))
+    # print()
     assert deserialized == [
         (
             "Django auth",

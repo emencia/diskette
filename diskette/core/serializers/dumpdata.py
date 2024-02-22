@@ -17,18 +17,6 @@ class DumpdataSerializerAbstract:
     COMMAND_NAME = "dumpdata"
     COMMAND_TEMPLATE = "{executable}dumpdata {options}"
 
-    def merge_excludes(self, source, extra):
-        """
-        Safely merge source and extra list without duplicate items.
-        """
-        source = source or []
-        extra = extra or []
-
-        merged = [v for v in source]
-        merged.extend(v for v in extra if v not in source)
-
-        return merged
-
     def command(self, application, destination=None, indent=None, extra_excludes=None):
         """
         Build command line to use ``dumpdata``.
@@ -44,12 +32,11 @@ class DumpdataSerializerAbstract:
         Returns:
             string: Command line to run a dumpdata job.
         """
+        print("🎨    - excludes:", application.excludes)
         options = []
 
-        # TODO: Remove this since it involves a different behavior with model manager
-        # to get everything we just have to give no label at all
-        if application.is_drain is True:
-            options.append("--all")
+        # NOTE: This should be enabled with the proper option
+        #options.append("--all")
 
         if indent:
             options.append("--indent={}".format(indent))
@@ -63,11 +50,10 @@ class DumpdataSerializerAbstract:
         if application.natural_primary:
             options.append("--natural-primary")
 
-        complete_excludes = self.merge_excludes(application.excludes, extra_excludes)
-        if complete_excludes:
+        if application.is_drain:
             options.append(" ".join([
                 "--exclude {}".format(item)
-                for item in complete_excludes
+                for item in application.excludes
             ]))
 
         if destination:
@@ -111,10 +97,10 @@ class DumpdataSerializerAbstract:
         if indent:
             options["indent"] = indent
 
-        options["exclude"] = self.merge_excludes(
-            options.pop("excludes"),
-            extra_excludes
-        )
+        # Diskette never use 'excludes' for common applications
+        excludes = options.pop("excludes")
+        if application.is_drain:
+            options["exclude"] = excludes
 
         self.logger.info("Dumping data for application '{}'".format(application.name))
 

@@ -10,6 +10,8 @@ from ...exceptions import ApplicationConfigError, AppModelResolverError
 class AppModelResolverAbstract:
     """
     Abstract for methods to resolve model labels from applications
+
+    DEPRECATED: Superseded by appstore.
     """
     def normalize_model_name(self, model, app=None):
         """

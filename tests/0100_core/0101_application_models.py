@@ -8,7 +8,14 @@ def test_application_invalid_excludes_type():
     """
     Application should raise an error from invalid 'excludes' type.
     """
-    app = ApplicationConfig("foo.bar", models=["bar"], excludes="nope")
+    app = ApplicationConfig("foo.bar", models=["auth"], excludes="nope")
+    with pytest.raises(ApplicationConfigError) as excinfo:
+        app.validate_excludes()
+
+    assert str(excinfo.value) == (
+        "<ApplicationConfig: foo.bar>: 'excludes' argument must be a list."
+    )
+
     with pytest.raises(ApplicationConfigError) as excinfo:
         app.validate()
 
@@ -21,25 +28,19 @@ def test_application_invalid_excludes_label():
     """
     Application should raise an error for exclude label which are not fully qualified.
     """
-    # Directly from validation method, returns the list of invalid label
-    app = ApplicationConfig("foo.bar", models=["bar"])
-    assert app.is_valid_excludes(["nope", "foo.bar", "flipflop"]) == [
-        "nope",
-        "flipflop"
-    ]
-
-    app = ApplicationConfig("foo.bar", models=["bar"])
-    assert app.is_valid_excludes(["nope", "foo.bar", ".flop"]) == [
-        "nope",
-        ".flop"
-    ]
-
-    # By the way of main app validate method, raise an exception with invalid labels
-    app = ApplicationConfig("foo.bar", models=["bar"], excludes=[
+    app = ApplicationConfig("foo.bar", models=["auth"], excludes=[
         "nope",
         "foo.bar",
         ".flop"
     ])
+    with pytest.raises(ApplicationConfigError) as excinfo:
+        app.validate_excludes()
+
+    assert str(excinfo.value) == (
+        "<ApplicationConfig: foo.bar>: 'excludes' argument can only contains fully "
+        "qualified labels (like 'foo.bar') these ones are invalid: nope, .flop"
+    )
+
     with pytest.raises(ApplicationConfigError) as excinfo:
         app.validate()
 
@@ -67,10 +68,13 @@ def test_application_invalid_models():
     Application should raise an error when 'models' is an invalid application label.
     """
     app = ApplicationConfig("foo", models="bar")
-    with pytest.raises(LookupError) as excinfo:
+    with pytest.raises(ApplicationConfigError) as excinfo:
         app.validate()
 
-    assert str(excinfo.value) == "No installed app with label 'bar'."
+    assert str(excinfo.value) == (
+        "<ApplicationConfig: foo>: Some given app labels to include does not "
+        "exists: bar"
+    )
 
 
 def test_application_invalid_format():
@@ -102,7 +106,10 @@ def test_application_valid_basic():
     With minimal correct values, Application object should be correctly created.
     """
     app_foo = ApplicationConfig("Site objects", models=["sites"])
+    app_foo.validate()
+
     assert repr(app_foo) == "<ApplicationConfig: Site objects>"
+
     assert app_foo.as_config() == {
         "name": "Site objects",
         "comments": None,
@@ -110,10 +117,12 @@ def test_application_valid_basic():
         "allow_drain": False,
         "models": ["sites.Site"],
         "excludes": [],
+        "retention": ["sites.Site"],
         "natural_foreign": False,
         "natural_primary": False,
         "filename": "site-objects.json",
     }
+
     assert app_foo.as_options() == {
         "models": ["sites.Site"],
         "excludes": [],
@@ -133,7 +142,7 @@ def test_application_valid_full():
         comments="Lorem ipsum",
         natural_foreign=True,
         natural_primary=True,
-        excludes=["auth.Group", "foo"],
+        excludes=["auth.Group"],
         filename="ping_pong.json",
         allow_drain=True,
     )
@@ -150,7 +159,14 @@ def test_application_valid_full():
             "auth.User_user_permissions",
             "auth.User",
         ],
-        "excludes": ["auth.Group", "foo"],
+        "excludes": ["auth.Group"],
+        "retention": [
+            "auth.Permission",
+            "auth.Group_permissions",
+            "auth.User_groups",
+            "auth.User_user_permissions",
+            "auth.User",
+        ],
         "natural_foreign": True,
         "natural_primary": True,
         "filename": "ping_pong.json",
@@ -163,7 +179,7 @@ def test_application_valid_full():
             "auth.User_user_permissions",
             "auth.User",
         ],
-        "excludes": ["auth.Group", "foo"],
+        "excludes": ["auth.Group"],
         "natural_foreign": True,
         "natural_primary": True,
         "filename": "ping_pong.json",

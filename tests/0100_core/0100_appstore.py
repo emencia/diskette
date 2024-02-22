@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from diskette.core.applications import get_appstore
+from diskette.core.applications.store import get_appstore
 from diskette.exceptions import DoesNotExistsFromAppstore
 
 from datalookup import Node
@@ -29,15 +29,29 @@ def test_registry_build(tests_settings):
 
 def test_normalize_label():
     """
-    Method should return proper normalized model label.
+    Method should returns proper normalized model label.
     """
     assert appstore.normalize_label("Foo", app=None) == "Foo"
     assert appstore.normalize_label("Foo", app="ping") == "ping.Foo"
 
 
+def test_is_fully_qualified_labels():
+    """
+    Method should returns labels which are not fully qualified.
+    """
+    assert appstore.is_fully_qualified_labels(["foo.bar"]) == []
+
+    labels = ["nope", "foo.bar", ".flop", "flip."]
+    assert appstore.is_fully_qualified_labels(labels) == [
+        "nope",
+        ".flop",
+        "flip.",
+    ]
+
+
 def test_get_app_model_labels():
     """
-    Method should return all application models.
+    Method should returns all application models.
     """
     assert appstore.get_app_model_labels("auth") == [
         "auth.Permission",
@@ -88,15 +102,15 @@ def test_get_model():
     assert str(excinfo.value) == "No model object exists for given label: 'foo.bar'"
 
 
-def test_check_invalid_labels():
+def test_check_unexisting_labels():
     """
     Method should returns app labels and model labels that are not valid.
     """
-    assert appstore.check_invalid_labels("foo") == (['foo'], [])
+    assert appstore.check_unexisting_labels("foo") == (['foo'], [])
 
-    assert appstore.check_invalid_labels("plip.plop") == ([], ['plip.plop'])
+    assert appstore.check_unexisting_labels("plip.plop") == ([], ['plip.plop'])
 
-    assert appstore.check_invalid_labels(["sites", "plip.plop", "foo"]) == (
+    assert appstore.check_unexisting_labels(["sites", "plip.plop", "foo"]) == (
         ['foo'], ['plip.plop']
     )
 
@@ -150,6 +164,15 @@ def test_get_all_model_labels():
             "djangoapp_sample.Article",
         ],
     ),
+    # Include explicit models and a whole app
+    (
+        ["auth.Group", "auth.User", "sites"],
+        [
+            "auth.Group",
+            "auth.User",
+            "sites.Site",
+        ],
+    ),
 ])
 def test_inclusions(labels, expected):
     """
@@ -160,12 +183,6 @@ def test_inclusions(labels, expected):
 
 
 @pytest.mark.parametrize("labels, excludes, expected", [
-    # TODO: invalid label raise ValueError
-    #(
-        #"djangoapp_sample.foo",
-        #"auth.User",
-        #["djangoapp_sample.Article"],
-    #),
     # Excluding a label not existing from inclusions
     (
         "djangoapp_sample.Article",
@@ -238,6 +255,21 @@ def test_inclusions_with_excludes(labels, excludes, expected):
     assert [item.label for item in res] == expected
 
 
+def test_inclusions_with_invalid_excludes():
+    """
+    Model inclusions may raise error in case of unexisting FQM label.
+    """
+    with pytest.raises(DoesNotExistsFromAppstore) as excinfo:
+        appstore.get_models_inclusions(
+            "djangoapp_sample.foo",
+            excludes="auth.User",
+        )
+
+    assert str(excinfo.value) == (
+        "No model object exists for given label: 'djangoapp_sample.foo'"
+    )
+
+
 @pytest.mark.parametrize("labels, expected", [
     # Implicit excludes from some omitted models on same app
     (
@@ -284,10 +316,10 @@ def test_exclusions_implicits(labels, expected):
     # Exclude a single model from an app
     ("auth", "auth.Group", ["auth.Group"]),
     # Exclude an app
-    ("auth", "sites", []),
+    ("auth", "sites", ["sites.Site"]),
     # Exclude a model from an app among multiple apps
     (["auth", "sites"], "auth.Group", ["auth.Group"]),
-    # Exclude a model that is not implied from inclusion labels
+    # Exclude a model that is not related to apps implied by included models
     (
         "djangoapp_sample.Article",
         "djangoapp_sample.Blog",
@@ -311,6 +343,26 @@ def test_exclusions_implicits(labels, expected):
             "djangoapp_sample.Blog",
             "djangoapp_sample.Category",
             "djangoapp_sample.Article_categories",
+        ],
+    ),
+    # Exclude models that are not related to apps implied by included models
+    (
+        ["sites"],
+        [
+            "auth.Permission",
+            "auth.Group_permissions",
+            "auth.Group",
+            "auth.User_groups",
+            "auth.User_user_permissions",
+            "auth.User",
+        ],
+        [
+            "auth.Permission",
+            "auth.Group_permissions",
+            "auth.Group",
+            "auth.User_groups",
+            "auth.User_user_permissions",
+            "auth.User",
         ],
     ),
 ])

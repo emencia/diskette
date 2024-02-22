@@ -40,7 +40,7 @@ def test_dump_call(db, tmp_path):
     picsou.password = "dummy"
     picsou.save()
 
-    app_auth = ApplicationConfig("Django auth", ["auth.group", "auth.user"])
+    app_auth = ApplicationConfig("Django auth", ["auth.Group", "auth.User"])
     results = serializer.call(app_auth)
     deserialized = json.loads(results)
     assert deserialized == [
