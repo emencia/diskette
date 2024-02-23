@@ -75,7 +75,7 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
                 the excluded model won't be included. Default is False.
 
         Returns:
-            list: List of application or model names.
+            list: List of FQM labels.
         """
         labels = []
 
@@ -96,10 +96,10 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
         Load application objects from given definitions.
 
         Arguments:
-            apps (list):
+            apps (list): List of dictionnaries where each one is an application.
 
         Returns:
-            list:
+            list: List of application objects built from given definitions.
         """
         objects = []
         drains = []

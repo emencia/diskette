@@ -41,6 +41,21 @@ class StorageMixin:
                     "Storage path is not a directory: {}".format(storage)
                 )
 
+            #if storage.is_absolute():
+                #raise DumperError(
+                    #"Storage path must be a relative path to: {}".format(
+                        #self.storages_basepath
+                    #)
+                #)
+
+            try:
+                storage.relative_to(self.storages_basepath)
+            except ValueError:
+                raise DumperError(
+                    "Storage must be a child of: {}".format(self.storages_basepath)
+                )
+
+
     def is_allowed_path(self, path):
         """
         Check if given path match is allowed to be collected depending it match or not
