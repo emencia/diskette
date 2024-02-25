@@ -6,11 +6,19 @@
 Diskette
 ========
 
-Export and import Django application data and storages.
+Export and import Django application datas and storage directories.
 
-Application datas are using Django fixtures in JSON.
 
-Storages are not Django storages, only a set of directories to copy.
+Features
+********
+
+* Application datas are managed using Django fixtures in JSON, no need to define
+  anything else than application label or models names;
+* Advanced data drainage for application datas;
+* Storage directories are not Django storages and can be whatever you need until it
+  exists under the same base path for all storages;
+* Many excluding rules for datas and storages to avoid useless content in archive;
+* Build a complete archive that can be automatically loaded with Diskette or manually;
 
 
 Dependancies

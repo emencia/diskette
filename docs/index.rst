@@ -9,6 +9,7 @@ Contents
 
    install.rst
    references/index.rst
+   overview.rst
    drain.rst
 
 

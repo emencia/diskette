@@ -175,7 +175,7 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
                         storage_destination
                     )
                 )
-                shutil.rmtree(storage_destination.parent)
+                shutil.rmtree(storage_destination)
 
             # Move storage dump to destination
             self.logger.info(
