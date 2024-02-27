@@ -136,8 +136,9 @@ class DjangoAppLookupStore:
             list: The registry, this is a list of dict for apps with models.
         """
         collected = []
+        i = 1
 
-        for i, app in enumerate(apps.get_app_configs(), start=1):
+        for app in apps.get_app_configs():
             names = self.get_registry_app_models(i, app)
 
             if names:
@@ -148,6 +149,7 @@ class DjangoAppLookupStore:
                     "pythonpath": app.name,
                     "models": names,
                 })
+                i += 1
 
         return collected
 
