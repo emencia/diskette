@@ -11,7 +11,7 @@ class Command(BaseCommand, DumpCommandHandler):
     Diskette dump command
     """
     help = (
-        "Dump application datas and storage files into a archive file (TAR GZ)."
+        "Dump application datas and storage files into an archive file (TAR GZ)."
     )
 
     def add_arguments(self, parser):
@@ -75,6 +75,11 @@ class Command(BaseCommand, DumpCommandHandler):
             )
         )
         parser.add_argument(
+            "--indent",
+            type=int,
+            help="Specifies the indent level to use when pretty-printing output.",
+        )
+        parser.add_argument(
             "--no-data",
             action="store_true",
             help="Disable application data dumps.",
@@ -89,18 +94,46 @@ class Command(BaseCommand, DumpCommandHandler):
             action="store_true",
             help="Disable usage of storage excluding patterns.",
         )
+        parser.add_argument(
+            "--no-archive",
+            action="store_true",
+            help="Output command lines to perform dumps instead of making an archive.",
+        )
 
     def handle(self, *args, **options):
         self.logger = DjangoCommandOutput(command=self)
 
-        self.dump(
-            options["destination"],
-            archive_filename=options["filename"],
-            application_configurations=options["appconf"],
-            storages=options["storage"],
-            storages_basepath=options["storages_basepath"],
-            storages_excludes=options["storages_exclude"],
-            no_data=options["no_data"],
-            no_storages=options["no_storages"],
-            no_storages_excludes=options["no_storages_excludes"],
-        )
+        if not options["no_archive"]:
+            self.dump(
+                options["destination"],
+                archive_filename=options["filename"],
+                application_configurations=options["appconf"],
+                storages=options["storage"],
+                storages_basepath=options["storages_basepath"],
+                storages_excludes=options["storages_exclude"],
+                no_data=options["no_data"],
+                no_storages=options["no_storages"],
+                no_storages_excludes=options["no_storages_excludes"],
+                indent=options["indent"],
+            )
+        else:
+            """
+            TODO:
+                * This has no test coverage yet;
+                * It lacks of storage copy commands;
+                * dumpdata command currently output to temporary directory instead of
+                  proper data directory;
+            """
+            self.stdout.write(
+                self.script(
+                    archive_filename=options["filename"],
+                    application_configurations=options["appconf"],
+                    storages=options["storage"],
+                    storages_basepath=options["storages_basepath"],
+                    storages_excludes=options["storages_exclude"],
+                    no_data=options["no_data"],
+                    no_storages=options["no_storages"],
+                    no_storages_excludes=options["no_storages_excludes"],
+                    indent=options["indent"],
+                )
+            )

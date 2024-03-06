@@ -113,6 +113,7 @@ def test_application_valid_basic():
     assert app_foo.as_config() == {
         "name": "Site objects",
         "comments": None,
+        "dump_command": None,
         "is_drain": False,
         "allow_drain": False,
         "models": ["sites.Site"],
@@ -140,6 +141,7 @@ def test_application_valid_full():
         "Django auth",
         models=["auth"],
         comments="Lorem ipsum",
+        dump_command="custom-dumpdata",
         natural_foreign=True,
         natural_primary=True,
         excludes=["auth.Group"],
@@ -150,6 +152,7 @@ def test_application_valid_full():
     assert app_ping.as_config() == {
         "name": "Django auth",
         "comments": "Lorem ipsum",
+        "dump_command": "custom-dumpdata",
         "is_drain": False,
         "allow_drain": True,
         "models": [
@@ -206,6 +209,7 @@ def test_drain_payload():
     assert app.as_config() == {
         "name": "foo.bar",
         "comments": None,
+        "dump_command": None,
         "is_drain": True,
         "drain_excluded": False,
         "models": [],

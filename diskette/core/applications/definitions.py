@@ -52,7 +52,7 @@ class ApplicationConfig:
     """
     CONFIG_ATTRS = [
         "name", "models", "excludes", "retention", "natural_foreign", "natural_primary",
-        "comments", "filename", "is_drain", "allow_drain",
+        "comments", "filename", "is_drain", "allow_drain", "dump_command",
     ]
     OPTIONS_ATTRS = [
         "models", "excludes", "natural_foreign", "natural_primary", "filename",
@@ -60,7 +60,7 @@ class ApplicationConfig:
 
     def __init__(self, name, models=[], excludes=None, natural_foreign=False,
                  natural_primary=False, comments=None, filename=None,
-                 is_drain=None, allow_drain=False):
+                 is_drain=None, allow_drain=False, dump_command=None):
         self.name = name
         self._models = [models] if isinstance(models, str) else models
         self._excludes = excludes or []
@@ -69,6 +69,7 @@ class ApplicationConfig:
         self.comments = comments
         self.filename = filename or self.get_filename()
         self.allow_drain = allow_drain
+        self.dump_command = dump_command
         self.is_drain = False
 
     def __repr__(self):
@@ -302,7 +303,7 @@ class DrainApplicationConfig(ApplicationConfig):
     """
     CONFIG_ATTRS = [
         "name", "models", "excludes", "natural_foreign", "natural_primary", "comments",
-        "filename", "is_drain", "drain_excluded",
+        "filename", "is_drain", "drain_excluded", "dump_command",
     ]
     OPTIONS_ATTRS = [
         "models", "excludes", "natural_foreign", "natural_primary", "filename",

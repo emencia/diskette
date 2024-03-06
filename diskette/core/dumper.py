@@ -38,18 +38,20 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
             storage paths must be in the same leaf else this will be an error.
         storages_excludes (list): A list of patterns to exclude storage files from
             dump.
+        indent (integer):
         logger (object):
     """
     MANIFEST_FILENAME = "manifest.json"
     TEMPDIR_PREFIX = "diskette_"
 
     def __init__(self, apps, executable=None, storages_basepath=None, storages=None,
-                 storages_excludes=None, logger=None):
+                 storages_excludes=None, logger=None, indent=None):
         self.storages_basepath = storages_basepath or Path.cwd()
         self.executable = executable + " " if executable else ""
         self.logger = logger or NoOperationLogger()
         self.storages = storages or []
         self.storages_excludes = storages_excludes or []
+        self.indent = indent
 
         self.apps = self.load(apps)
 
@@ -351,7 +353,7 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
 
         # Dump data into temp directory
         if with_data is True:
-            self.dump_data(destination=data_tmpdir)
+            self.dump_data(destination=data_tmpdir, indent=self.indent)
 
         # Compute history/stats file
         manifest_path = self.build_dump_manifest(
@@ -410,3 +412,34 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
                 shutil.rmtree(destination_tmpdir)
 
         return tarball_destination
+
+    def make_script(self, filename, with_data=True, with_storages=True,
+                    with_storages_excludes=True):
+        """
+        Create shellscript commands to dump data.
+        """
+        if not with_data and not with_storages:
+            raise DumperError(
+                "Arguments 'with_data' and 'with_storages' can not be both 'False'"
+            )
+
+        # Temporary directory where the manager will work
+        destination_tmpdir = Path(tempfile.mkdtemp(prefix=self.TEMPDIR_PREFIX))
+
+        # Build data dump destination path
+        data_tmpdir = destination_tmpdir / "data"
+        data_tmpdir.mkdir()
+
+        commandlines = []
+
+        # Dump data into temp directory
+        if with_data is True:
+            commandlines += [
+                "# {}\n{}".format(name, cmd)
+                for name, cmd in self.build_commands(
+                    destination=data_tmpdir,
+                    indent=self.indent
+                )
+            ]
+
+        return "\n".join(commandlines)

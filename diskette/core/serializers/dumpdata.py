@@ -15,7 +15,22 @@ class DumpdataSerializerAbstract:
     For now, this is JSON format only, 'format' option may be implemented later.
     """
     COMMAND_NAME = "dumpdata"
-    COMMAND_TEMPLATE = "{executable}dumpdata {options}"
+    COMMAND_TEMPLATE = "{executable}{cmd} {options}"
+
+    def get_command_name(self, application):
+        """
+        Return effective command name to use.
+
+        Either the application defines a custom command or this will be the default one
+        from ``DumpdataSerializerAbstract.COMMAND_NAME``.
+
+        Arguments:
+            application (ApplicationConfig):
+
+        Returns:
+            string: Command name.
+        """
+        return getattr(application, "dump_command", None) or self.COMMAND_NAME
 
     def command(self, application, destination=None, indent=None, extra_excludes=None):
         """
@@ -60,7 +75,10 @@ class DumpdataSerializerAbstract:
                 str(Path(destination) / application.filename)
             ))
 
+        cmd = self.get_command_name(application)
+
         return self.COMMAND_TEMPLATE.format(
+            cmd=cmd,
             executable=self.executable,
             name=application.name,
             options=" ".join(options),
@@ -105,7 +123,12 @@ class DumpdataSerializerAbstract:
 
         # Execute command without output guided to string buffer
         out = StringIO()
-        management.call_command(self.COMMAND_NAME, models, stdout=out, **options)
+        management.call_command(
+            self.get_command_name(application),
+            models,
+            stdout=out,
+            **options
+        )
 
         # If the file has a destination, write to the FS, write the destination path
         # onto the application object

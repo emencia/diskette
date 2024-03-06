@@ -168,10 +168,64 @@ class DumpCommandHandler:
 
         return True, patterns
 
+    def script(self, archive_filename=None,
+             application_configurations=None, storages=None, storages_basepath=None,
+             storages_excludes=None, no_data=False, no_storages=False,
+             no_storages_excludes=False, indent=None):
+        """
+        Proceed to dump to a archive.
+
+        .. Note::
+            This does not involve argument validation methods like
+            ``get_archive_destination`` and others here.
+        """
+        self.logger.info("=== Starting script ===")
+
+        with_data, application_configurations = self.get_application_configurations(
+            appconfs=application_configurations,
+            no_data=no_data
+        )
+
+        with_storages, storages = self.get_storage_paths(storages, no_storages)
+        if with_storages:
+            with_storages_excludes, storages_excludes = self.get_storage_excludes(
+                storages_excludes,
+                no_patterns=no_storages_excludes,
+            )
+        else:
+            storages_excludes = []
+
+        if not with_data and not with_storages:
+            self.logger.critical(
+                "Data and storages dumps can not be both disabled. At least one dump "
+                "type must be enabled."
+            )
+
+        dumper = Dumper(
+            application_configurations,
+            logger=self.logger,
+            storages_basepath=storages_basepath,
+            storages=storages,
+            storages_excludes=storages_excludes,
+            indent=indent,
+        )
+
+        # Validate configurations
+        dumper.validate()
+
+        commandlines = dumper.make_script(
+            archive_filename,
+            with_data=with_data,
+            with_storages=with_storages,
+            with_storages_excludes=with_storages_excludes,
+        )
+
+        return commandlines
+
     def dump(self, archive_destination, archive_filename=None,
              application_configurations=None, storages=None, storages_basepath=None,
              storages_excludes=None, no_data=False, no_storages=False,
-             no_storages_excludes=False):
+             no_storages_excludes=False, indent=None):
         """
         Proceed to dump to a archive.
 
@@ -204,18 +258,19 @@ class DumpCommandHandler:
                 "type must be enabled."
             )
 
-        manager = Dumper(
+        dumper = Dumper(
             application_configurations,
             logger=self.logger,
             storages_basepath=storages_basepath,
             storages=storages,
             storages_excludes=storages_excludes,
+            indent=indent,
         )
 
         # Validate configurations
-        manager.validate()
+        dumper.validate()
 
-        archive_path = manager.make_archive(
+        archive_path = dumper.make_archive(
             archive_destination,
             archive_filename,
             with_data=with_data,

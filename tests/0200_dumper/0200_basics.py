@@ -56,6 +56,7 @@ def test_exported_dicts():
         (
             "django.contrib.sites", {
                 "comments": "django.contrib.sites",
+                "dump_command": "custom_dumpdata",
                 "natural_foreign": True,
                 "models": "sites"
             }
@@ -63,6 +64,7 @@ def test_exported_dicts():
         (
             "django.contrib.auth", {
                 "comments": "django.contrib.auth: user and groups, no perms",
+                "dump_command": None,
                 "natural_foreign": True,
                 "models": ["auth.Group", "auth.User"]
             }
@@ -70,6 +72,7 @@ def test_exported_dicts():
         (
             "blog", {
                 "comments": "internal blog sample app",
+                "dump_command": None,
                 "models": "djangoapp_sample",
                 "excludes": ["djangoapp_sample.Category"],
                 "comments": "Lorem ipsum",
@@ -123,6 +126,7 @@ def test_exported_dicts():
             "natural_foreign": True,
             "natural_primary": False,
             "comments": "django.contrib.sites",
+            "dump_command": "custom_dumpdata",
             "filename": "djangocontribsites.json",
             "is_drain": False,
             "allow_drain": False
@@ -147,6 +151,7 @@ def test_exported_dicts():
             "natural_foreign": True,
             "natural_primary": False,
             "comments": "django.contrib.auth: user and groups, no perms",
+            "dump_command": None,
             "filename": "djangocontribauth.json",
             "is_drain": False,
             "allow_drain": False
@@ -169,6 +174,7 @@ def test_exported_dicts():
             "natural_foreign": False,
             "natural_primary": True,
             "comments": "Lorem ipsum",
+            "dump_command": None,
             "filename": "blog.json",
             "is_drain": False,
             "allow_drain": True

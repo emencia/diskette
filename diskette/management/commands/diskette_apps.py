@@ -10,6 +10,8 @@ from ...utils.loggers import DjangoCommandOutput
 class Command(BaseCommand):
     """
     Diskette application listing command
+
+    TODO: Help me i have no test coverage yet
     """
     help = (
         "Collect all enabled applications to build data dump definition samples that "

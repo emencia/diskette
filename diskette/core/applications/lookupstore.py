@@ -19,11 +19,6 @@ class DjangoAppLookupStore:
         from application model. Invalid labels may lead to unexpected results or
         errors.
 
-    TODO:
-    This may be initialized once after app ready signal in a variable so it don't
-    have to be executed again. Once initialized, the store won't never have to
-    change because we wont endorse AppConfig changes on the fly.
-
     """
     def __init__(self, registry=None):
         self._registry = registry or self.get_registry()
@@ -116,6 +111,7 @@ class DjangoAppLookupStore:
                 ),
                 "app": app.label,
                 "name": model.__name__,
+                "object": model,
                 "label": self.normalize_label(model, app=app),
             }
             for i, model in enumerate(app.get_models(
@@ -285,10 +281,11 @@ class DjangoAppLookupStore:
 
     def get_models_inclusions(self, labels, excludes=None):
         """
-        Returns model nodes included in a dump.
+        Returns model nodes for inclusions.
 
         Arguments:
-            labels (string or list): App label or fully qualified model labels.
+            labels (string or list): A list of App label (string), fully qualified
+                model labels (string) or AppConfig.
 
         Keyword Arguments:
             excludes (list): List of fully qualified model labels to exclude.
@@ -304,6 +301,8 @@ class DjangoAppLookupStore:
         excludes = [excludes] if isinstance(excludes, str) else excludes
 
         for label in labels:
+            if isinstance(label, AppConfig):
+                label = label.label
             # Try to parse item as a fully qualified label
             try:
                 app_label, model_label = label.split(".")
@@ -326,7 +325,7 @@ class DjangoAppLookupStore:
 
     def get_models_exclusions(self, labels, excludes=None):
         """
-        Returns model nodes excluded from a dump.
+        Returns model nodes for exclusions.
 
         Exclusion gather the explicit exclude labels and the intersection between
         inclusions and missing models related to implied app from inclusion labels.

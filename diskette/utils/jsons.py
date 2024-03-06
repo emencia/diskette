@@ -6,6 +6,10 @@ from pathlib import Path
 class ExtendedJsonEncoder(json.JSONEncoder):
     """
     Additional opiniated support for more basic object types.
+
+    Usage sample: ::
+
+        json.dumps(..., cls=ExtendedJsonEncoder)
     """
     def default(self, obj):
         if isinstance(obj, bytes):
