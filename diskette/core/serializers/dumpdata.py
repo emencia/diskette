@@ -50,7 +50,7 @@ class DumpdataSerializerAbstract:
         options = []
 
         # NOTE: This should be enabled with the proper option
-        #options.append("--all")
+        # options.append("--all")
 
         if indent:
             options.append("--indent={}".format(indent))

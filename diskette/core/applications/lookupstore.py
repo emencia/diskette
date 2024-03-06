@@ -268,12 +268,12 @@ class DjangoAppLookupStore:
             # all models in their original registered order
             except ValueError:
                 try:
-                    app = self.get_app(label)
+                    self.get_app(label)
                 except DoesNotExistsFromAppstore:
                     unknow_apps.append(label)
             else:
                 try:
-                    model = self.get_model(label)
+                    self.get_model(label)
                 except DoesNotExistsFromAppstore:
                     unknow_models.append(label)
 

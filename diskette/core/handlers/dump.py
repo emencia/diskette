@@ -169,9 +169,9 @@ class DumpCommandHandler:
         return True, patterns
 
     def script(self, archive_filename=None,
-             application_configurations=None, storages=None, storages_basepath=None,
-             storages_excludes=None, no_data=False, no_storages=False,
-             no_storages_excludes=False, indent=None):
+               application_configurations=None, storages=None, storages_basepath=None,
+               storages_excludes=None, no_data=False, no_storages=False,
+               no_storages_excludes=False, indent=None):
         """
         Proceed to dump to a archive.
 

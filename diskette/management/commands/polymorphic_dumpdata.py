@@ -3,7 +3,6 @@ from io import StringIO
 
 from django.core.management.base import BaseCommand
 from django.core import serializers
-from django.apps import AppConfig
 from django.db.models.query import QuerySet
 from django.db import DEFAULT_DB_ALIAS
 
@@ -35,7 +34,7 @@ class Command(BaseCommand):
 
     Every other options are still present but will raise a NotImplementedError when
     used.
-    """
+    """  # noqa: E501
     help = (
         "Trying to export polymorphic stuff right."
     )

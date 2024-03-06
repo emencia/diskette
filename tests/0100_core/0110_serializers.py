@@ -1,10 +1,7 @@
 import json
 import logging
 
-import pytest
 from freezegun import freeze_time
-
-from django.core.management.base import CommandError
 
 from diskette.core.applications import ApplicationConfig
 from diskette.core.serializers import DumpdataSerializer, LoaddataSerializer

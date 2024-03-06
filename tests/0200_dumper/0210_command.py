@@ -39,7 +39,7 @@ from diskette.core.dumper import Dumper
                 "django.contrib.auth", {
                     "comments": "django.contrib.auth: user and groups, no perms",
                     "natural_foreign": True,
-                    "models": ["auth.Group","auth.User"]
+                    "models": ["auth.Group", "auth.User"]
                 }
             ),
             (
@@ -47,7 +47,6 @@ from diskette.core.dumper import Dumper
                     "comments": "internal blog sample app",
                     "models": "djangoapp_sample",
                     "excludes": ["djangoapp_sample.Category"],
-                    "comments": "Lorem ipsum",
                     "natural_foreign": False,
                     "natural_primary": True,
                     "filename": "blog.json",

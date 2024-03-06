@@ -1,10 +1,8 @@
 from pathlib import Path
 
-from django.apps import apps, AppConfig
-from django.db import models
 from django.utils.text import slugify
 
-from ...exceptions import ApplicationConfigError, AppModelResolverError
+from ...exceptions import ApplicationConfigError
 from ..defaults import DEFAULT_FORMAT, AVAILABLE_FORMATS
 
 from .store import get_appstore
@@ -131,7 +129,6 @@ class ApplicationConfig:
             return self.models + self.excludes
 
         return self.models
-
 
     def get_filename(self, format_extension=None):
         """

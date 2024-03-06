@@ -71,11 +71,10 @@ def test_exported_dicts():
         ),
         (
             "blog", {
-                "comments": "internal blog sample app",
+                "comments": "Lorem ipsum",
                 "dump_command": None,
                 "models": "djangoapp_sample",
                 "excludes": ["djangoapp_sample.Category"],
-                "comments": "Lorem ipsum",
                 "natural_foreign": False,
                 "natural_primary": True,
                 "filename": "blog.json",
