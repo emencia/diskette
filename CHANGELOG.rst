@@ -6,7 +6,14 @@ Changelog
 Version 0.3.0 - Unreleased
 --------------------------
 
-TODO
+* Added ``diskette_load`` command;
+* Added ``diskette_apps`` command;
+* Added ``polymorphic_dumpdata`` command, a work around for issues with application
+  models that use ``django-polymorphic``;
+* Lots of refactoring to include an application store to properly resolve and manage
+  data dump with application models;
+* Many adjustments to make dump and loading work;
+* Added contribution modules for ``django-configuration`` and ``project-composer``;
 
 
 Version 0.2.0 - Not released as a package

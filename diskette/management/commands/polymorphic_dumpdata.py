@@ -34,6 +34,9 @@ class Command(BaseCommand):
 
     Every other options are still present but will raise a NotImplementedError when
     used.
+
+    TODO: Help me i have no test coverage yet (a basic test without polymorphic stuff
+    involved, we just want to know it basically works)
     """  # noqa: E501
     help = (
         "Trying to export polymorphic stuff right."
