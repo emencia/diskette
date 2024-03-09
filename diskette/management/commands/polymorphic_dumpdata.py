@@ -11,7 +11,7 @@ from ...core.applications.store import get_appstore
 
 class Command(BaseCommand):
     """
-    A command alike Django's dumpdata but which enforces usage of
+    A command alike Django's dumpdata but it enforces usage of
     legacy ``django.db.models.query.QuerySet`` over custom model queryset.
 
     This is needed to dump data for polymorphic models that won't work properly,
@@ -37,9 +37,13 @@ class Command(BaseCommand):
 
     TODO: Help me i have no test coverage yet (a basic test without polymorphic stuff
     involved, we just want to know it basically works)
+
     """  # noqa: E501
     help = (
-        "Trying to export polymorphic stuff right."
+        "Output the contents of the database as a fixture of the given format. This "
+        "is an alternative to Django command 'dumpdata' to support models that "
+        "implement usage of 'django-polymorphic'. The argument signatures are "
+        "identical but not all legacy options are implemented here."
     )
 
     def add_arguments(self, parser):
@@ -55,7 +59,10 @@ class Command(BaseCommand):
         parser.add_argument(
             "--format",
             default="json",
-            help="Specifies the output serialization format for fixtures.",
+            help=(
+                "Specifies the output serialization format for fixtures. Only 'json' "
+                "format is implemented."
+            ),
         )
         parser.add_argument(
             "--indent",
@@ -66,7 +73,7 @@ class Command(BaseCommand):
             "--database",
             default=DEFAULT_DB_ALIAS,
             help="Nominates a specific database to dump fixtures from. "
-            'Defaults to the "default" database.',
+            'Defaults to the "default" database. NOT IMPLEMENTED.',
         )
         parser.add_argument(
             "-e",
@@ -96,14 +103,17 @@ class Command(BaseCommand):
             help=(
                 "Use Django's base manager to dump all models stored in the database, "
                 "including those that would otherwise be filtered or modified by a "
-                "custom manager."
+                "custom manager. NOT IMPLEMENTED."
             ),
         )
         parser.add_argument(
             "--pks",
             dest="primary_keys",
-            help="Only dump objects with given primary keys. Accepts a comma-separated "
-            "list of keys. This option only works when you specify one model.",
+            help=(
+                "Only dump objects with given primary keys. Accepts a comma-separated "
+                "list of keys. This option only works when you specify one model. "
+                "NOT IMPLEMENTED."
+            ),
         )
         parser.add_argument(
             "-o",
