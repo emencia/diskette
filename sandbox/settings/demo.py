@@ -34,7 +34,11 @@ DISKETTE_APPS = [
 ]
 
 DISKETTE_STORAGES = [MEDIA_ROOT]
-DISKETTE_STORAGES_EXCLUDES = ["cache/*"]
+DISKETTE_STORAGES_EXCLUDES = [
+    "cache/*",
+    "pil/*",
+    "public/thumbnails/*",
+]
 
 # Import local settings if any
 try:
