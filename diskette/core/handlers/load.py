@@ -31,7 +31,7 @@ class LoadCommandHandler:
         return path
 
     def load(self, archive_path, storages_basepath=None, no_data=False,
-             no_storages=False):
+             no_storages=False, keep=False):
         """
         Proceed to archive content loading.
         """
@@ -60,6 +60,7 @@ class LoadCommandHandler:
             storages_basepath,
             with_data=with_data,
             with_storages=with_storages,
+            keep=keep,
         )
 
         return stats

@@ -39,6 +39,11 @@ class Command(BaseCommand, LoadCommandHandler):
             action="store_true",
             help="Disable storages restoration.",
         )
+        parser.add_argument(
+            "--keep",
+            action="store_true",
+            help="Don't automatically remove archive when finished.",
+        )
 
     def handle(self, *args, **options):
         self.logger = DjangoCommandOutput(command=self)
@@ -48,4 +53,5 @@ class Command(BaseCommand, LoadCommandHandler):
             storages_basepath=options["storages_basepath"],
             no_data=options["no_data"],
             no_storages=options["no_storages"],
+            keep=options["keep"],
         )

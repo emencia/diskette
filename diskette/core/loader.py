@@ -60,8 +60,8 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
         with tarfile.open(archive_path, "r:gz") as archive:
             archive.extractall(destination_tmpdir)
 
-        # TODO: Option to keep archive file with a warning about it
-        archive_path.unlink()
+        if not keep:
+            archive_path.unlink()
 
         return destination_tmpdir
 
@@ -208,7 +208,7 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
         ]
 
     def deploy(self, archive_path, storages_destination, with_data=True,
-               with_storages=True):
+               with_storages=True, keep=False):
         """
         Load archive and deploy its content.
 
@@ -220,11 +220,13 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
         Keyword Arguments:
             with_data (boolean): Enable application datas loading.
             with_storages (boolean): Enabled media storages loading.
+            keep (boolean): Archive won't be removed from filesystem if True, else the
+                archive file is removed once it have been extracted.
 
         Returns:
             dict: Statistics of restored storages and datas.
         """
-        tmpdir = self.open(archive_path)
+        tmpdir = self.open(archive_path, keep=keep)
 
         try:
             manifest = self.get_manifest(tmpdir)
@@ -237,7 +239,6 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
                 "datas": self.deploy_datas(tmpdir, manifest),
             }
         finally:
-            # TODO: Option to keep temp dir with a warning
             if tmpdir.exists():
                 shutil.rmtree(tmpdir)
 
