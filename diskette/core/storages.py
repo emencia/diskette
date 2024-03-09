@@ -15,6 +15,8 @@ class StorageMixin:
         a children of it) and how they will be stored in archive since they are
         made relative from the ``storages_basepath``
     """
+    RESERVED_KEYWORDS = ["data", "manifest.json"]
+
     def validate_storages(self):
         """
         Validate every storage path defined from settings.
@@ -24,7 +26,12 @@ class StorageMixin:
 
         Raises:
             DumperError: In case of error with a storage path.
+
+        Returns:
+            boolean: Returns True if all storage has been validated.
         """
+        names = []
+
         for storage in self.storages:
             if not isinstance(storage, Path):
                 raise DumperError(
@@ -41,12 +48,26 @@ class StorageMixin:
                     "Storage path is not a directory: {}".format(storage)
                 )
 
+            if storage.name in self.RESERVED_KEYWORDS:
+                raise DumperError(
+                    "Storage path name is a reserved keyword: {}".format(storage)
+                )
+
+            if str(storage) in names:
+                raise DumperError(
+                    "Storage path has already been defined: {}".format(storage)
+                )
+
             try:
                 storage.relative_to(self.storages_basepath)
             except ValueError:
                 raise DumperError(
                     "Storage must be a child of: {}".format(self.storages_basepath)
                 )
+
+            names.append(str(storage))
+
+        return True
 
     def is_allowed_path(self, path):
         """

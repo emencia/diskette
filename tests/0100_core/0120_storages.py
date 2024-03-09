@@ -6,10 +6,9 @@ from diskette.core.storages import StorageManager
 from diskette.exceptions import DumperError
 
 
-def test_validate(tests_settings):
+def test_validate_basic(tests_settings):
     """
-    Storage path must be a Path object, exists and a directory else it should raise
-    an error.
+    Correct storage path should be validated.
     """
     storage_samples = tests_settings.fixtures_path / "storage_samples"
 
@@ -17,13 +16,43 @@ def test_validate(tests_settings):
         storage_samples / "storage-1",
         storage_samples / "storage-2"
     ])
-    manager.validate_storages()
+    assert manager.validate_storages() is True
 
+
+def test_validate_type():
+    """
+    Storage path must be a Path object.
+    """
     manager = StorageManager(storages=["nope"])
     with pytest.raises(DumperError) as excinfo:
         manager.validate_storages()
 
     assert str(excinfo.value) == "Storage path is not a 'pathlib.Path' object: nope"
+
+
+def test_validate_duplicate(tests_settings):
+    """
+    Storage path must not be defined twice.
+    """
+    storage_samples = tests_settings.fixtures_path / "storage_samples"
+
+    manager = StorageManager(storages=[
+        storage_samples / "storage-1",
+        storage_samples / "storage-1"
+    ])
+    with pytest.raises(DumperError) as excinfo:
+        manager.validate_storages()
+
+    assert str(excinfo.value) == "Storage path has already been defined: {}".format(
+        storage_samples / "storage-1"
+    )
+
+
+def test_validate_exists(tests_settings):
+    """
+    Storage path must exists.
+    """
+    storage_samples = tests_settings.fixtures_path / "storage_samples"
 
     manager = StorageManager(storages=[storage_samples / "nope"])
     with pytest.raises(DumperError) as excinfo:
@@ -35,6 +64,13 @@ def test_validate(tests_settings):
         )
     )
 
+
+def test_validate_notdir(tests_settings):
+    """
+    Storage path must be a directory.
+    """
+    storage_samples = tests_settings.fixtures_path / "storage_samples"
+
     manager = StorageManager(storages=[storage_samples / "storage-1/sample.txt"])
     with pytest.raises(DumperError) as excinfo:
         manager.validate_storages()
@@ -43,6 +79,31 @@ def test_validate(tests_settings):
         "Storage path is not a directory: {}/storage-1/sample.txt".format(
             storage_samples
         )
+    )
+
+
+def test_validate_reserved(tmp_path):
+    """
+    Storage path name must not be a reserved keyword.
+    """
+    invalid_storage = tmp_path / "data"
+    invalid_storage.mkdir()
+    manager = StorageManager(storages=[invalid_storage])
+    with pytest.raises(DumperError) as excinfo:
+        manager.validate_storages()
+
+    assert str(excinfo.value) == (
+        "Storage path name is a reserved keyword: {}".format(invalid_storage)
+    )
+
+    invalid_storage = tmp_path / "manifest.json"
+    invalid_storage.mkdir()
+    manager = StorageManager(storages=[invalid_storage])
+    with pytest.raises(DumperError) as excinfo:
+        manager.validate_storages()
+
+    assert str(excinfo.value) == (
+        "Storage path name is a reserved keyword: {}".format(invalid_storage)
     )
 
 
