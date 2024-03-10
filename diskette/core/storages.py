@@ -72,7 +72,13 @@ class StorageMixin:
     def is_allowed_path(self, path):
         """
         Check if given path match is allowed to be collected depending it match or not
-        any exclude patterns.
+        any exclusion patterns.
+
+        Arguments:
+            path (Path): Path to check against exclusion patterns.
+
+        Returns:
+            boolean: True if path is allowed from exclusion patterns, else False.
         """
         for rule in self.storages_excludes:
             if fnmatch.fnmatch(path, rule):
@@ -82,8 +88,14 @@ class StorageMixin:
 
     def iter_storages_files(self, allow_excludes=True):
         """
-        Returns
-            iterator:
+        Iterate over all storages files.
+
+        Keyword Arguments:
+            allow_excludes (boolean): To enable storage content exclusion using
+                defined exclusion patterns. Default value enables it.
+
+        Returns:
+            iterator: Iterator for all storages files.
         """
         for storage in self.storages:
             # Recursively walk through storage path
@@ -102,7 +114,7 @@ class StorageMixin:
 
 class StorageManager(StorageMixin):
     """
-    Concrete basic implementation for ``DumpStorageAbstract``.
+    Concrete basic implementation for ``StorageMixin``.
 
     Keyword Arguments:
         storages_basepath (Path): Basepath for reference in some path resolution.
@@ -112,7 +124,10 @@ class StorageManager(StorageMixin):
         storages (list): A list of storage Path objects.
         storages_excludes (list): A list of patterns to exclude storage files from
             dump.
-        logger (object):
+        logger (object): Instance of a logger object to use. Logger object must
+            implement common logging message methods (like error, info, etc..). See
+            ``diskette.utils.loggers`` for available loggers. If not given, a dummy
+            logger will be used that ignores any messages and won't output anything.
     """
     def __init__(self, storages_basepath=None, storages=None, storages_excludes=None,
                  logger=None):

@@ -21,12 +21,15 @@ class LoaddataSerializerAbstract:
         Build command line to use ``loaddata``.
 
         Arguments:
-            dump (Path):
+            dump (Path): Path to the dump file to load.
 
         Keyword Arguments:
-            app (string):
-            excludes (list):
-            ignorenonexistent (boolean):
+            app (string): Application name. If given, only data from this application
+                will be loaded, the other ones will be ignored.
+            excludes (list): A list of application or FQM labels to ignore from
+                loaded data.
+            ignorenonexistent (boolean): If enabled, fields and models that does not
+                exists in current models will be ignored instead of raising an error.
 
         Returns:
             string: Command line to run a loaddata job.
@@ -56,18 +59,18 @@ class LoaddataSerializerAbstract:
         Programmatically use the Django ``loaddata`` command to dump application.
 
         Arguments:
-            dump (Path):
+            dump (Path): Path to the dump file to load.
 
         Keyword Arguments:
-            app (string):
-            excludes (list):
-            ignorenonexistent (boolean):
+            app (string): Application name. If given, only data from this application
+                will be loaded, the other ones will be ignored.
+            excludes (list): A list of application or FQM labels to ignore from
+                loaded data.
+            ignorenonexistent (boolean): If enabled, fields and models that does not
+                exists in current models will be ignored instead of raising an error.
 
         Returns:
-            string: A JSON payload of call results. On default, this is the JSON
-            output from dumpdata. However if destination has been given, dumpdata has
-            written output to a file and so the returned JSON will just be a
-            dictionnary with an item ``destination`` with written file path.
+            string: Output from command.
         """
         options = {
             "app": app,
@@ -98,7 +101,10 @@ class LoaddataSerializer(LoaddataSerializerAbstract):
         executable (string): A path to prefix commands, commonly the path to
             django-admin (or equivalent). This path will suffixed with a single space
             to ensure separation with command arguments.
-        logger (object):
+        logger (object): Instance of a logger object to use. Logger object must
+            implement common logging message methods (like error, info, etc..). See
+            ``diskette.utils.loggers`` for available loggers. If not given, a dummy
+            logger will be used that ignores any messages and won't output anything.
     """
     def __init__(self, executable=None, logger=None):
         self.executable = executable + " " if executable else ""

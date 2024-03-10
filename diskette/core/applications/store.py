@@ -7,6 +7,9 @@ from .lookupstore import DjangoAppLookupStore
 
 @cache
 def _get_appstore():
+    """
+    Cached function to initialize the application store.
+    """
     return DjangoAppLookupStore()
 
 

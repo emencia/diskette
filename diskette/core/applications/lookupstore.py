@@ -12,12 +12,20 @@ from diskette.exceptions import (
 
 class DjangoAppLookupStore:
     """
-    Django applications store.
+    Django application store collects applications and store them with their useful
+    parameters.
 
-    .. Warning:
-        The store does not make any validation on given labels, this is to be done
-        from application model. Invalid labels may lead to unexpected results or
-        errors.
+    This is registry built on top of *Django apps* to implement methods to easily
+    perform queries alike with Django ORM. It helps to find detailed inclusions and
+    exclusions with application models.
+
+    Attributes:
+        registry (Dataset): The store registry built as a ``datalookup.Dataset``.
+
+    Keyword Arguments:
+        registry (list): List of dictionnaries, each dictionnary is an application
+            item with its parameters. If not given, it will be filled automatically
+            from enabled applications using ``django.apps``.
 
     """
     def __init__(self, registry=None):
@@ -25,9 +33,21 @@ class DjangoAppLookupStore:
         self.registry = Dataset(self._registry)
 
     def as_dict(self):
+        """
+        Return the store items with their parameters as a dictionnary.
+
+        Returns:
+            dict: Store items as a dictionnary.
+        """
         return self._registry
 
     def as_json(self):
+        """
+        Return the store items with their parameters as JSON.
+
+        Returns:
+            string: Store items as JSON.
+        """
         return json.dumps(self.as_dict())
 
     @classmethod
@@ -36,16 +56,15 @@ class DjangoAppLookupStore:
         Return normalized name for a model or FQM label.
 
         Arguments:
-            model (object): Model name as a string or Model object (or at least
-                anything that inherit from ``django.db.models.base.ModelBase``).
+            model (string or object): Model name as a string or an object that inherits
+                from ``django.db.models.base.ModelBase``.
 
         Keyword Arguments:
-            app (Application): Application name or instance, it is optional but
-                commonly you should always give it as model label without app prefix
-                is subject to conflicts with Django an errors with Diskette.
+            app (string or object): Either a model object, AppConfig object or a
+                string for an application label.
 
         Returns:
-            string: A normalized named composed from app name and model name.
+            string: A fully qualified model name composed from app name and model name.
         """
         if app and isinstance(app, AppConfig):
             app = app.label
@@ -88,18 +107,31 @@ class DjangoAppLookupStore:
 
         Internally used to build appstore registry.
 
-        app_id
-            Given application id.
-        id
-            ID is simply built on the current model loop index, it should be unique
-            for these app models.
-        unique_id
-            A special field to help for ordering on models since datalookup does not
-            provide a way to do this. This is a join of app id and model id, both
-            formatted on 4 digits filled by zero.
+        Arguments:
+            app_id (integer): An unique id to represent related application.
+            app (AppConfig): The application object from Django apps.
 
         Returns:
-            list: A list of dict for models.
+            list: A list of dictionnaries for models. Model dictionnary will contains
+            the following items:
+
+            id
+                A simple integer built from the loop, since it is only done internally
+                it should be ensured to be unique.
+            app_id
+                Given application id.
+            unique_id
+                A special field to help for ordering on models since datalookup does
+                not provide a way to do this. This is a join of app id and model id,
+                both formatted on 4 digits filled by zero.
+            app
+                Application label.
+            name
+                Model class name.
+            object
+                Model class.
+            label
+                Fully qualified model label.
         """
         return [
             {
@@ -124,12 +156,22 @@ class DjangoAppLookupStore:
         """
         Store all model labels from enabled applications into a registry.
 
-        id
-            ID is simply built on the current app loop index, it should be unique
-            for apps.
-
         Returns:
-            list: The registry, this is a list of dict for apps with models.
+            list: A list of dictionnaries for applications. Application dictionnary
+            will contains the following items:
+
+            id
+                A simple integer built from the loop, since it is only done internally
+                it should be ensured to be unique.
+            verbose_name
+                Application verbose name.
+            label
+                Application label.
+            pythonpath
+                Python path to the application itself.
+            models
+                A list of application models as returned from method
+                ``DjangoAppLookupStore.get_registry_app_models``.
         """
         collected = []
         i = 1
@@ -253,6 +295,13 @@ class DjangoAppLookupStore:
     def check_unexisting_labels(self, labels):
         """
         Check if given labels exists as app or models in store.
+
+        Arguments:
+            labels (list): A list of application or FQM label (string) to check.
+
+        Returns:
+            Tuple: Respectively a list of not found apps and a list of not found
+            models.
         """
         unknow_apps = []
         unknow_models = []

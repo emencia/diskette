@@ -16,9 +16,32 @@ class LoadCommandHandler:
     """
 
     def get_archive_path(self, path):
+        """
+        Shortand to convert string path to a Path object.
+
+        Arguments:
+            path (string or Path): The path to convert.
+
+        Returns:
+            Path: The path.
+        """
         return Path(path)
 
-    def get_storages_basepath(self, path):
+    def get_storages_basepath(self, path=None):
+        """
+        Get the storage basepath to use when deploying storages.
+
+        Storage basepath can not be empty, a critical error object is raised from
+        logger if the basepath resolve to an empty value. However the basepath does not
+        need to exists (but it would lead to unexpected errors).
+
+        Keyword Arguments:
+            path (Path): Path to use as the storage basepath. If not given, the value
+                from ``settings.DISKETTE_LOAD_STORAGES_PATH`` is used.
+
+        Returns:
+            Path: Storage basepath.
+        """
         path = path or settings.DISKETTE_LOAD_STORAGES_PATH
 
         if not path:
@@ -33,7 +56,25 @@ class LoadCommandHandler:
     def load(self, archive_path, storages_basepath=None, no_data=False,
              no_storages=False, keep=False):
         """
-        Proceed to archive content loading.
+        Proceed to load and deploy archive contents.
+
+        Keyword Arguments:
+            archive_filename (string): Custom archive filename to use instead of the
+                default one. Your custom filename must end with ``.tar.gz``. Default
+                filename is ``diskette[_data][_storages].tar.gz`` (parts depend from
+                options).
+            storages_basepath (Path): Basepath for reference in some path resolution.
+                Currently used by storage dump to make relative path for storage files.
+                On default this is based on current working directory. If given, the
+                storage paths must be in the same leaf else this will be an error.
+            no_data (boolean): Disable dump of application datas.
+            no_storages (boolean): Disable dump of media storages.
+            keep (boolean): If enabled, the archive is not automatically removed once
+                loading if finished. On default this is disabled and the archive is
+                removed.
+
+        Returns:
+            dict: Statistics of deployed storages and datas.
         """
         self.logger.info("=== Starting restoration ===")
 

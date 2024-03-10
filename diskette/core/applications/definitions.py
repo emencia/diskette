@@ -42,6 +42,9 @@ class ApplicationConfig:
         allow_drain (boolean): Define if application allows its excluded models to be
             drained. Default is ``False`` to avoid implicit draining of data that may
             not be wanted.
+        dump_command (string): Custom dump command to use for this specific application
+            instead of default ``dumpdata``. If you have models that use
+            ``django-polymorphic`` you should give value ``polymorphic_dumpdata`` here.
 
     Attributes:
         is_drain (boolean): Declare application as a special drain application. This
@@ -136,10 +139,10 @@ class ApplicationConfig:
         extension name.
 
         Keyword Arguments:
-            format_extension (string):
+            format_extension (string): Custom extension to use if given.
 
         Returns
-            string:
+            string: Filename.
         """
         return slugify(self.name) + "." + (format_extension or DEFAULT_FORMAT)
 

@@ -25,27 +25,26 @@ class DumpdataSerializerAbstract:
         from ``DumpdataSerializerAbstract.COMMAND_NAME``.
 
         Arguments:
-            application (ApplicationConfig):
+            application (ApplicationConfig): Application object.
 
         Returns:
             string: Command name.
         """
         return getattr(application, "dump_command", None) or self.COMMAND_NAME
 
-    def command(self, application, destination=None, indent=None, extra_excludes=None):
+    def command(self, application, destination=None, indent=None):
         """
-        Build command line to use ``dumpdata``.
+        Build a command line to use ``dumpdata``.
 
         Arguments:
-            application (ApplicationConfig):
+            application (ApplicationConfig): Application object.
 
         Keyword Arguments:
-            destination (Pathlib):
-            indent (integer):
-            extra_excludes (list):
+            destination (Path): The file path where to write dumped data.
+            indent (integer): Indentation level in data dumps.
 
         Returns:
-            string: Command line to run a dumpdata job.
+            string: Command line to dump application datas.
         """
         options = []
 
@@ -84,23 +83,22 @@ class DumpdataSerializerAbstract:
             options=" ".join(options),
         )
 
-    def call(self, application, destination=None, indent=None, extra_excludes=None):
+    def call(self, application, destination=None, indent=None):
         """
         Programmatically use the Django ``dumpdata`` command to dump application.
 
         Arguments:
-            application (ApplicationConfig):
+            application (ApplicationConfig): Application object.
 
         Keyword Arguments:
-            destination (Pathlib):
-            indent (integer):
-            extra_excludes (list):
+            destination (Path): The file path where to write dumped data.
+            indent (integer): Indentation level in data dumps.
 
         Returns:
             string: A JSON payload of call results. On default, this is the JSON
-            output from dumpdata. However if destination has been given, dumpdata has
-            written output to a file and so the returned JSON will just be a
-            dictionnary with an item ``destination`` with written file path.
+                output from dumpdata. However if destination has been given, dumpdata
+                has written output to a file and so the returned JSON will just be a
+                dictionnary with an item ``destination`` with written file path.
         """
         options = application.as_options()
 
@@ -152,7 +150,10 @@ class DumpdataSerializer(DumpdataSerializerAbstract):
         executable (string): A path to prefix commands, commonly the path to
             django-admin (or equivalent). This path will suffixed with a single space
             to ensure separation with command arguments.
-        logger (object):
+        logger (object): Instance of a logger object to use. Logger object must
+            implement common logging message methods (like error, info, etc..). See
+            ``diskette.utils.loggers`` for available loggers. If not given, a dummy
+            logger will be used that ignores any messages and won't output anything.
     """
     def __init__(self, executable=None, logger=None):
         self.executable = executable + " " if executable else ""

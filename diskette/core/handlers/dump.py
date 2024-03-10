@@ -168,16 +168,45 @@ class DumpCommandHandler:
 
         return True, patterns
 
-    def script(self, archive_filename=None,
-               application_configurations=None, storages=None, storages_basepath=None,
-               storages_excludes=None, no_data=False, no_storages=False,
-               no_storages_excludes=False, indent=None):
+    def script(self, application_configurations=None, storages=None,
+               storages_basepath=None, storages_excludes=None, no_data=False,
+               no_storages=False, no_storages_excludes=False, indent=None):
         """
-        Proceed to dump to a archive.
+        Create shellscript command lines to dump data and storages.
 
         .. Note::
             This does not involve argument validation methods like
             ``get_archive_destination`` and others here.
+
+        Keyword Arguments:
+            filename (string): Custom archive filename to use instead of the default
+                one. Your custom filename must end with ``.tar.gz``. Default filename
+                is ``diskette[_data][_storages].tar.gz`` (parts depend from options).
+            application_configurations (string or list or Path): Either:
+
+                * A list which includes application configurations;
+                * A string which holds valid JSON;
+                * A Path object to a JSON file to open to get application
+                  configurations;
+
+                If None or any empty value, the setting will be used.
+            storages (list): A list of storage Path objects.
+            storages_basepath (Path): Basepath for reference in some path resolution.
+                Currently used by storage dump to make relative path for storage files.
+                On default this is based on current working directory. If given, the
+                storage paths must be in the same leaf else this will be an error.
+            storages_excludes (list): A list of patterns to exclude storage files from
+                dump.
+            no_data (boolean): Disable dump of application datas.
+            no_storages (boolean): Disable dump of media storages.
+            no_storages_excludes (boolean): Disable usage of excluding patterns when
+                collecting storages files.
+            indent (integer): Indentation level in data dumps. If not given, dumps won't
+                be indented.
+
+        Returns:
+            string: All commands to dump data, each command on its line with a previous
+                comment line with the dump name.
         """
         self.logger.info("=== Starting script ===")
 
@@ -214,7 +243,6 @@ class DumpCommandHandler:
         dumper.validate()
 
         commandlines = dumper.make_script(
-            archive_filename,
             with_data=with_data,
             with_storages=with_storages,
             with_storages_excludes=with_storages_excludes,
@@ -227,11 +255,44 @@ class DumpCommandHandler:
              storages_excludes=None, no_data=False, no_storages=False,
              no_storages_excludes=False, indent=None):
         """
-        Proceed to dump to a archive.
+        Proceed to dump datas and storages collection into an archive.
 
         .. Note::
             This does not involve argument validation methods like
             ``get_archive_destination`` and others here.
+
+        Arguments:
+            archive_destination (Path):
+
+        Keyword Arguments:
+            archive_filename (string): Custom archive filename to use instead of the
+                default one. Your custom filename must end with ``.tar.gz``. Default
+                filename is ``diskette[_data][_storages].tar.gz`` (parts depend from
+                options).
+            application_configurations (string or list or Path): Either:
+
+                * A list which includes application configurations;
+                * A string which holds valid JSON;
+                * A Path object to a JSON file to open to get application
+                  configurations;
+
+                If None or any empty value, the setting will be used.
+            storages (list): A list of storage Path objects.
+            storages_basepath (Path): Basepath for reference in some path resolution.
+                Currently used by storage dump to make relative path for storage files.
+                On default this is based on current working directory. If given, the
+                storage paths must be in the same leaf else this will be an error.
+            storages_excludes (list): A list of patterns to exclude storage files from
+                dump.
+            no_data (boolean): Disable dump of application datas.
+            no_storages (boolean): Disable dump of media storages.
+            no_storages_excludes (boolean): Disable usage of excluding patterns when
+                collecting storages files.
+            indent (integer): Indentation level in data dumps. If not given, dumps won't
+                be indented.
+
+        Returns:
+            Path: Path to the written archive file.
         """
         self.logger.info("=== Starting dump ===")
 

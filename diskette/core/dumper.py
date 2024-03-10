@@ -22,24 +22,29 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
     Dump manager is in charge of storing application model objects, return serialized
     datas and storage files to dump them.
 
-    .. Note::
-        A drain is a specific application that is always processed after the standard
-        applications, even if it has been defined between other standard applications.
+    Arguments:
+        apps (list): List of dictionnaries, each dictionnary is a data dump definition.
+            Each dictionnary will be turned to ``DrainApplicationConfig`` or
+            ``ApplicationConfig`` object, depending it is a drain or not.
 
     Keyword Arguments:
         executable (string): A path to prefix commands, commonly the path to
             django-admin (or equivalent). This path will suffixed with a single space
             to ensure separation with command arguments. This is only used with
             ``command``.
-        storages (list): A list of storage Path objects.
         storages_basepath (Path): Basepath for reference in some path resolution.
             Currently used by storage dump to make relative path for storage files.
             On default this is based on current working directory. If given, the
             storage paths must be in the same leaf else this will be an error.
+        storages (list): A list of storage Path objects.
         storages_excludes (list): A list of patterns to exclude storage files from
             dump.
-        indent (integer):
-        logger (object):
+        indent (integer): Indentation level in data dumps. If not given, dumps won't
+            be indented.
+        logger (object): Instance of a logger object to use. Logger object must
+            implement common logging message methods (like error, info, etc..). See
+            ``diskette.utils.loggers`` for available loggers. If not given, a dummy
+            logger will be used that ignores any messages and won't output anything.
     """
     MANIFEST_FILENAME = "manifest.json"
     TEMPDIR_PREFIX = "diskette_"
@@ -70,6 +75,10 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
         """
         Get all model labels that should be excluded from a Drain to respect drainage
         policy.
+
+        Arguments:
+            apps (list): List of ``ApplicationConfig`` or ``DrainApplicationConfig``
+                objects.
 
         Keyword Arguments:
             drain_excluded (boolean): If True, the excluded models are also returned for
@@ -148,12 +157,11 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
         """
         Build a dictionnary of options for each application.
 
-        Keyword Arguments:
-            name (boolean): To include or not the name into the dict.
-            commented (boolean): To include or not the comments into the dict.
+        By option we means dump options given to dumpdata.
 
         Returns:
-            list:
+            list: List of dictionnaries, each dictionnary is a payload of application
+                options.
         """
         return [app.as_options() for app in self.apps]
 
@@ -161,12 +169,9 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
         """
         Build a dictionnary of configuration payload for each application.
 
-        Keyword Arguments:
-            name (boolean): To include or not the name into the dict.
-            commented (boolean): To include or not the comments into the dict.
-
         Returns:
-            list:
+            list: List of dictionnaries, each dictionnary is a payload of application
+                definition parameters.
         """
         return [app.as_config() for app in self.apps]
 
@@ -175,11 +180,14 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
         Build dumpdata command line for each application.
 
         Keyword Arguments:
-            destination (string or Path):
-            indent (integer):
+            destination (string or Path): Destination file where to write dump if
+                given. The file will be created by the dump command when executed, not
+                during this method.
+            indent (integer): Indentation level for dump data.
 
         Returns:
-            list:
+            list: List of tuples for processed applications, each tuple contains
+                firstly application name then the built dump command.
         """
         return [
             (
@@ -194,11 +202,14 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
         Call dumpdata command to dump each application data.
 
         Keyword Arguments:
-            destination (string or Path):
-            indent (integer):
+            destination (string or Path): Destination file where to write dump if
+                given. The file will be created by the dump command when executed, not
+                during this method.
+            indent (integer): Indentation level for dump data.
 
         Returns:
-            list:
+            list: List of tuples for processed applications, each tuple contains
+                firstly application name then the command output.
         """
         return [
             (
@@ -211,6 +222,10 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
     def validate_applications(self):
         """
         Call validators from all enabled application model objects.
+
+        Raises:
+            ApplicationRegistryError: An error with all possible collected errors if
+            there is any.
         """
         errors = {}
 
@@ -225,9 +240,9 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
         if errors:
             raise ApplicationRegistryError(error_messages=errors)
 
-    def format_tarball_filename(self, filename, with_data=False, with_storages=False):
+    def format_archive_filename(self, filename, with_data=False, with_storages=False):
         """
-        Format tarball filename depending features.
+        Format archive filename depending features.
 
         Keyword Arguments:
             filename (string): Filename to use instead. It must end with ``.tar.gz``.
@@ -235,7 +250,7 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
                 features pattern can include either ``_data``, ``_storages`` or both
                 depending enabled dump kinds.
             with_data (boolean): Enable dump of application datas.
-            with_storages (boolean): Enabled dump of media storages.
+            with_storages (boolean): Enable dump of media storages.
 
         Returns:
             string: Formatted filename with features.
@@ -270,15 +285,28 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
         .. Note::
             Involves relative path resolving so it implies that storage paths are
             proper children of given destination path (that is removed from lead of
-            storage paths). EG: Storage paths must all start with a starting portion
-            of value from Dumper attribute ``storages_basepath``.
+            storage paths).
 
-            Eg: /foo/bar/storage would not be in a 'storages_basepath' "/ping/" (so it
-            is invalid) but would be (and valid) in "/foo" or "/foo/bar".
+            So storage paths must all start with a starting portion of value from
+            Dumper attribute ``storages_basepath``.
+
+            As an example ``/foo/bar/storage`` would not be in a 'storages_basepath'
+            ``/ping/`` (so it is invalid) but would be (and valid) in ``/foo`` or
+            ``/foo/bar``.
 
         .. Note::
             Manifest preserve order of registered applications when writing data dump
             list so it safe for loading them.
+
+        Arguments:
+            destination (Path): Destination file where to write manifest.
+
+        Keyword Arguments:
+            with_data (boolean): Enable dump of application datas.
+            with_storages (boolean): Enable dump of media storages.
+
+        Returns:
+            Path: Path to the written manifest file.
         """
         manifest_path = destination / self.MANIFEST_FILENAME
         data = {
@@ -317,27 +345,29 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
     def make_archive(self, destination, filename, with_data=True, with_storages=True,
                      with_storages_excludes=True, destination_chmod=0o644):
         """
-        Dump data and storages then archive everything in a tarball.
+        Dump data and storages then archive everything in an archive.
 
         .. Note::
             Arguments 'with_data' and 'with_storages' can not be both disabled, at
             least one must be enabled else it is assumed as an error.
 
+        Arguments:
+            destination (Path): Directory where to write archive file.
+
         Keyword Arguments:
-            destination (Path): Directory where to write tarball file.
-            filename (string): Custom tarball filename to use instead of the default
+            filename (string): Custom archive filename to use instead of the default
                 one. Your custom filename must end with ``.tar.gz``. Default filename
                 is ``diskette[_data][_storages].tar.gz`` (parts depend from options).
             with_data (boolean): Enable dump of application datas.
-            with_storages (boolean): Enabled dump of media storages.
+            with_storages (boolean): Enable dump of media storages.
             with_storages_excludes (boolean): Enable usage of excluding patterns when
                 collecting storages files.
-            destination_chmod (integer): File permission to apply on tarball files and
+            destination_chmod (integer): File permission to apply on archive files and
                 also on destination directory if it did not exists. Value must be in
                 an octal notation, default is ``0o644``.
 
         Returns:
-            Path: Written tarball file path.
+            Path: Path to the written archive file.
         """
         if not with_data and not with_storages:
             raise DumperError(
@@ -363,18 +393,18 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
             with_storages=with_storages
         )
 
-        # Build dump tarball paths
-        tarball_filename = self.format_tarball_filename(
+        # Build dump archive paths
+        archive_filename = self.format_archive_filename(
             filename,
             with_data=with_data,
             with_storages=with_storages
         )
-        tarball_path = destination_tmpdir / tarball_filename
-        tarball_destination = destination / tarball_filename
+        archive_path = destination_tmpdir / archive_filename
+        archive_destination = destination / archive_filename
 
-        # Then add everything to the tarball
+        # Then add everything to the archive
         try:
-            with tarfile.open(tarball_path, "w:gz") as tar:
+            with tarfile.open(archive_path, "w:gz") as tar:
                 # Add data dumps dir
                 if with_data is True:
                     self.logger.info("Appending data to the archive")
@@ -403,20 +433,35 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
 
             # Use shutil instead of Path.rename since the latter does not work well
             # with different devices
-            shutil.move(tarball_path, tarball_destination)
-            tarball_destination.chmod(destination_chmod)
+            shutil.move(archive_path, archive_destination)
+            archive_destination.chmod(destination_chmod)
 
         finally:
             # Always remove temporary working directory
             if destination_tmpdir.exists():
                 shutil.rmtree(destination_tmpdir)
 
-        return tarball_destination
+        return archive_destination
 
-    def make_script(self, filename, with_data=True, with_storages=True,
+    def make_script(self, with_data=True, with_storages=True,
                     with_storages_excludes=True):
         """
         Create shellscript commands to dump data.
+
+        TODO:
+
+        * Help me, i'm not tested.
+        * Storage commands is yet to be implemented;
+
+        Keyword Arguments:
+            with_data (boolean): Enable dump of application datas.
+            with_storages (boolean): Enable dump of media storages.
+            with_storages_excludes (boolean): Enable usage of excluding patterns when
+                collecting storages files.
+
+        Returns:
+            string: All commands to dump data, each command on its line with a previous
+                comment line with the dump name.
         """
         if not with_data and not with_storages:
             raise DumperError(

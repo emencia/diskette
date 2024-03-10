@@ -15,11 +15,13 @@ from .storages import StorageMixin
 
 class Loader(StorageMixin, LoaddataSerializerAbstract):
     """
-    Dump loader
+    Dump loader opens a Diskette archive to deploy its data and storage contents.
 
     Keyword Arguments:
-        basepath (Path):
-        logger (object):
+        logger (object): Instance of a logger object to use. Logger object must
+            implement common logging message methods (like error, info, etc..). See
+            ``diskette.utils.loggers`` for available loggers. If not given, a dummy
+            logger will be used that ignores any messages and won't output anything.
     """
     MANIFEST_FILENAME = "manifest.json"
     TEMPDIR_PREFIX = "diskette_"
@@ -141,22 +143,23 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
         self.validate_datas()
         self.validate_storages()
 
-    def deploy_storages(self, extracted, manifest, destination):
+    def deploy_storages(self, archive_dir, manifest, destination):
         """
         Deploy storages directories in given destination
 
         Arguments:
-            extracted (Path):
-            manifest (dict):
-            destination (Path):
+            archive_dir (Path): Path to directory where archive has been exracted.
+            manifest (dict): The manifest data.
+            destination (Path): Path to directory where to deploy storages.
 
         Returns:
-            list: List of tuples for source & destination paths for deployed storages.
+            list: List of tuples for deployed storage with respectively source and
+                destination paths.
         """
         deployed = []
 
         for dump_path in manifest["storages"]:
-            storage_source = extracted / dump_path
+            storage_source = archive_dir / dump_path
             storage_destination = destination / dump_path
 
             # Create complete destination path structure if needed
@@ -190,20 +193,20 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
 
         return deployed
 
-    def deploy_datas(self, extracted, manifest):
+    def deploy_datas(self, archive_dir, manifest):
         """
         Deploy storages directories in given destination
 
         Arguments:
-            extracted (Path):
-            manifest (dict):
-            destination (Path):
+            archive_dir (Path): Path to directory where archive has been exracted.
+            manifest (dict): The manifest data.
 
         Returns:
-            list: List of tuples for source & loaddata output for deployed dumps.
+            list: List of tuples for deployed dumps with respectively source and
+                loaddata output.
         """
         return [
-            (dump.name, self.call(extracted / dump))
+            (dump.name, self.call(archive_dir / dump))
             for dump in manifest["datas"]
         ]
 
@@ -224,7 +227,7 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
                 archive file is removed once it have been extracted.
 
         Returns:
-            dict: Statistics of restored storages and datas.
+            dict: Statistics of deployed storages and datas.
         """
         tmpdir = self.open(archive_path, keep=keep)
 
