@@ -126,7 +126,6 @@ class Command(BaseCommand, DumpCommandHandler):
             """
             self.stdout.write(
                 self.script(
-                    archive_filename=options["filename"],
                     application_configurations=options["appconf"],
                     storages=options["storage"],
                     storages_basepath=options["storages_basepath"],

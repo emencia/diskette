@@ -3,6 +3,7 @@ from pathlib import Path
 from io import StringIO
 
 from django.core import management
+from django.template.defaultfilters import filesizeformat
 
 from ...utils.loggers import NoOperationLogger
 
@@ -124,6 +125,10 @@ class DumpdataSerializerAbstract:
             options["traceback"] = True
 
         self.logger.info("Dumping data for application '{}'".format(application.name))
+        if models:
+            self.logger.debug("- Including: {}".format(", ".join(models)))
+        if excludes:
+            self.logger.debug("- Excluding: {}".format(", ".join(excludes)))
 
         # Execute command without output guided to string buffer
         out = StringIO()
@@ -138,7 +143,11 @@ class DumpdataSerializerAbstract:
         # onto the application object
         if destination:
             out.close()
-            application._written = destination / filename
+            application._written = options["output"]
+            self.logger.debug("- Written file: {name} ({size})".format(
+                name=filename,
+                size=filesizeformat(options["output"].stat().st_size),
+            ))
             return json.dumps({"destination": str(application._written)})
 
         # No destination to write just write it into the string buffer

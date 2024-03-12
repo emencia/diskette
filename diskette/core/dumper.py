@@ -5,6 +5,8 @@ import tarfile
 import tempfile
 from pathlib import Path
 
+from django.template.defaultfilters import filesizeformat
+
 from .. import __version__
 from ..exceptions import (
     ApplicationConfigError, ApplicationRegistryError, DumperError
@@ -418,6 +420,10 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
                     for path, arcname in self.iter_storages_files(
                         allow_excludes=with_storages_excludes
                     ):
+                        self.logger.debug("- {name} ({size})".format(
+                            name=arcname,
+                            size=filesizeformat(path.stat().st_size),
+                        ))
                         tar.add(path, arcname=arcname)
 
                 # Append dump manifest

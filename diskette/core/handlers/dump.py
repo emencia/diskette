@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 from django.conf import settings
+from django.template.defaultfilters import filesizeformat
 
 from ..dumper import Dumper
 
@@ -216,6 +217,7 @@ class DumpCommandHandler:
         )
 
         with_storages, storages = self.get_storage_paths(storages, no_storages)
+        with_storages_excludes = None
         if with_storages:
             with_storages_excludes, storages_excludes = self.get_storage_excludes(
                 storages_excludes,
@@ -305,6 +307,7 @@ class DumpCommandHandler:
         )
 
         with_storages, storages = self.get_storage_paths(storages, no_storages)
+        with_storages_excludes = None
         if with_storages:
             with_storages_excludes, storages_excludes = self.get_storage_excludes(
                 storages_excludes,
@@ -339,6 +342,11 @@ class DumpCommandHandler:
             with_storages_excludes=with_storages_excludes,
         )
 
-        self.logger.info("Dump archive was created at: {}".format(archive_path))
+        self.logger.info(
+            "Dump archive was created at: {path} ({size})".format(
+                path=archive_path,
+                size=filesizeformat(archive_path.stat().st_size),
+            )
+        )
 
         return archive_path
