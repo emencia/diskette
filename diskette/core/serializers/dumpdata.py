@@ -83,7 +83,7 @@ class DumpdataSerializerAbstract:
             options=" ".join(options),
         )
 
-    def call(self, application, destination=None, indent=None):
+    def call(self, application, destination=None, indent=None, traceback=False):
         """
         Programmatically use the Django ``dumpdata`` command to dump application.
 
@@ -93,6 +93,9 @@ class DumpdataSerializerAbstract:
         Keyword Arguments:
             destination (Path): The file path where to write dumped data.
             indent (integer): Indentation level in data dumps.
+            traceback (boolean): If enabled, Django will output the full traceback when
+                a dump raise an error. On default this is disabled and Django will
+                silently hide exception tracebacks.
 
         Returns:
             string: A JSON payload of call results. On default, this is the JSON
@@ -116,6 +119,9 @@ class DumpdataSerializerAbstract:
         excludes = options.pop("excludes")
         if application.is_drain:
             options["exclude"] = excludes
+
+        if traceback:
+            options["traceback"] = True
 
         self.logger.info("Dumping data for application '{}'".format(application.name))
 

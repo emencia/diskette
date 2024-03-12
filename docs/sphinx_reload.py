@@ -23,12 +23,12 @@ server = Server()
 # Watch document sources
 server.watch("docs/*.rst", shell("make html", cwd="docs"))
 server.watch("docs/*/**.rst", shell("make html", cwd="docs"))
-server.watch("docs/_static/*.csv", shell("make html", cwd="docs"))
 server.watch("*.rst", shell("make html", cwd="docs"))
 
 
 # Watch Python modules for autodoc review
 server.watch("diskette/*.py", shell("make html", cwd="docs"))
+server.watch("diskette/core/*/**.py", shell("make html", cwd="docs"))
 server.watch("diskette/*/**.py", shell("make html", cwd="docs"))
 
 # Serve the builded documentation

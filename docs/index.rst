@@ -8,9 +8,11 @@ Contents
    :maxdepth: 2
 
    install.rst
-   references/index.rst
+   settings.rst
    overview.rst
-   drain.rst
+   appdef.rst
+   usage.rst
+   references/index.rst
 
 
 About the project

@@ -21,15 +21,12 @@ Add it to your installed Django apps in settings : ::
         "diskette",
     )
 
-Then load default application settings in your settings file: ::
+Then load default Diskette :ref:`settings_intro` in your settings file: ::
 
     from diskette.settings import *
 
-And finally apply database migrations.
+There is no migrations to apply.
 
-
-Settings
-********
-
-.. automodule:: diskette.settings
-   :members:
+At this point Diskette is correctly installed but won't archive anything, you will
+need to define some applications and storages in settings, respectively
+``DISKETTE_APPS`` and ``DISKETTE_STORAGES``.

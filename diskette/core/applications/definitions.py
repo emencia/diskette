@@ -125,8 +125,8 @@ class ApplicationConfig:
 
         Returns:
             list: Fully qualified model labels that won't be allowed to be drained.
-                This means labels from ``models`` on defaut and possibly the
-                ``excludes`` one also if application allows for drainage.
+            This means labels from ``models`` on defaut and possibly the
+            ``excludes`` one also if application allows for drainage.
         """
         if not self.allow_drain:
             return self.models + self.excludes
