@@ -107,8 +107,8 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
             )
 
         # Turn data file and storage items to Path objects
-        manifest["datas"] = [Path(v) for v in manifest["datas"]]
-        manifest["storages"] = [Path(v) for v in manifest["storages"]]
+        manifest["datas"] = [Path(v) for v in manifest.get("datas") or []]
+        manifest["storages"] = [Path(v) for v in manifest.get("storages") or []]
 
         return manifest
 

@@ -137,6 +137,8 @@ def test_dump(caplog, settings, db, tests_settings, tmp_path):
     caplog.set_level(logging.DEBUG)
 
     storage_samples = tests_settings.fixtures_path / "storage_samples"
+    storage_1 = storage_samples / "storage-1"
+    storage_2 = storage_samples / "storage-2"
 
     commander = DumpCommandHandler()
     commander.logger = LoggingOutput()
@@ -149,71 +151,47 @@ def test_dump(caplog, settings, db, tests_settings, tmp_path):
             ("Django auth", {"models": ["auth.Group", "auth.User"]}),
             ("Django site", {"models": ["sites"]}),
         ],
-        storages=[
-            storage_samples / "storage-1",
-            storage_samples / "storage-2"
-        ],
+        storages=[storage_1, storage_2],
         storages_basepath=storage_samples,
         storages_excludes=["foo/*"],
     )
 
     assert archive.exists() is True
 
-    assert caplog.record_tuples == [
+    # Flatten logging messages
+    logs = [
+        name + ":" + str(lv) + ":" + msg
+        for name, lv, msg in caplog.record_tuples
+    ]
+
+    assert logs == [
+        "diskette:20:=== Starting dump ===",
+        "diskette:10:- Tarball will be written into: {}".format(tmp_path),
+        "diskette:10:- Tarball filename pattern: diskette{features}.tar.gz",
+        "diskette:10:- Data dump enabled for application:",
+        "diskette:10:  ├── Django auth",
+        "diskette:10:  └── Django site",
+        "diskette:10:- Storage dump enabled for:",
+        "diskette:10:  ├── {}".format(storage_1),
+        "diskette:10:  └── {}".format(storage_2),
+        "diskette:10:- Storage exclude patterns enabled:",
+        "diskette:10:  └── foo/*",
+        "diskette:20:Dumping data for application 'Django auth'",
+        "diskette:10:- Including: auth.Group, auth.User",
         (
-            "diskette", logging.INFO, "=== Starting dump ==="
+            "diskette:10:- Excluding: auth.Permission, auth.Group_permissions, "
+            "auth.User_groups, auth.User_user_permissions"
         ),
-        (
-            "diskette", logging.DEBUG, "- Tarball will be written into: {}".format(
-                tmp_path
-            )
-        ),
-        (
-            "diskette", logging.DEBUG, (
-                "- Tarball filename pattern: diskette{features}.tar.gz"
-            )
-        ),
-        (
-            "diskette", logging.DEBUG, "- Data dump enabled for application:"
-        ),
-        (
-            "diskette", logging.DEBUG, "  ├── Django auth"
-        ),
-        (
-            "diskette", logging.DEBUG, "  └── Django site"
-        ),
-        (
-            "diskette", logging.DEBUG, "- Storage dump enabled for:"
-        ),
-        (
-            "diskette", logging.DEBUG, "  ├── {}/storage-1".format(storage_samples)
-        ),
-        (
-            "diskette", logging.DEBUG, "  └── {}/storage-2".format(storage_samples)
-        ),
-        (
-            "diskette", logging.DEBUG, "- Storage exclude patterns enabled:"
-        ),
-        (
-            "diskette", logging.DEBUG, "  └── foo/*"
-        ),
-        (
-            "diskette", logging.INFO, "Dumping data for application 'Django auth'"
-        ),
-        (
-            "diskette", logging.INFO, "Dumping data for application 'Django site'"
-        ),
-        (
-            "diskette", logging.INFO, "Appending data to the archive"
-        ),
-        (
-            "diskette", logging.INFO, "Appending storages to the archive"
-        ),
-        (
-            "diskette", logging.INFO, (
-                "Dump archive was created at: {}/diskette_data_storages.tar.gz".format(
-                    tmp_path
-                )
-            )
-        )
+        "diskette:10:- Written file: django-auth.json (2 bytes)",
+        "diskette:20:Dumping data for application 'Django site'",
+        "diskette:10:- Including: sites.Site",
+        "diskette:10:- Written file: django-site.json (94 bytes)",
+        "diskette:20:Appending data to the archive",
+        "diskette:20:Appending storages to the archive",
+        "diskette:10:- storage-1/blue.png (1.5 KB)",
+        "diskette:10:- storage-1/sample.txt (11 bytes)",
+        "diskette:10:- storage-1/plop/green.png (1.6 KB)",
+        "diskette:10:- storage-2/pong/sample.nope (11 bytes)",
+        "diskette:10:- storage-2/ping/grey.png (1.6 KB)",
+        "diskette:20:Dump archive was created at: {} (3.7 KB)".format(archive),
     ]

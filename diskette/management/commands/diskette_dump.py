@@ -101,7 +101,7 @@ class Command(BaseCommand, DumpCommandHandler):
         )
 
     def handle(self, *args, **options):
-        self.logger = DjangoCommandOutput(command=self)
+        self.logger = DjangoCommandOutput(command=self, verbosity=options["verbosity"])
 
         if not options["no_archive"]:
             self.dump(

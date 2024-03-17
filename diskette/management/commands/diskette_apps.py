@@ -31,7 +31,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        self.logger = DjangoCommandOutput(command=self)
+        self.logger = DjangoCommandOutput(command=self, verbosity=options["verbosity"])
 
         definitions = []
 

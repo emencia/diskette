@@ -65,22 +65,39 @@ class DjangoCommandOutput:
     Keyword Arguments:
         command (django.core.management.base.BaseCommand): The Django command which
             have the ``stdout`` and ``style`` attributes. This is required.
+        verbosity (integer): As defined from Django ``django-admin`` documentation,
+            this specifies the amount of notification and debug information that a
+            command should print to the console.
+
+            * 0 means no output (no debug, no info, no warning);
+            * 1 means normal output (default) (no debug);
+            * 2 means verbose output;
+            * 3 means very verbose output.
+
+            There is actually no logging message method that depends from level 3 and
+            so it won't have any additional effect than level 2.
+
+            Errors are always printed.
     """
     def __init__(self, *args, **kwargs):
         self.command = kwargs.get("command")
+        self.verbosity = kwargs.get("verbosity", 1)
 
     def debug(self, msg):
-        self.command.stdout.write(msg)
+        if self.verbosity > 1:
+            self.command.stdout.write(msg)
 
     def info(self, msg):
-        self.command.stdout.write(
-            self.command.style.SUCCESS(msg)
-        )
+        if self.verbosity > 0:
+            self.command.stdout.write(
+                self.command.style.SUCCESS(msg)
+            )
 
     def warning(self, msg):
-        self.command.stdout.write(
-            self.command.style.WARNING(msg)
-        )
+        if self.verbosity > 0:
+            self.command.stdout.write(
+                self.command.style.WARNING(msg)
+            )
 
     def error(self, msg):
         self.command.stdout.write(

@@ -46,7 +46,7 @@ class Command(BaseCommand, LoadCommandHandler):
         )
 
     def handle(self, *args, **options):
-        self.logger = DjangoCommandOutput(command=self)
+        self.logger = DjangoCommandOutput(command=self, verbosity=options["verbosity"])
 
         self.load(
             options["archive"],
