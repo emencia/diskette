@@ -15,6 +15,20 @@ Version 0.3.0 - Unreleased
 * Many adjustments to make dump and loading work;
 * Added contribution modules for ``django-configuration`` and ``project-composer``;
 
+**Diskette enters in its Beta stage**
+
+Diskette bases are there and should be working well, however it currently still have
+some lacks:
+
+* It is currently a commandline tool only, there is no admin interface yet although it
+  is plannified;
+* Possible errors from validations are not well managed yet, it means they may be
+  outputed as raw exceptions instead of human friendly messages;
+* Some commandlines lacks of some helpful arguments;
+* Documentation is still in progress;
+* Some bugs may be present with some options or specific configurations. This is the
+  goal of the Beta stage to find them and fix them;
+
 
 Version 0.2.0 - Not released as a package
 -----------------------------------------

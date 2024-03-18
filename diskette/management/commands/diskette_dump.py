@@ -4,6 +4,7 @@ from django.core.management.base import BaseCommand
 
 from ...core.handlers import DumpCommandHandler
 from ...utils.loggers import DjangoCommandOutput
+from ...exceptions import ApplicationRegistryError
 
 
 class Command(BaseCommand, DumpCommandHandler):
@@ -103,29 +104,11 @@ class Command(BaseCommand, DumpCommandHandler):
     def handle(self, *args, **options):
         self.logger = DjangoCommandOutput(command=self, verbosity=options["verbosity"])
 
-        if not options["no_archive"]:
-            self.dump(
-                options["destination"],
-                archive_filename=options["filename"],
-                application_configurations=options["appconf"],
-                storages=options["storage"],
-                storages_basepath=options["storages_basepath"],
-                storages_excludes=options["storages_exclude"],
-                no_data=options["no_data"],
-                no_storages=options["no_storages"],
-                no_storages_excludes=options["no_storages_excludes"],
-                indent=options["indent"],
-            )
-        else:
-            """
-            TODO:
-                * This has no test coverage yet;
-                * It lacks of storage copy commands;
-                * dumpdata command currently output to temporary directory instead of
-                  proper data directory;
-            """
-            self.stdout.write(
-                self.script(
+        try:
+            if not options["no_archive"]:
+                self.dump(
+                    options["destination"],
+                    archive_filename=options["filename"],
                     application_configurations=options["appconf"],
                     storages=options["storage"],
                     storages_basepath=options["storages_basepath"],
@@ -135,4 +118,30 @@ class Command(BaseCommand, DumpCommandHandler):
                     no_storages_excludes=options["no_storages_excludes"],
                     indent=options["indent"],
                 )
-            )
+            else:
+                """
+                TODO:
+                    * This has no test coverage yet;
+                    * It lacks of storage copy commands;
+                    * dumpdata command currently output to temporary directory instead of
+                    proper data directory;
+                """
+                self.stdout.write(
+                    self.script(
+                        application_configurations=options["appconf"],
+                        storages=options["storage"],
+                        storages_basepath=options["storages_basepath"],
+                        storages_excludes=options["storages_exclude"],
+                        no_data=options["no_data"],
+                        no_storages=options["no_storages"],
+                        no_storages_excludes=options["no_storages_excludes"],
+                        indent=options["indent"],
+                    )
+                )
+        except ApplicationRegistryError as excinfo:
+            # Manage specific registry error that may include a detail
+            self.logger.error(excinfo)
+            for msg in excinfo.get_payload_details():
+                self.logger.error(msg)
+            self.logger.critical("Aborted operation.")
+
