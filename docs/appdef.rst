@@ -42,6 +42,8 @@ Commonly you will dedicate an application definition to a single application but
 can also gather multiple applications models or split application models into multiple
 applications.
 
+.. _appdef_app_parameters:
+
 Parameters
 **********
 
@@ -79,8 +81,8 @@ allow_drain
 is_drain
     *Optional*, *<boolean>*, *Default: false*
 
-    If enabled, the application is defined as a special application dedicated to
-    drainage.
+    If enabled, the application is assumed to be a :ref:`appdef_drain_definition`. A
+    drain ignores usage of options ``models`` and ``allow_drain``.
 
 dump_command
     *Optional*, *<string>*, *Default: empty*
@@ -114,7 +116,43 @@ excludes
     of a list.
 
 
+.. _appdef_definition_order:
+
+Definition order
+****************
+
+Diskette does not resolve definition order for you, it is your responsibility to ensure
+they are defined in the right order.
+
+Because Diskette stands on Django serializer through usage of ``dumpdata`` and
+``loaddata``, models must be serialized in the right order. It means if a model B has
+relation on model A, the model B must be defined after the model A definition.
+
+Commonly, dumping data won't fail with wrong order but loadding data will always fail
+because serializer will expect some related objects that don't exist yet.
+
+
+.. _appdef_drain_definition:
+
 Drain definition
 ****************
 
-TODO
+This is a special application definition which allows to drain excluded models from all
+other apps.
+
+It can be used in some situations where it will acts like a bucket to collect forbidden
+models from definitions.
+
+Diskette compute the implicit and explicit exclusions from all applications and drain
+use them to know excluded application models that it can collect.
+
+Because some application definition may be defined to exclude some models well known
+to be avoided, a drain only collect exclusions from applications that allow it with
+their option ``allow_drain``. Undefined application are fully collected.
+
+.. Warning::
+    Usage of drain is a risk to collect too many useless data or to break dump loading
+    because of invalid data, so use it with caution.
+
+    Commonly it is better to stand on application definitions.
+

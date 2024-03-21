@@ -1,6 +1,7 @@
 .. _Python: https://www.python.org/
 .. _Django: https://www.djangoproject.com/
 .. _django-sendfile2: https://github.com/moggers87/django-sendfile2
+.. _datalookup: https://datalookup.readthedocs.io/
 
 ========
 Diskette
@@ -30,6 +31,7 @@ Dependancies
 * `Python`_>=3.9;
 * `Django`_>=4.0,<5.0;
 * `django-sendfile2`_>=0.7.0;
+* `datalookup`_>=1.0.0;
 
 
 Links

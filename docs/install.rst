@@ -25,6 +25,13 @@ Then load default Diskette :ref:`settings_intro` in your settings file: ::
 
     from diskette.settings import *
 
+.. Note::
+
+    Instead if your project use
+    `django-configuration <https://django-configurations.readthedocs.io/en/stable/>`_,
+    your settings class can inherits from
+    :ref:`references_contrib_django_configuration`).
+
 There is no migrations to apply.
 
 At this point Diskette is correctly installed but won't archive anything, you will

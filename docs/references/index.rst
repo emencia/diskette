@@ -13,3 +13,4 @@ References
    dumper.rst
    loader.rst
    handlers.rst
+   contrib.rst

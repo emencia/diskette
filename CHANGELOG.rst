@@ -14,6 +14,7 @@ Version 0.3.0 - Unreleased
   data dump with application models;
 * Many adjustments to make dump and loading work;
 * Added contribution modules for ``django-configuration`` and ``project-composer``;
+* Added ``project-composer`` as a documentation requirement;
 
 **Diskette enters in its Beta stage**
 
@@ -21,7 +22,7 @@ Diskette bases are there and should be working well, however it currently still 
 some lacks:
 
 * It is currently a commandline tool only, there is no admin interface yet although it
-  is plannified;
+  has been planned;
 * Possible errors from validations are not well managed yet, it means they may be
   outputed as raw exceptions instead of human friendly messages;
 * Some commandlines lacks of some helpful arguments;

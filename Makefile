@@ -9,6 +9,7 @@ PIP_BIN=$(VENV_PATH)/bin/pip
 FLAKE_BIN=$(VENV_PATH)/bin/flake8
 PYTEST_BIN=$(VENV_PATH)/bin/pytest
 SPHINX_RELOAD_BIN=$(PYTHON_BIN) docs/sphinx_reload.py
+COMMAND_DOC_PARSER_BIN=$(PYTHON_BIN) docs/command_parser.py
 TOX_BIN=$(VENV_PATH)/bin/tox
 TWINE_BIN=$(VENV_PATH)/bin/twine
 
@@ -200,6 +201,10 @@ docs:
 	@echo ""
 	@printf "$(FORMATBLUE)$(FORMATBOLD)---> Build documentation <---$(FORMATRESET)\n"
 	@echo ""
+	$(COMMAND_DOC_PARSER_BIN) diskette.management.commands.diskette_dump docs/_static/commands/dump.rst
+	$(COMMAND_DOC_PARSER_BIN) diskette.management.commands.diskette_load docs/_static/commands/load.rst
+	$(COMMAND_DOC_PARSER_BIN) diskette.management.commands.diskette_apps docs/_static/commands/apps.rst
+	$(COMMAND_DOC_PARSER_BIN) diskette.management.commands.polymorphic_dumpdata docs/_static/commands/polymorphic_dumpdata.rst
 	cd docs && make html
 .PHONY: docs
 

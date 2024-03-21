@@ -9,10 +9,10 @@ from ...exceptions import ApplicationRegistryError
 
 class Command(BaseCommand, DumpCommandHandler):
     """
-    Diskette dump command
+    Diskette dump.
     """
     help = (
-        "Dump application datas and storage files into an archive file (TAR GZ)."
+        "Dump configured application data and media files into an archive (TAR GZ)."
     )
 
     def add_arguments(self, parser):
@@ -123,8 +123,8 @@ class Command(BaseCommand, DumpCommandHandler):
                 TODO:
                     * This has no test coverage yet;
                     * It lacks of storage copy commands;
-                    * dumpdata command currently output to temporary directory instead of
-                    proper data directory;
+                    * dumpdata command currently output to temporary directory
+                      instead of proper data directory;
                 """
                 self.stdout.write(
                     self.script(
@@ -144,4 +144,3 @@ class Command(BaseCommand, DumpCommandHandler):
             for msg in excinfo.get_payload_details():
                 self.logger.error(msg)
             self.logger.critical("Aborted operation.")
-

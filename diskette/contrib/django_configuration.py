@@ -1,3 +1,6 @@
+"""
+.. _django-configuration: https://django-configurations.readthedocs.io/en/stable/
+"""
 from ..settings import (
     DISKETTE_APPS,
     DISKETTE_STORAGES,
@@ -10,22 +13,20 @@ from ..settings import (
 
 class DisketteDefaultSettings:
     """
-    Default Diskette settings class to use with a "django-configuration" class.
+    Default Diskette settings class to use with a `django-configuration`_ class.
 
-    Example:
+    You could use it like so: ::
 
-        You could use it like so: ::
+        from configurations import Configuration
+        from diskette.contrib.django_configuration import DisketteDefaultSettings
 
-            from configurations import Configuration
-            from diskette.contrib.django_configuration import DisketteDefaultSettings
+        class Dev(DisketteDefaultSettings, Configuration):
+            DEBUG = True
 
-            class Dev(DisketteDefaultSettings, Configuration):
-                DEBUG = True
+            DISKETTE_DUMP_FILENAME = "foo.tar.gz"
 
-                DISKETTE_DUMP_FILENAME = "foo.tar.gz"
-
-        This will override only the setting ``DISKETTE_DUMP_FILENAME``, all other
-        Diskette settings will have the default values from ``diskette.settings``.
+    This will override only the setting ``DISKETTE_DUMP_FILENAME``, all other
+    Diskette settings will have the default values from ``diskette.settings``.
     """
 
     DISKETTE_APPS = DISKETTE_APPS

@@ -8,7 +8,7 @@ from ...utils.loggers import DjangoCommandOutput
 
 class Command(BaseCommand, LoadCommandHandler):
     """
-    Diskette load command
+    Diskette load.
     """
     help = (
         "Restore application datas and storage files from a Diskette archive file "

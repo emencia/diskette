@@ -24,13 +24,7 @@ class Command(BaseCommand):
     This should resolves problem demonstrated in
     `django-polymorphic issue 175 <https://github.com/jazzband/django-polymorphic/issues/175#issuecomment-1607260352>`_.
 
-    However this only support a few set of legacy dumpdata options:
-
-    * label argument (not finished yet);
-    * --exclude (not finished yet);
-    * --natural-foreign
-    * --natural-primary
-    * --output
+    However this only support a few set of legacy dumpdata options.
 
     Every other options are still present but will raise a NotImplementedError when
     used.

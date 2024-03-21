@@ -9,7 +9,7 @@ from ...utils.loggers import DjangoCommandOutput
 
 class Command(BaseCommand):
     """
-    Diskette definitions discovering command.
+    Diskette definitions discovering.
     """
     help = (
         "Collect all enabled applications to build data dump definition samples that "

@@ -1,3 +1,9 @@
+.. admonition:: Beta stage
+
+   Diskette is currently in beta stage and documentation is on progress. See changelog
+   to check about current state.
+
+
 .. include:: ../README.rst
 
 
@@ -11,7 +17,8 @@ Contents
    settings.rst
    overview.rst
    appdef.rst
-   usage.rst
+   basic_sample.rst
+   commands.rst
    references/index.rst
 
 
