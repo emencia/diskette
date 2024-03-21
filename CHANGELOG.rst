@@ -3,6 +3,12 @@
 Changelog
 =========
 
+Version 0.3.1 - 2024/03/21
+--------------------------
+
+Fix release for missing commandline script from package.
+
+
 Version 0.3.0 - 2024/03/21
 --------------------------
 
