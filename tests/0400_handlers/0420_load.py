@@ -41,7 +41,7 @@ def test_storages_basepath_invalid(settings):
     assert str(excinfo.value) == "Storages destination path can not be an empty value"
 
 
-def test_load(caplog, settings, db, tests_settings, tmp_path):
+def test_load(caplog, settings, db, mocked_checksum, tests_settings, tmp_path):
     """
     Load method with the right arguments should correctly proceed to restore archive
     contents and output some logs.
@@ -79,41 +79,25 @@ def test_load(caplog, settings, db, tests_settings, tmp_path):
         assert stored.exists() is True
         assert len(list(stored.iterdir())) > 0
 
-    # Check logging output
-    assert caplog.record_tuples == [
-        ("diskette", logging.INFO, "=== Starting restoration ==="),
+    # Flatten logging messages
+    logs = [
+        name + ":" + str(lv) + ":" + msg
+        for name, lv, msg in caplog.record_tuples
+    ]
+
+    assert logs == [
+        "diskette:20:=== Starting restoration ===",
+        "diskette:10:- Storages contents will be restored into: {}".format(tmp_path),
+        "diskette:10:Archive checksum: dummy-checksum",
         (
-            "diskette",
-            logging.DEBUG,
-            "- Storages contents will be restored into: {}".format(tmp_path)
-        ),
-        (
-            "diskette",
-            logging.DEBUG,
-            "Creating storage parent directory: {}/storage_samples".format(
+            "diskette:10:Creating storage parent directory: {}/storage_samples".format(
                 tmp_path
             )
         ),
-        (
-            "diskette",
-            logging.INFO,
-            "Restoring storage directory (7.2 KB): storage_samples/storage-1"
-        ),
-        (
-            "diskette",
-            logging.INFO,
-            "Restoring storage directory (9.6 KB): storage_samples/storage-2"
-        ),
-        (
-            "diskette",
-            logging.INFO,
-            "Loading data from dump 'django-auth.json' (959 bytes)"
-        ),
-        ("diskette", logging.DEBUG, "Installed 3 object(s) from 1 fixture(s)"),
-        (
-            "diskette",
-            logging.INFO,
-            "Loading data from dump 'django-site.json' (194 bytes)"
-        ),
-        ("diskette", logging.DEBUG, "Installed 2 object(s) from 1 fixture(s)")
+        "diskette:20:Restoring storage directory (7.2 KB): storage_samples/storage-1",
+        "diskette:20:Restoring storage directory (9.6 KB): storage_samples/storage-2",
+        "diskette:20:Loading data from dump 'django-auth.json' (959 bytes)",
+        "diskette:10:Installed 3 object(s) from 1 fixture(s)",
+        "diskette:20:Loading data from dump 'django-site.json' (194 bytes)",
+        "diskette:10:Installed 2 object(s) from 1 fixture(s)"
     ]

@@ -4,6 +4,7 @@ from pathlib import Path
 from django.conf import settings
 from django.template.defaultfilters import filesizeformat
 
+from ...utils import hashs
 from ..dumper import Dumper
 
 
@@ -254,8 +255,8 @@ class DumpCommandHandler:
 
     def dump(self, archive_destination, archive_filename=None,
              application_configurations=None, storages=None, storages_basepath=None,
-             storages_excludes=None, no_data=False, no_storages=False,
-             no_storages_excludes=False, indent=None):
+             storages_excludes=None, no_data=False, no_checksum=False,
+             no_storages=False, no_storages_excludes=False, indent=None):
         """
         Proceed to dump datas and storages collection into an archive.
 
@@ -287,6 +288,7 @@ class DumpCommandHandler:
             storages_excludes (list): A list of patterns to exclude storage files from
                 dump.
             no_data (boolean): Disable dump of application datas.
+            no_checksum (boolean): Disable archive checksum.
             no_storages (boolean): Disable dump of media storages.
             no_storages_excludes (boolean): Disable usage of excluding patterns when
                 collecting storages files.
@@ -331,7 +333,7 @@ class DumpCommandHandler:
             indent=indent,
         )
 
-        # Validate configurations
+        # Validate configuration
         dumper.validate()
 
         archive_path = dumper.make_archive(
@@ -348,5 +350,10 @@ class DumpCommandHandler:
                 size=filesizeformat(archive_path.stat().st_size),
             )
         )
+
+        if not no_checksum:
+            self.logger.info(
+                "Checksum: {}".format(hashs.file_checksum(archive_path))
+            )
 
         return archive_path

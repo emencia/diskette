@@ -86,6 +86,14 @@ class Command(BaseCommand, DumpCommandHandler):
             help="Disable application data dumps.",
         )
         parser.add_argument(
+            "--no-checksum",
+            action="store_true",
+            help=(
+                "Disable archive checksum. Default behavior is to always compute a "
+                "checksum of created archive and output it."
+            ),
+        )
+        parser.add_argument(
             "--no-storages",
             action="store_true",
             help="Disable storages dump.",
@@ -98,7 +106,13 @@ class Command(BaseCommand, DumpCommandHandler):
         parser.add_argument(
             "--no-archive",
             action="store_true",
-            help="Output command lines to perform dumps instead of making an archive.",
+            help=(
+                "Output command lines to perform data dumps instead of making an "
+                "archive. This does not care about storages, checksum, etc.. Note than"
+                "those command lines will start directly with the command name. You "
+                "will need to prefix them your proper path to 'django-admin' or "
+                "'manage.py'."
+            ),
         )
 
     def handle(self, *args, **options):
@@ -114,6 +128,7 @@ class Command(BaseCommand, DumpCommandHandler):
                     storages_basepath=options["storages_basepath"],
                     storages_excludes=options["storages_exclude"],
                     no_data=options["no_data"],
+                    no_checksum=options["no_checksum"],
                     no_storages=options["no_storages"],
                     no_storages_excludes=options["no_storages_excludes"],
                     indent=options["indent"],

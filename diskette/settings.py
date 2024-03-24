@@ -41,3 +41,26 @@ DISKETTE_LOAD_STORAGES_PATH = Path.cwd()
 For where to extract archive storages contents. On default this will be the current
 working directory.
 """
+
+DISKETTE_DOWNLOAD_ALLOWED_PROTOCOLS = ("http://", "https://")
+"""
+A tuple or list of network protocols allowed to be used for downloading dump to load.
+"""
+
+DISKETTE_DOWNLOAD_ALLOW_REDIRECT = False
+"""
+Enable download requests to follow possible redirects. On default this is disabled, for
+security you should always use the proper and direct URL.
+"""
+
+DISKETTE_DOWNLOAD_TIMEOUT = 10
+"""
+Time in seconds before a download request is assumed to timeout. On defaut it is set
+to 10seconds.
+"""
+
+DISKETTE_DOWNLOAD_CHUNK = 8192
+"""
+Size in bytes of download chunk. You should not change this without to know exactly
+what you are doing.
+"""

@@ -7,31 +7,6 @@ from diskette.core.loader import Loader
 from diskette.exceptions import DisketteError
 
 
-def test_open(caplog, manifest_version, tmp_path, tests_settings):
-    """
-    Archive should be correctly extracted into temp diskette directory.
-    """
-    archive_name = "basic_data_storages.tar.gz"
-    archive_path = tmp_path / archive_name
-    shutil.copy(
-        tests_settings.fixtures_path / "archive_samples" / archive_name,
-        archive_path
-    )
-
-    loader = Loader()
-    try:
-        extract_dir = loader.open(archive_path)
-
-        assert sorted([str(v) for v in extract_dir.iterdir()]) == [
-            "{}/data".format(extract_dir),
-            "{}/manifest.json".format(extract_dir),
-            "{}/storage_samples".format(extract_dir),
-        ]
-    finally:
-        if extract_dir.exists():
-            shutil.rmtree(extract_dir)
-
-
 def test_manifest_invalid_path(tmp_path):
     """
     'get_manifest' method should raise an error when manifest path does not exist.

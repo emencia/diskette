@@ -40,9 +40,27 @@ class Command(BaseCommand, LoadCommandHandler):
             help="Disable storages restoration.",
         )
         parser.add_argument(
+            "--download-destination",
+            type=Path,
+            default=None,
+            help=(
+                "Directory path where to write download archive. This option is "
+                "ignored for local archive file."
+            ),
+        )
+        parser.add_argument(
             "--keep",
             action="store_true",
             help="Don't automatically remove archive when finished.",
+        )
+        parser.add_argument(
+            "--checksum",
+            default=None,
+            help=(
+                "Checksum string to compare to the archive checksum, if checksum "
+                "comparison fails operation is aborted. Give value 'no' to disable "
+                "checksum creation from archive."
+            ),
         )
 
     def handle(self, *args, **options):
@@ -53,5 +71,7 @@ class Command(BaseCommand, LoadCommandHandler):
             storages_basepath=options["storages_basepath"],
             no_data=options["no_data"],
             no_storages=options["no_storages"],
+            download_destination=options["download_destination"],
             keep=options["keep"],
+            checksum=options["checksum"],
         )

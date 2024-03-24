@@ -129,7 +129,7 @@ def test_storage_excludes(settings, tmp_path, setting, value, disabled, expected
     assert commander.get_storage_excludes(value, disabled) == expected
 
 
-def test_dump(caplog, settings, db, tests_settings, tmp_path):
+def test_dump(caplog, settings, db, mocked_checksum, tests_settings, tmp_path):
     """
     Dump method with the right arguments should correctly proceed to dump, archive
     everything and output some logs.
@@ -194,4 +194,5 @@ def test_dump(caplog, settings, db, tests_settings, tmp_path):
         "diskette:10:- storage-2/pong/sample.nope (11 bytes)",
         "diskette:10:- storage-2/ping/grey.png (1.6 KB)",
         "diskette:20:Dump archive was created at: {} (3.7 KB)".format(archive),
+        "diskette:20:Checksum: dummy-checksum",
     ]

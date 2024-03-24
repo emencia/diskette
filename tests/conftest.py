@@ -7,6 +7,7 @@ import pytest
 
 import diskette
 from diskette.core.dumper import Dumper
+from diskette.utils import hashs
 
 
 class FixturesSettingsTestMixin(object):
@@ -85,13 +86,23 @@ def tests_settings():
 def manifest_version(monkeypatch):
     """
     Mock Dumper.get_diskette_version to return a stable dummy version.
-
-    This is required so tests can assert on a stable string, since real package version
-    will change.
     """
-    def mock_version(*args, **kwargs):
+    def _callable(*args, **kwargs):
         return "0.0.0-test"
 
-    monkeypatch.setattr(Dumper, "get_diskette_version", mock_version)
+    monkeypatch.setattr(Dumper, "get_diskette_version", _callable)
 
-    return mock_version
+    return _callable
+
+
+@pytest.fixture
+def mocked_checksum(monkeypatch):
+    """
+    Mock ``diskette.utils.hashs.file_checksum`` to return a stable dummy checksum.
+    """
+    def _callable(*args, **kwargs):
+        return "dummy-checksum"
+
+    monkeypatch.setattr(hashs, "file_checksum", _callable)
+
+    return _callable
