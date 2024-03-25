@@ -19,6 +19,7 @@ Contents
    appdef.rst
    basic_sample.rst
    commands.rst
+   tips.rst
    references/index.rst
 
 
