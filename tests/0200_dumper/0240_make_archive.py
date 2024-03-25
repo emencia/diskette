@@ -185,10 +185,6 @@ def test_archive_excludes(manifest_version, tmp_path, archive_initials):
             if tarinfo.isfile()
         ]
 
-    # print()
-    # print(json.dumps(archived, indent=4))
-    # print()
-
     # Check expected archived files are all there with their expected size
     assert archived == [
         ("data/django-auth.json", 328),

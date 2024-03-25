@@ -170,9 +170,10 @@ class DumpCommandHandler:
 
         return True, patterns
 
-    def script(self, application_configurations=None, storages=None,
-               storages_basepath=None, storages_excludes=None, no_data=False,
-               no_storages=False, no_storages_excludes=False, indent=None):
+    def script(self, archive_destination=None, application_configurations=None,
+               storages=None, storages_basepath=None, storages_excludes=None,
+               no_data=False, no_storages=False, no_storages_excludes=False,
+               indent=None):
         """
         Create shellscript command lines to dump data and storages.
 
@@ -181,6 +182,9 @@ class DumpCommandHandler:
             ``get_archive_destination`` and others here.
 
         Keyword Arguments:
+            archive_destination (Path): Path where the archive will be written. If not
+                given the value from setting ``DISKETTE_DUMP_PATH`` will be used
+                instead.
             filename (string): Custom archive filename to use instead of the default
                 one. Your custom filename must end with ``.tar.gz``. Default filename
                 is ``diskette[_data][_storages].tar.gz`` (parts depend from options).
@@ -211,6 +215,8 @@ class DumpCommandHandler:
                 comment line with the dump name.
         """
         self.logger.info("=== Starting script ===")
+
+        archive_destination = self.get_archive_destination(archive_destination)
 
         with_data, application_configurations = self.get_application_configurations(
             appconfs=application_configurations,
@@ -246,6 +252,7 @@ class DumpCommandHandler:
         dumper.validate()
 
         commandlines = dumper.make_script(
+            archive_destination,
             with_data=with_data,
             with_storages=with_storages,
             with_storages_excludes=with_storages_excludes,
@@ -253,7 +260,7 @@ class DumpCommandHandler:
 
         return commandlines
 
-    def dump(self, archive_destination, archive_filename=None,
+    def dump(self, archive_destination=None, archive_filename=None,
              application_configurations=None, storages=None, storages_basepath=None,
              storages_excludes=None, no_data=False, no_checksum=False,
              no_storages=False, no_storages_excludes=False, indent=None):
@@ -264,10 +271,10 @@ class DumpCommandHandler:
             This does not involve argument validation methods like
             ``get_archive_destination`` and others here.
 
-        Arguments:
-            archive_destination (Path):
-
         Keyword Arguments:
+            archive_destination (Path): Path where the archive will be written. If not
+                given the value from setting ``DISKETTE_DUMP_PATH`` will be used
+                instead.
             archive_filename (string): Custom archive filename to use instead of the
                 default one. Your custom filename must end with ``.tar.gz``. Default
                 filename is ``diskette[_data][_storages].tar.gz`` (parts depend from

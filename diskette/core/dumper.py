@@ -449,15 +449,13 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
 
         return archive_destination
 
-    def make_script(self, with_data=True, with_storages=True,
+    def make_script(self, destination, with_data=True, with_storages=True,
                     with_storages_excludes=True):
         """
-        Create shellscript commands to dump data.
+        Create shellscript command lines to dump data.
 
-        TODO:
-
-        * Help me, i'm not tested.
-        * Storage commands is yet to be implemented;
+        Arguments:
+            destination (Path): Directory where to write archive file.
 
         Keyword Arguments:
             with_data (boolean): Enable dump of application datas.
@@ -474,13 +472,6 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
                 "Arguments 'with_data' and 'with_storages' can not be both 'False'"
             )
 
-        # Temporary directory where the manager will work
-        destination_tmpdir = Path(tempfile.mkdtemp(prefix=self.TEMPDIR_PREFIX))
-
-        # Build data dump destination path
-        data_tmpdir = destination_tmpdir / "data"
-        data_tmpdir.mkdir()
-
         commandlines = []
 
         # Dump data into temp directory
@@ -488,7 +479,7 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
             commandlines += [
                 "# {}\n{}".format(name, cmd)
                 for name, cmd in self.build_commands(
-                    destination=data_tmpdir,
+                    destination=destination,
                     indent=self.indent
                 )
             ]

@@ -9,6 +9,7 @@ Version 0.3.2 - Unreleased
 * Added support of archive URL to download in ``diskette_load``;
 * Added options for archive checksum creation and comparison in ``diskette_load``;
 * Added option for archive checksum creation in ``diskette_dump``;
+* Improve handlers test coverage on options;
 
 
 Version 0.3.1 - 2024/03/21

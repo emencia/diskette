@@ -121,7 +121,7 @@ class Command(BaseCommand, DumpCommandHandler):
         try:
             if not options["no_archive"]:
                 self.dump(
-                    options["destination"],
+                    archive_destination=options["destination"],
                     archive_filename=options["filename"],
                     application_configurations=options["appconf"],
                     storages=options["storage"],
@@ -134,15 +134,9 @@ class Command(BaseCommand, DumpCommandHandler):
                     indent=options["indent"],
                 )
             else:
-                """
-                TODO:
-                    * This has no test coverage yet;
-                    * It lacks of storage copy commands;
-                    * dumpdata command currently output to temporary directory
-                      instead of proper data directory;
-                """
                 self.stdout.write(
                     self.script(
+                        archive_destination=options["destination"],
                         application_configurations=options["appconf"],
                         storages=options["storage"],
                         storages_basepath=options["storages_basepath"],

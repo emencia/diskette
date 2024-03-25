@@ -48,3 +48,44 @@ def test_dump_cmd(caplog, db, settings, tests_settings, tmp_path):
         "tests/data_fixtures/storage_samples/storage-1/plop/green.png",
         "manifest.json"
     ]
+
+
+def test_dump_cmd_no_archive(caplog, db, settings, tests_settings, tmp_path):
+    """
+    Dump command should respect arguments and build a proper dump archive.
+    """
+    appconf = tests_settings.fixtures_path / "basic_apps.json"
+    storage_1 = tests_settings.fixtures_path / "storage_samples" / "storage-1"
+    archive_path = tmp_path / "foo_data_storages.tar.gz"
+
+    out = StringIO()
+
+    args = [
+        "--destination=/home/foo",
+        "--appconf={}".format(appconf),
+        "--storage={}".format(storage_1),
+        "--filename=foo{features}.tar.gz",
+        "--storages-exclude=*.nope",
+        "--no-archive",
+        "-v 0"
+    ]
+
+    management.call_command("diskette_dump", *args, stdout=out)
+    content = out.getvalue()
+    out.close()
+
+    assert archive_path.exists() is False
+
+    assert content.split("\n") == [
+        "# django.contrib.sites",
+        (
+            "dumpdata sites.Site --natural-foreign --output=/home/foo/"
+            "djangocontribsites.json"
+        ),
+        "# django.contrib.auth",
+        (
+            "dumpdata auth.Group auth.User --natural-foreign --output=/home/foo/"
+            "djangocontribauth.json"
+        ),
+        ""
+    ]
