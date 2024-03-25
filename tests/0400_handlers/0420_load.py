@@ -20,28 +20,115 @@ def test_storages_basepath_valid(settings, setting, arg, expected):
     """
     Command properly discover the destination to use
     """
-    commander = LoadCommandHandler()
-    commander.logger = LoggingOutput()
+    handler = LoadCommandHandler()
+    handler.logger = LoggingOutput()
 
     settings.DISKETTE_LOAD_STORAGES_PATH = setting
-    assert commander.get_storages_basepath(arg) == expected
+    assert handler.get_storages_basepath(arg) == expected
 
 
 def test_storages_basepath_invalid(settings):
     """
     Command should raise an error when resolved value for archive destination is empty.
     """
-    commander = LoadCommandHandler()
-    commander.logger = LoggingOutput()
+    handler = LoadCommandHandler()
+    handler.logger = LoggingOutput()
 
     settings.DISKETTE_LOAD_STORAGES_PATH = None
     with pytest.raises(DisketteError) as excinfo:
-        commander.get_storages_basepath("")
+        handler.get_storages_basepath("")
 
     assert str(excinfo.value) == "Storages destination path can not be an empty value"
 
 
-def test_load(caplog, settings, db, mocked_checksum, tests_settings, tmp_path):
+@pytest.mark.parametrize("options, expected", [
+    (
+        {
+            "no_data": False,
+            "no_storages": False,
+            "keep": True,
+        },
+        [
+            "diskette:20:=== Starting restoration ===",
+            "diskette:10:- Storages contents will be restored into: {tmp_path}",
+            "diskette:10:Archive checksum: dummy-checksum",
+            "diskette:10:Creating storage parent directory: {tmp_path}/storage_samples",
+            (
+                "diskette:20:Restoring storage directory (7.2 KB): storage_samples/"
+                "storage-1"
+            ),
+            (
+                "diskette:20:Restoring storage directory (9.6 KB): storage_samples/"
+                "storage-2"
+            ),
+            "diskette:20:Loading data from dump 'django-auth.json' (959 bytes)",
+            "diskette:10:Installed 3 object(s) from 1 fixture(s)",
+            "diskette:20:Loading data from dump 'django-site.json' (194 bytes)",
+            "diskette:10:Installed 2 object(s) from 1 fixture(s)"
+        ]
+    ),
+    (
+        {
+            "no_data": False,
+            "no_storages": False,
+            "checksum": False,
+        },
+        [
+            "diskette:20:=== Starting restoration ===",
+            "diskette:10:- Storages contents will be restored into: {tmp_path}",
+            "diskette:10:Creating storage parent directory: {tmp_path}/storage_samples",
+            (
+                "diskette:20:Restoring storage directory (7.2 KB): storage_samples/"
+                "storage-1"
+            ),
+            (
+                "diskette:20:Restoring storage directory (9.6 KB): storage_samples/"
+                "storage-2"
+            ),
+            "diskette:20:Loading data from dump 'django-auth.json' (959 bytes)",
+            "diskette:10:Installed 3 object(s) from 1 fixture(s)",
+            "diskette:20:Loading data from dump 'django-site.json' (194 bytes)",
+            "diskette:10:Installed 2 object(s) from 1 fixture(s)"
+        ]
+    ),
+    (
+        {
+            "no_data": False,
+            "no_storages": True,
+        },
+        [
+            "diskette:20:=== Starting restoration ===",
+            "diskette:10:- Storages contents will be restored into: {tmp_path}",
+            "diskette:10:Archive checksum: dummy-checksum",
+            "diskette:20:Loading data from dump 'django-auth.json' (959 bytes)",
+            "diskette:10:Installed 3 object(s) from 1 fixture(s)",
+            "diskette:20:Loading data from dump 'django-site.json' (194 bytes)",
+            "diskette:10:Installed 2 object(s) from 1 fixture(s)"
+        ]
+    ),
+    (
+        {
+            "no_data": True,
+            "no_storages": False,
+        },
+        [
+            "diskette:20:=== Starting restoration ===",
+            "diskette:10:- Storages contents will be restored into: {tmp_path}",
+            "diskette:10:Archive checksum: dummy-checksum",
+            "diskette:10:Creating storage parent directory: {tmp_path}/storage_samples",
+            (
+                "diskette:20:Restoring storage directory (7.2 KB): storage_samples/"
+                "storage-1"
+            ),
+            (
+                "diskette:20:Restoring storage directory (9.6 KB): storage_samples/"
+                "storage-2"
+            ),
+        ]
+    ),
+])
+def test_load_options(caplog, settings, db, mocked_checksum, tests_settings, tmp_path,
+                      options, expected):
     """
     Load method with the right arguments should correctly proceed to restore archive
     contents and output some logs.
@@ -55,29 +142,29 @@ def test_load(caplog, settings, db, mocked_checksum, tests_settings, tmp_path):
         archive_path
     )
 
-    commander = LoadCommandHandler()
-    commander.logger = LoggingOutput()
+    handler = LoadCommandHandler()
+    handler.logger = LoggingOutput()
 
-    stats = commander.load(
+    stats = handler.load(
         archive_path,
         tmp_path,
-        no_data=False,
-        no_storages=False,
+        **options
     )
 
-    # Archive has been removed once extracted
-    assert archive_path.exists() is False
+    assert archive_path.exists() is options.get("keep", False)
 
     # Query Site and User to check expected data from dumps
-    user_app, user_model = settings.AUTH_USER_MODEL.split(".")
-    User = apps.get_registered_model(user_app, user_model)
-    assert User.objects.count() == 3
-    assert Site.objects.count() == 2
+    if not options.get("no_data", False):
+        user_app, user_model = settings.AUTH_USER_MODEL.split(".")
+        User = apps.get_registered_model(user_app, user_model)
+        assert User.objects.count() == 3
+        assert Site.objects.count() == 2
 
     # Every storages should be present in destination and not empty
-    for source, stored in stats["storages"]:
-        assert stored.exists() is True
-        assert len(list(stored.iterdir())) > 0
+    if not options.get("no_storages", False):
+        for source, stored in stats["storages"]:
+            assert stored.exists() is True
+            assert len(list(stored.iterdir())) > 0
 
     # Flatten logging messages
     logs = [
@@ -86,18 +173,7 @@ def test_load(caplog, settings, db, mocked_checksum, tests_settings, tmp_path):
     ]
 
     assert logs == [
-        "diskette:20:=== Starting restoration ===",
-        "diskette:10:- Storages contents will be restored into: {}".format(tmp_path),
-        "diskette:10:Archive checksum: dummy-checksum",
-        (
-            "diskette:10:Creating storage parent directory: {}/storage_samples".format(
-                tmp_path
-            )
-        ),
-        "diskette:20:Restoring storage directory (7.2 KB): storage_samples/storage-1",
-        "diskette:20:Restoring storage directory (9.6 KB): storage_samples/storage-2",
-        "diskette:20:Loading data from dump 'django-auth.json' (959 bytes)",
-        "diskette:10:Installed 3 object(s) from 1 fixture(s)",
-        "diskette:20:Loading data from dump 'django-site.json' (194 bytes)",
-        "diskette:10:Installed 2 object(s) from 1 fixture(s)"
+        # Add possible 'tmp_path' in case it is used
+        item.format(tmp_path=tmp_path)
+        for item in expected
     ]

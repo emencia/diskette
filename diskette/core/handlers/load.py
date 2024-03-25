@@ -98,8 +98,8 @@ class LoadCommandHandler:
                 Currently used by storage dump to make relative path for storage files.
                 On default this is based on current working directory. If given, the
                 storage paths must be in the same leaf else this will be an error.
-            no_data (boolean): Disable dump of application datas.
-            no_storages (boolean): Disable dump of media storages.
+            no_data (boolean): Disable loading application datas from archive.
+            no_storages (boolean): Disable loading media storages from archive.
             download_destination (Path): A path where to write downloaded archive file.
                 If not given, the archive file will be written as
                 ``diskette_downloaded_archive.tar.gz`` into the current working

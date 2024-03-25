@@ -325,16 +325,19 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
             checksum=checksum,
         )
 
+        stats = {}
         try:
             manifest = self.get_manifest(tmpdir)
-            stats = {
-                "storages": self.deploy_storages(
+
+            if with_storages:
+                stats["storages"] = self.deploy_storages(
                     tmpdir,
                     manifest,
                     storages_destination
-                ),
-                "datas": self.deploy_datas(tmpdir, manifest),
-            }
+                )
+
+            if with_data:
+                stats["datas"] = self.deploy_datas(tmpdir, manifest)
         finally:
             if tmpdir.exists():
                 shutil.rmtree(tmpdir)
