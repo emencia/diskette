@@ -8,6 +8,8 @@ Version 0.3.3 - Unreleased
 
 * Added ``--check`` option to ``diskette_dump`` to perform validation and checking
   without to query database or writing anything onto filesystem;
+* Added ``--format`` option to ``diskette_apps`` with additional ``python`` format
+  which is now the default one instead of ``json``;
 
 
 Version 0.3.2 - 2024/03/25

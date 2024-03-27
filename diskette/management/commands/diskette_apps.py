@@ -25,8 +25,17 @@ class Command(BaseCommand):
             metavar="PATH",
             default=None,
             help=(
-                "Path where to write built definitions as a JSON file. If not given "
-                "the JSON is printed to the standard output."
+                "File path where to write built definitions. If not given the "
+                "definition list is printed to the standard output."
+            ),
+        )
+        parser.add_argument(
+            "--format",
+            default="python",
+            choices=["json", "python"],
+            help=(
+                "Specifies the output serialization format for definition list. It is "
+                "either 'json' or 'python'. Default is 'python'"
             ),
         )
 
@@ -62,11 +71,16 @@ class Command(BaseCommand):
             # Append app options
             definitions.append([appdata["pythonpath"], appopts])
 
-        json_payload = json.dumps(definitions, indent=4)
+        # Always serialize to JSON first as a base
+        payload = json.dumps(definitions, indent=4)
+        if options["format"] == "python":
+            payload = payload.replace("true", "True").replace("false", "False")
+            payload = payload.replace("null", "None")
+
         if not options["destination"]:
-            self.stdout.write(json_payload)
+            self.stdout.write(payload)
         else:
-            options["destination"].write_text(json_payload)
+            options["destination"].write_text(payload)
             self.stdout.write(
                 "Definitions have been written into: {}".format(options["destination"])
             )
