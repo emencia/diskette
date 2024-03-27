@@ -28,7 +28,7 @@ DISKETTE_APPS = [
         "django.contrib.auth", {
             "comments": "django.contrib.auth: user and groups, no perms",
             "natural_foreign": True,
-            "models": ["auth.group","auth.user"]
+            "models": ["auth.Group","auth.User"]
         }
     ]
 ]

@@ -3,7 +3,14 @@
 Changelog
 =========
 
-Version 0.3.2 - Unreleased
+Version 0.3.3 - Unreleased
+--------------------------
+
+* Added ``--check`` option to ``diskette_dump`` to perform validation and checking
+  without to query database or writing anything onto filesystem;
+
+
+Version 0.3.2 - 2024/03/25
 --------------------------
 
 * Added support of archive URL to download in ``diskette_load``;

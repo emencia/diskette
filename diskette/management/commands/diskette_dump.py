@@ -114,6 +114,15 @@ class Command(BaseCommand, DumpCommandHandler):
                 "'manage.py'."
             ),
         )
+        parser.add_argument(
+            "--check",
+            action="store_true",
+            help=(
+                "Don't make archive or write anything on filesystem. Only validate "
+                "configuration and output informations about dump. You should use "
+                "this with option '-v 3' to get the whole informations."
+            ),
+        )
 
     def handle(self, *args, **options):
         self.logger = DjangoCommandOutput(command=self, verbosity=options["verbosity"])
@@ -132,6 +141,7 @@ class Command(BaseCommand, DumpCommandHandler):
                     no_storages=options["no_storages"],
                     no_storages_excludes=options["no_storages_excludes"],
                     indent=options["indent"],
+                    check=options["check"],
                 )
             else:
                 self.stdout.write(

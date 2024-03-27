@@ -84,7 +84,8 @@ class DumpdataSerializerAbstract:
             options=" ".join(options),
         )
 
-    def call(self, application, destination=None, indent=None, traceback=False):
+    def call(self, application, destination=None, indent=None, traceback=False,
+             check=False):
         """
         Programmatically use the Django ``dumpdata`` command to dump application.
 
@@ -97,6 +98,7 @@ class DumpdataSerializerAbstract:
             traceback (boolean): If enabled, Django will output the full traceback when
                 a dump raise an error. On default this is disabled and Django will
                 silently hide exception tracebacks.
+            check (boolean): Perform operations without writing or querying anything.
 
         Returns:
             string: A JSON payload of call results. On default, this is the JSON
@@ -129,6 +131,9 @@ class DumpdataSerializerAbstract:
             self.logger.debug("- Including: {}".format(", ".join(models)))
         if excludes:
             self.logger.debug("- Excluding: {}".format(", ".join(excludes)))
+
+        if check:
+            return {"models": models, "options": options}
 
         # Execute command without output guided to string buffer
         out = StringIO()

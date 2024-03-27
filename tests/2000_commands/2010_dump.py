@@ -89,3 +89,39 @@ def test_dump_cmd_no_archive(caplog, db, settings, tests_settings, tmp_path):
         ),
         ""
     ]
+
+
+def test_dump_cmd_check(caplog, db, settings, tests_settings, tmp_path):
+    """
+    Check mode should output debug informations without creating archive file.
+    """
+    appconf = tests_settings.fixtures_path / "basic_apps.json"
+    storage_1 = tests_settings.fixtures_path / "storage_samples" / "storage-1"
+    archive_path = tmp_path / "foo_data_storages.tar.gz"
+
+    out = StringIO()
+
+    args = [
+        "--destination={}".format(tmp_path),
+        "--appconf={}".format(appconf),
+        "--storage={}".format(storage_1),
+        "--filename=foo{features}.tar.gz",
+        "--storages-exclude=*.nope",
+        "--check",
+    ]
+
+    management.call_command("diskette_dump", *args, stdout=out)
+    content = out.getvalue()
+    out.close()
+
+    assert archive_path.exists() is False
+
+    assert content.split("\n") == [
+        "=== Starting to check ===",
+        "Dumping data for application 'django.contrib.sites'",
+        "Dumping data for application 'django.contrib.auth'",
+        "- Scanning storages to archive",
+        "- 6 file(s) would be collected for a total of 4.8 KB",
+        "Dump archive would be created at: {}".format(archive_path),
+        ""
+    ]

@@ -85,27 +85,27 @@ class DjangoCommandOutput:
 
     def debug(self, msg):
         if self.verbosity > 1:
-            self.command.stdout.write(msg)
+            self.command.stdout.write(str(msg))
 
     def info(self, msg):
         if self.verbosity > 0:
             self.command.stdout.write(
-                self.command.style.SUCCESS(msg)
+                self.command.style.SUCCESS(str(msg))
             )
 
     def warning(self, msg):
         if self.verbosity > 0:
             self.command.stdout.write(
-                self.command.style.WARNING(msg)
+                self.command.style.WARNING(str(msg))
             )
 
     def error(self, msg):
         self.command.stdout.write(
-            self.command.style.ERROR(msg)
+            self.command.style.ERROR(str(msg))
         )
 
     def critical(self, msg):
         """
         Critical error is assumed to be a breaking event.
         """
-        raise CommandError(msg)
+        raise CommandError(str(msg))

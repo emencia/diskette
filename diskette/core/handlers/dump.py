@@ -263,13 +263,10 @@ class DumpCommandHandler:
     def dump(self, archive_destination=None, archive_filename=None,
              application_configurations=None, storages=None, storages_basepath=None,
              storages_excludes=None, no_data=False, no_checksum=False,
-             no_storages=False, no_storages_excludes=False, indent=None):
+             no_storages=False, no_storages_excludes=False, indent=None, check=False):
         """
-        Proceed to dump datas and storages collection into an archive.
-
-        .. Note::
-            This does not involve argument validation methods like
-            ``get_archive_destination`` and others here.
+        Run configuration validation and proceed to archiving operations for datas and
+        storages.
 
         Keyword Arguments:
             archive_destination (Path): Path where the archive will be written. If not
@@ -301,11 +298,18 @@ class DumpCommandHandler:
                 collecting storages files.
             indent (integer): Indentation level in data dumps. If not given, dumps won't
                 be indented.
+            check (boolean): Only run validations and some additional configurations
+                checking instead of performing real dump operations and archiving.
+                Nothing should be queried or created in this mode.
 
         Returns:
-            Path: Path to the written archive file.
+            Path: Path to the written archive file. With 'check' mode enable the
+            returned path won't exists since nothing is created.
         """
-        self.logger.info("=== Starting dump ===")
+        if not check:
+            self.logger.info("=== Starting dump ===")
+        else:
+            self.logger.info("=== Starting to check ===")
 
         archive_destination = self.get_archive_destination(archive_destination)
         archive_filename = self.get_archive_filename(archive_filename)
@@ -343,24 +347,37 @@ class DumpCommandHandler:
         # Validate configuration
         dumper.validate()
 
-        archive_path = dumper.make_archive(
-            archive_destination,
-            archive_filename,
-            with_data=with_data,
-            with_storages=with_storages,
-            with_storages_excludes=with_storages_excludes,
-        )
-
-        self.logger.info(
-            "Dump archive was created at: {path} ({size})".format(
-                path=archive_path,
-                size=filesizeformat(archive_path.stat().st_size),
+        if not check:
+            archive_path = dumper.make_archive(
+                archive_destination,
+                archive_filename,
+                with_data=with_data,
+                with_storages=with_storages,
+                with_storages_excludes=with_storages_excludes,
             )
-        )
 
-        if not no_checksum:
             self.logger.info(
-                "Checksum: {}".format(hashs.file_checksum(archive_path))
+                "Dump archive was created at: {path} ({size})".format(
+                    path=archive_path,
+                    size=filesizeformat(archive_path.stat().st_size),
+                )
+            )
+
+            if not no_checksum:
+                self.logger.info(
+                    "Checksum: {}".format(hashs.file_checksum(archive_path))
+                )
+        else:
+            archive_path = dumper.check(
+                archive_destination,
+                archive_filename,
+                with_data=with_data,
+                with_storages=with_storages,
+                with_storages_excludes=with_storages_excludes,
+            )
+
+            self.logger.info(
+                "Dump archive would be created at: {path}".format(path=archive_path)
             )
 
         return archive_path

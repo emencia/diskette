@@ -199,7 +199,7 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
             for app in self.apps
         ]
 
-    def dump_data(self, destination=None, indent=None):
+    def dump_data(self, destination=None, indent=None, check=False):
         """
         Call dumpdata command to dump each application data.
 
@@ -208,6 +208,7 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
                 given. The file will be created by the dump command when executed, not
                 during this method.
             indent (integer): Indentation level for dump data.
+            check (boolean): Perform operations writhout writing or querying anything.
 
         Returns:
             list: List of tuples for processed applications, each tuple contains
@@ -216,7 +217,7 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
         return [
             (
                 app.name,
-                self.call(app, destination=destination, indent=indent)
+                self.call(app, destination=destination, indent=indent, check=check)
             )
             for app in self.apps
         ]
@@ -485,3 +486,69 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
             ]
 
         return "\n".join(commandlines)
+
+    def check(self, destination, filename, with_data=True, with_storages=True,
+              with_storages_excludes=True, destination_chmod=0o644):
+        """
+        Check what would be done.
+
+        Arguments:
+            destination (Path): Directory where to write archive file.
+
+        Keyword Arguments:
+            filename (string): Custom archive filename to use instead of the default
+                one. Your custom filename must end with ``.tar.gz``. Default filename
+                is ``diskette[_data][_storages].tar.gz`` (parts depend from options).
+            with_data (boolean): Enable dump of application datas.
+            with_storages (boolean): Enable dump of media storages.
+            with_storages_excludes (boolean): Enable usage of excluding patterns when
+                collecting storages files.
+            destination_chmod (integer): File permission to apply on archive files and
+                also on destination directory if it did not exists. Value must be in
+                an octal notation, default is ``0o644``.
+
+        Returns:
+            Path: Path to the written archive file.
+        """
+        if not with_data and not with_storages:
+            raise DumperError(
+                "Arguments 'with_data' and 'with_storages' can not be both 'False'"
+            )
+
+        # Dump data into temp directory
+        if with_data is True:
+            self.dump_data(destination=destination, indent=self.indent, check=True)
+
+        if with_storages is True:
+            self.logger.info("- Scanning storages to archive")
+            files_length = 0
+            files_total = 0
+            for path, arcname in self.iter_storages_files(
+                allow_excludes=with_storages_excludes
+            ):
+                files_length += 1
+                size = path.stat().st_size
+                files_total += size
+                self.logger.debug("- {name} ({size})".format(
+                    name=arcname,
+                    size=filesizeformat(size),
+                ))
+
+            if not files_length:
+                self.logger.warning("  - No file has been found in any storage")
+            else:
+                msg = "- {length} file(s) would be collected for a total of {size}"
+                self.logger.info(
+                    msg.format(
+                        length=files_length,
+                        size=filesizeformat(files_total),
+                    )
+                )
+
+            archive_filename = self.format_archive_filename(
+                filename,
+                with_data=with_data,
+                with_storages=with_storages
+            )
+
+            return destination / archive_filename
