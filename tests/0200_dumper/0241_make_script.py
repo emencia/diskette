@@ -30,7 +30,7 @@ def archive_initials(tests_settings, db):
 
 
 @freeze_time("2012-10-15 10:00:00")
-def test_script(manifest_version, tmp_path, archive_initials):
+def test_script(mocked_version, tmp_path, archive_initials):
     """
     No tarball should be created and command lines to dump datas should be print to
     standard output.

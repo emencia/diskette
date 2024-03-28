@@ -10,6 +10,8 @@ Version 0.3.3 - Unreleased
   without to query database or writing anything onto filesystem;
 * Added ``--format`` option to ``diskette_apps`` with additional ``python`` format
   which is now the default one instead of ``json``;
+* Changed ``diskette_dump`` and ``diskette_load`` so they output Diskette version
+  as an early debug log message;
 
 
 Version 0.3.2 - 2024/03/25

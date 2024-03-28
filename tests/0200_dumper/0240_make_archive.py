@@ -30,7 +30,7 @@ def archive_initials(tests_settings, db):
 
 
 @freeze_time("2012-10-15 10:00:00")
-def test_archive_data(manifest_version, tmp_path, archive_initials):
+def test_archive_data(mocked_version, tmp_path, archive_initials):
     """
     Tarball should be created with data dumps only.
     """
@@ -67,7 +67,7 @@ def test_archive_data(manifest_version, tmp_path, archive_initials):
 
 
 @freeze_time("2012-10-15 10:00:00")
-def test_archive_storages(manifest_version, tmp_path, archive_initials):
+def test_archive_storages(mocked_version, tmp_path, archive_initials):
     """
     Tarball should be created with storages dumps only.
     """
@@ -105,7 +105,7 @@ def test_archive_storages(manifest_version, tmp_path, archive_initials):
 
 
 @freeze_time("2012-10-15 10:00:00")
-def test_archive_all(manifest_version, tmp_path, archive_initials):
+def test_archive_all(mocked_version, tmp_path, archive_initials):
     """
     Tarball should be created with every dumps.
     """
@@ -154,7 +154,7 @@ def test_archive_all(manifest_version, tmp_path, archive_initials):
 
 
 @freeze_time("2012-10-15 10:00:00")
-def test_archive_excludes(manifest_version, tmp_path, archive_initials):
+def test_archive_excludes(mocked_version, tmp_path, archive_initials):
     """
     Tarball should be created with every dumps and properly follow excluding filters
     when collecting storage files.

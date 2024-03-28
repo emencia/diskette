@@ -5,10 +5,11 @@ from django.conf import settings
 from django.template.defaultfilters import filesizeformat
 
 from ...utils import hashs
+from .base import BaseHandler
 from ..dumper import Dumper
 
 
-class DumpCommandHandler:
+class DumpCommandHandler(BaseHandler):
     """
     Abstraction layer between Dumper and the management command, it holds getters
     to get and validate values for manager options and provide a shortand to
@@ -215,6 +216,7 @@ class DumpCommandHandler:
                 comment line with the dump name.
         """
         self.logger.info("=== Starting script ===")
+        self.log_diskette_version()
 
         archive_destination = self.get_archive_destination(archive_destination)
 
@@ -310,6 +312,8 @@ class DumpCommandHandler:
             self.logger.info("=== Starting dump ===")
         else:
             self.logger.info("=== Starting to check ===")
+
+        self.log_diskette_version()
 
         archive_destination = self.get_archive_destination(archive_destination)
         archive_filename = self.get_archive_filename(archive_filename)

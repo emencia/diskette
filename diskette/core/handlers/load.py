@@ -4,9 +4,10 @@ from django.conf import settings
 
 from ..loader import Loader
 from ...utils.http import is_url
+from .base import BaseHandler
 
 
-class LoadCommandHandler:
+class LoadCommandHandler(BaseHandler):
     """
     Abstraction layer between Loader and the management command, it holds getters
     to get and validate values for manager options and provide a shortand to
@@ -120,6 +121,7 @@ class LoadCommandHandler:
             dict: Statistics of deployed storages and datas.
         """
         self.logger.info("=== Starting restoration ===")
+        self.log_diskette_version()
 
         with_data = not no_data
         with_storages = not no_storages

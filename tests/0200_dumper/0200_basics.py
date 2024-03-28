@@ -234,7 +234,7 @@ def test_get_drain_exclusions_sample_apps():
 
 
 @freeze_time("2012-10-15 10:00:00")
-def test_build_dump_manifest(manifest_version, tmp_path, tests_settings):
+def test_build_dump_manifest(mocked_version, tmp_path, tests_settings):
     """
     Dump manifest should contains every dumped files, archived storages and some
     context informations. Data dump list should respect order of applications.

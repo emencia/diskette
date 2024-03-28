@@ -50,6 +50,7 @@ def test_storages_basepath_invalid(settings):
         },
         [
             "diskette:20:=== Starting restoration ===",
+            "diskette:10:diskette==0.0.0-test",
             "diskette:10:- Storages contents will be restored into: {tmp_path}",
             "diskette:10:Archive checksum: dummy-checksum",
             "diskette:10:Creating storage parent directory: {tmp_path}/storage_samples",
@@ -75,6 +76,7 @@ def test_storages_basepath_invalid(settings):
         },
         [
             "diskette:20:=== Starting restoration ===",
+            "diskette:10:diskette==0.0.0-test",
             "diskette:10:- Storages contents will be restored into: {tmp_path}",
             "diskette:10:Creating storage parent directory: {tmp_path}/storage_samples",
             (
@@ -98,6 +100,7 @@ def test_storages_basepath_invalid(settings):
         },
         [
             "diskette:20:=== Starting restoration ===",
+            "diskette:10:diskette==0.0.0-test",
             "diskette:10:- Storages contents will be restored into: {tmp_path}",
             "diskette:10:Archive checksum: dummy-checksum",
             "diskette:20:Loading data from dump 'django-auth.json' (959 bytes)",
@@ -113,6 +116,7 @@ def test_storages_basepath_invalid(settings):
         },
         [
             "diskette:20:=== Starting restoration ===",
+            "diskette:10:diskette==0.0.0-test",
             "diskette:10:- Storages contents will be restored into: {tmp_path}",
             "diskette:10:Archive checksum: dummy-checksum",
             "diskette:10:Creating storage parent directory: {tmp_path}/storage_samples",
@@ -127,8 +131,8 @@ def test_storages_basepath_invalid(settings):
         ]
     ),
 ])
-def test_load_options(caplog, settings, db, mocked_checksum, tests_settings, tmp_path,
-                      options, expected):
+def test_load_options(caplog, settings, db, mocked_checksum, mocked_version,
+                      tests_settings, tmp_path, options, expected):
     """
     Load method with the right arguments should correctly proceed to restore archive
     contents and output some logs.

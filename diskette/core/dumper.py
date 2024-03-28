@@ -7,10 +7,10 @@ from pathlib import Path
 
 from django.template.defaultfilters import filesizeformat
 
-from .. import __version__
 from ..exceptions import (
     ApplicationConfigError, ApplicationRegistryError, DumperError
 )
+from ..utils import versionning
 from ..utils.lists import get_duplicates, unduplicated_merge_lists
 from ..utils.loggers import NoOperationLogger
 
@@ -71,7 +71,7 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
         Returns:
             string: The version string.
         """
-        return __version__
+        return versionning.get_package_version()["version"]
 
     def get_drain_exclusions(self, apps, drain_excluded=False):
         """

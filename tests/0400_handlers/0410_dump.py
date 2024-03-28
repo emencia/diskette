@@ -131,7 +131,8 @@ def test_storage_excludes(settings, tmp_path, setting, value, disabled, expected
     assert handler.get_storage_excludes(value, disabled) == expected
 
 
-def test_dump(caplog, settings, db, mocked_checksum, tests_settings, tmp_path):
+def test_dump(caplog, settings, db, mocked_checksum, mocked_version, tests_settings,
+              tmp_path):
     """
     Dump method with the right arguments should correctly proceed to dump, archive
     everything and output some logs.
@@ -168,6 +169,7 @@ def test_dump(caplog, settings, db, mocked_checksum, tests_settings, tmp_path):
 
     assert logs == [
         "diskette:20:=== Starting dump ===",
+        "diskette:10:diskette==0.0.0-test",
         "diskette:10:- Tarball will be written into: {}".format(tmp_path),
         "diskette:10:- Tarball filename pattern: diskette{features}.tar.gz",
         "diskette:10:- Data dump enabled for application:",
@@ -208,6 +210,7 @@ def test_dump(caplog, settings, db, mocked_checksum, tests_settings, tmp_path):
         },
         [
             "diskette:20:=== Starting dump ===",
+            "diskette:10:diskette==0.0.0-test",
             "diskette:10:- Tarball will be written into: {tmp_path}",
             "diskette:10:- Tarball filename pattern: diskette{{features}}.tar.gz",
             "diskette:10:- Data dump enabled for application:",
@@ -247,6 +250,7 @@ def test_dump(caplog, settings, db, mocked_checksum, tests_settings, tmp_path):
         },
         [
             "diskette:20:=== Starting dump ===",
+            "diskette:10:diskette==0.0.0-test",
             "diskette:10:- Tarball will be written into: {tmp_path}",
             "diskette:10:- Tarball filename pattern: diskette{{features}}.tar.gz",
             "diskette:10:- Data dump enabled for application:",
@@ -284,6 +288,7 @@ def test_dump(caplog, settings, db, mocked_checksum, tests_settings, tmp_path):
         },
         [
             "diskette:20:=== Starting dump ===",
+            "diskette:10:diskette==0.0.0-test",
             "diskette:10:- Tarball will be written into: {tmp_path}",
             "diskette:10:- Tarball filename pattern: diskette{{features}}.tar.gz",
             "diskette:10:- Data dump is disabled",
@@ -309,6 +314,7 @@ def test_dump(caplog, settings, db, mocked_checksum, tests_settings, tmp_path):
         },
         [
             "diskette:20:=== Starting dump ===",
+            "diskette:10:diskette==0.0.0-test",
             "diskette:10:- Tarball will be written into: {tmp_path}",
             "diskette:10:- Tarball filename pattern: diskette{{features}}.tar.gz",
             "diskette:10:- Data dump enabled for application:",
@@ -331,8 +337,8 @@ def test_dump(caplog, settings, db, mocked_checksum, tests_settings, tmp_path):
         ]
     ),
 ])
-def test_dump_options(caplog, settings, db, mocked_checksum, tests_settings, tmp_path,
-                      options, expected):
+def test_dump_options(caplog, settings, db, mocked_checksum, mocked_version,
+                      tests_settings, tmp_path, options, expected):
     """
     Dump method with the right arguments should correctly proceed to dump, archive
     everything and output some logs.

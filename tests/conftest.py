@@ -6,8 +6,8 @@ from pathlib import Path
 import pytest
 
 import diskette
-from diskette.core.dumper import Dumper
 from diskette.utils import hashs
+from diskette.utils import versionning
 
 
 class FixturesSettingsTestMixin(object):
@@ -83,14 +83,14 @@ def tests_settings():
 
 
 @pytest.fixture
-def manifest_version(monkeypatch):
+def mocked_version(monkeypatch):
     """
     Mock Dumper.get_diskette_version to return a stable dummy version.
     """
     def _callable(*args, **kwargs):
-        return "0.0.0-test"
+        return {"pkgname": "diskette", "version": "0.0.0-test"}
 
-    monkeypatch.setattr(Dumper, "get_diskette_version", _callable)
+    monkeypatch.setattr(versionning, "get_package_version", _callable)
 
     return _callable
 

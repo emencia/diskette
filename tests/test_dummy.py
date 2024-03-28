@@ -40,7 +40,7 @@ pytest.skip(
 
 
 @freeze_time("2012-10-15 10:00:00")
-def test_create_fixture_basic_tarball(caplog, db, manifest_version, tests_settings,
+def test_create_fixture_basic_tarball(caplog, db, mocked_version, tests_settings,
                                       tmp_path):
     """
     Development script to create the 'basic_data_storages.tar.gz' archive fixture.
@@ -108,7 +108,7 @@ def test_create_fixture_basic_tarball(caplog, db, manifest_version, tests_settin
 
 
 @freeze_time("2012-10-15 10:00:00")
-def test_create_fixture_advanced_tarball(caplog, db, manifest_version, tests_settings,
+def test_create_fixture_advanced_tarball(caplog, db, mocked_version, tests_settings,
                                          tmp_path):
     """
     Development script to create the 'advanced_data_storages.tar.gz' archive fixture.

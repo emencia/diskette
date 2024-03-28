@@ -36,7 +36,7 @@ def test_open_download_error(caplog, requests_mock, tmp_path, tests_settings):
         loader.download_archive(url, destination=destination)
 
 
-def test_open_file(caplog, manifest_version, tmp_path, tests_settings):
+def test_open_file(caplog, mocked_version, tmp_path, tests_settings):
     """
     Local archive file should be correctly extracted into temp diskette directory.
     """
@@ -62,7 +62,7 @@ def test_open_file(caplog, manifest_version, tmp_path, tests_settings):
             shutil.rmtree(extract_archive)
 
 
-def test_open_url(caplog, manifest_version, requests_mock, tmp_path, tests_settings):
+def test_open_url(caplog, mocked_version, requests_mock, tmp_path, tests_settings):
     """
     Archive from an URL should be correctly downloaded then extracted into temp
     diskette directory.
