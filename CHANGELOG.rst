@@ -3,7 +3,7 @@
 Changelog
 =========
 
-Version 0.3.3 - Unreleased
+Version 0.3.3 - 2024/03/28
 --------------------------
 
 * Added ``--check`` option to ``diskette_dump`` to perform validation and checking
