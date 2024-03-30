@@ -12,7 +12,7 @@ class Command(BaseCommand):
     Diskette definitions discovering.
     """
     help = (
-        "Collect all enabled applications to build data dump definition samples that "
+        "Collect enabled applications to build data dump definition samples that "
         "can be used to build application Diskette definitions. Application "
         "order is respecting order of enabled applications from "
         "'settings.INSTALLED_APPS'."
@@ -30,6 +30,33 @@ class Command(BaseCommand):
             ),
         )
         parser.add_argument(
+            "--app",
+            type=str,
+            metavar="APPNAME",
+            action="append",
+            dest="inclusions",
+            default=[],
+            help=(
+                "This is a cumulative argument. If not empty, the definition list "
+                "will be filtered with the given app lists. All other apps from "
+                "'settings.INSTALLED_APPS' will be ignored. Given app names are not "
+                "validated, if invalid will just be ignored."
+            )
+        )
+        parser.add_argument(
+            "--exclude",
+            type=str,
+            metavar="APPNAME",
+            action="append",
+            dest="exclusions",
+            default=[],
+            help=(
+                "This is a cumulative argument. Given app names will be ignored from "
+                "list definition. This have priority over app name inclusions "
+                "from the '--app' option."
+            )
+        )
+        parser.add_argument(
             "--format",
             default="python",
             choices=["json", "python"],
@@ -44,10 +71,23 @@ class Command(BaseCommand):
 
         definitions = []
 
+        exclusions = options["exclusions"]
+        inclusions = [
+            name
+            for name in options["inclusions"]
+            if name not in exclusions
+        ]
+
         appstore = get_appstore()
         registry = appstore.as_dict()
 
         for appdata in registry:
+            if (
+                (inclusions and appdata["label"] not in inclusions) or
+                appdata["label"] in exclusions
+            ):
+                continue
+
             # Default options
             appopts = {
                 "comments": appdata["verbose_name"],

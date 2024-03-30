@@ -9,11 +9,6 @@ class BaseHandler:
     should be one of compatible classes from ``diskette.utils.loggers``.
     """
     def log_diskette_version(self):
-        print()
-        print()
-        print(versionning.get_package_version())
-        print()
-        print()
         self.logger.debug(
             "{pkgname}=={version}".format(**versionning.get_package_version())
         )

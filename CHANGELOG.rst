@@ -3,6 +3,13 @@
 Changelog
 =========
 
+Version 0.3.4 - 2024/03/30
+--------------------------
+
+* Added options ``--app`` and  ``--exclude`` to  ``diskette_apps``;
+* Removed forgotten debug print from dump code;
+
+
 Version 0.3.3 - 2024/03/28
 --------------------------
 
