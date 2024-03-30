@@ -108,6 +108,11 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
         if is_url(source):
             archive = self.download_archive(source, destination=download_destination)
 
+        if not archive.exists():
+            self.logger.critical(
+                "Given archive path does not exists: {}".format(archive)
+            )
+
         # The temporary directory where to extract archive content
         destination_tmpdir = Path(tempfile.mkdtemp(prefix=self.TEMPDIR_PREFIX))
 
