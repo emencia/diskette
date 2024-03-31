@@ -30,6 +30,18 @@ class Command(BaseCommand, LoadCommandHandler):
             help="Directory path where to restore storage contents.",
         )
         parser.add_argument(
+            "--exclude-data",
+            type=str,
+            metavar="APPNAME",
+            action="append",
+            dest="data_exclusions",
+            default=[],
+            help=(
+                "This is a cumulative argument. Given dump filenames will be ignored "
+                "from loading."
+            )
+        )
+        parser.add_argument(
             "--no-data",
             action="store_true",
             help="Disable application data restoration.",
@@ -69,6 +81,7 @@ class Command(BaseCommand, LoadCommandHandler):
         self.load(
             options["archive"],
             storages_basepath=options["storages_basepath"],
+            data_exclusions=options["data_exclusions"],
             no_data=options["no_data"],
             no_storages=options["no_storages"],
             download_destination=options["download_destination"],

@@ -85,8 +85,9 @@ class LoadCommandHandler(BaseHandler):
 
         return path
 
-    def load(self, archive_path, storages_basepath=None, no_data=False,
-             no_storages=False, download_destination=None, keep=False, checksum=None):
+    def load(self, archive_path, storages_basepath=None, data_exclusions=None,
+             no_data=False, no_storages=False, download_destination=None, keep=False,
+             checksum=None):
         """
         Proceed to load and deploy archive contents.
 
@@ -99,6 +100,7 @@ class LoadCommandHandler(BaseHandler):
                 Currently used by storage dump to make relative path for storage files.
                 On default this is based on current working directory. If given, the
                 storage paths must be in the same leaf else this will be an error.
+            data_exclusions (list): List of dump filenames to exclude from loading.
             no_data (boolean): Disable loading application datas from archive.
             no_storages (boolean): Disable loading media storages from archive.
             download_destination (Path): A path where to write downloaded archive file.
@@ -146,6 +148,7 @@ class LoadCommandHandler(BaseHandler):
         stats = manager.deploy(
             archive_path,
             storages_basepath,
+            data_exclusions=data_exclusions,
             with_data=with_data,
             with_storages=with_storages,
             download_destination=download_destination,

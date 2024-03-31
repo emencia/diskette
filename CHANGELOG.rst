@@ -3,6 +3,13 @@
 Changelog
 =========
 
+Version 0.3.5 - Unreleased
+--------------------------
+
+* Added option ``--exclude-data`` to ``diskette_load`` to exclude some dump filenames
+  from loading;
+
+
 Version 0.3.4 - 2024/03/30
 --------------------------
 
@@ -13,9 +20,9 @@ Version 0.3.4 - 2024/03/30
 Version 0.3.3 - 2024/03/28
 --------------------------
 
-* Added ``--check`` option to ``diskette_dump`` to perform validation and checking
+* Added option ``--check`` to ``diskette_dump`` to perform validation and checking
   without to query database or writing anything onto filesystem;
-* Added ``--format`` option to ``diskette_apps`` with additional ``python`` format
+* Added option ``--format`` to ``diskette_apps`` with additional ``python`` format
   which is now the default one instead of ``json``;
 * Changed ``diskette_dump`` and ``diskette_load`` so they output Diskette version
   as an early debug log message;

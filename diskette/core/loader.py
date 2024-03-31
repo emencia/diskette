@@ -273,7 +273,7 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
 
         return deployed
 
-    def deploy_datas(self, archive_dir, manifest):
+    def deploy_datas(self, archive_dir, manifest, excludes=None):
         """
         Deploy storages directories in given destination
 
@@ -281,17 +281,31 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
             archive_dir (Path): Path to directory where archive has been exracted.
             manifest (dict): The manifest data.
 
+        Keyword Arguments:
+            excludes (list): List of dump filenames to exclude from loading.
+
         Returns:
             list: List of tuples for deployed dumps with respectively source and
                 loaddata output.
         """
+        excludes = excludes or []
+
+        if excludes:
+            self.logger.debug(
+                "Given dump filenames to exclude from loading: {}".format(
+                    ", ".join(excludes)
+                )
+            )
+
         return [
             (dump.name, self.call(archive_dir / dump))
             for dump in manifest["datas"]
+            if dump.name not in excludes
         ]
 
-    def deploy(self, archive, storages_destination, with_data=True, with_storages=True,
-               download_destination=None, keep=False, checksum=None):
+    def deploy(self, archive, storages_destination, data_exclusions=None,
+               with_data=True, with_storages=True, download_destination=None,
+               keep=False, checksum=None):
         """
         Load archive and deploy its content.
 
@@ -303,6 +317,7 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
                 directories.
 
         Keyword Arguments:
+            data_exclusions (list): List of dump filenames to exclude from loading.
             with_data (boolean): Enable application datas loading.
             with_storages (boolean): Enabled media storages loading.
             download_destination (Path): A path where to write downloaded archive file.
@@ -338,11 +353,15 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
                 stats["storages"] = self.deploy_storages(
                     tmpdir,
                     manifest,
-                    storages_destination
+                    storages_destination,
                 )
 
             if with_data:
-                stats["datas"] = self.deploy_datas(tmpdir, manifest)
+                stats["datas"] = self.deploy_datas(
+                    tmpdir,
+                    manifest,
+                    excludes=data_exclusions,
+                )
         finally:
             if tmpdir.exists():
                 shutil.rmtree(tmpdir)
