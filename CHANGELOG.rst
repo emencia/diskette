@@ -3,7 +3,7 @@
 Changelog
 =========
 
-Version 0.3.5 - Unreleased
+Version 0.3.5 - 2024/03/31
 --------------------------
 
 * Added option ``--exclude-data`` to ``diskette_load`` to exclude some dump filenames
