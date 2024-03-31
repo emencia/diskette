@@ -1,3 +1,4 @@
+import json
 import logging
 import shutil
 from pathlib import Path
@@ -41,7 +42,6 @@ def test_deploy_datas(caplog, db, tmp_path, settings, tests_settings):
     loader = Loader(logger=LoggingOutput())
     loader.deploy_datas(archive, manifest)
 
-
     # Flatten logging messages
     logs = [
         name + ":" + str(lv) + ":" + msg
@@ -65,7 +65,8 @@ def test_deploy_datas(caplog, db, tmp_path, settings, tests_settings):
 @freeze_time("2012-10-15 10:00:00")
 def test_deploy_datas_exclusions(caplog, db, tmp_path, settings, tests_settings):
     """
-    Given excluded dump filenames should not be loaded.
+    Given excluded dump filenames should not be loaded and dump file size under the
+    limit should be loaded.
     """
     caplog.set_level(logging.DEBUG)
 
@@ -77,6 +78,9 @@ def test_deploy_datas_exclusions(caplog, db, tmp_path, settings, tests_settings)
     sources = archive / "sources"
     shutil.copytree(data_samples, sources)
 
+    blog_dump = sources / "empty-blog.json"
+    blog_dump.write_text(json.dumps([], indent=4))
+
     # Craft a basic manifest
     manifest = {
         "version": "0.0.0-test",
@@ -84,6 +88,7 @@ def test_deploy_datas_exclusions(caplog, db, tmp_path, settings, tests_settings)
         "datas": [
             Path("sources/django-site.json"),
             Path("sources/django-auth.json"),
+            Path("sources/empty-blog.json"),
         ],
         "storages": []
     }
@@ -99,9 +104,13 @@ def test_deploy_datas_exclusions(caplog, db, tmp_path, settings, tests_settings)
     ]
 
     assert logs == [
-        "diskette:10:Given dump filenames to exclude from loading: django-auth.json",
         "diskette:20:Loading data from dump 'django-site.json' (194 bytes)",
         "diskette:10:Installed 2 object(s) from 1 fixture(s)",
+        "diskette:20:Ignored dump 'django-auth.json' by exclusion",
+        (
+            "diskette:20:Ignored dump 'empty-blog.json' because file is under the "
+            "minimal size: 2 bytes"
+        ),
     ]
 
     # Query Site and User to check expected data from dumps

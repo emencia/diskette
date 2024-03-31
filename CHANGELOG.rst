@@ -8,6 +8,8 @@ Version 0.3.5 - Unreleased
 
 * Added option ``--exclude-data`` to ``diskette_load`` to exclude some dump filenames
   from loading;
+* Added setting ``DISKETTE_LOAD_MINIMAL_FILESIZE`` to filter out dumps with file size
+  under the size limit;
 
 
 Version 0.3.4 - 2024/03/30

@@ -273,6 +273,34 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
 
         return deployed
 
+    def check_data_dump(self, dump, excludes):
+        """
+        Check if data dump is to be loaded or not.
+
+        When dump is not to be loaded, a INFO log message will be output.
+
+        This check dump file against filename exclusions and minimal file size.
+
+        Returns:
+            boolean: True if dump is to be loaded, else False.
+        """
+        if dump.name in excludes:
+            self.logger.info("Ignored dump '{}' by exclusion".format(dump.name))
+            return False
+
+        if (
+            settings.DISKETTE_LOAD_MINIMAL_FILESIZE and
+            dump.stat().st_size <= settings.DISKETTE_LOAD_MINIMAL_FILESIZE
+        ):
+            msg = "Ignored dump '{name}' because file is under the minimal size: {size}"
+            self.logger.info(msg.format(
+                name=dump.name,
+                size=filesizeformat(dump.stat().st_size),
+            ))
+            return False
+
+        return True
+
     def deploy_datas(self, archive_dir, manifest, excludes=None):
         """
         Deploy storages directories in given destination
@@ -290,17 +318,10 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
         """
         excludes = excludes or []
 
-        if excludes:
-            self.logger.debug(
-                "Given dump filenames to exclude from loading: {}".format(
-                    ", ".join(excludes)
-                )
-            )
-
         return [
             (dump.name, self.call(archive_dir / dump))
             for dump in manifest["datas"]
-            if dump.name not in excludes
+            if self.check_data_dump(archive_dir / dump, excludes)
         ]
 
     def deploy(self, archive, storages_destination, data_exclusions=None,

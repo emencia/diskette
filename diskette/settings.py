@@ -42,6 +42,12 @@ For where to extract archive storages contents. On default this will be the curr
 working directory.
 """
 
+DISKETTE_LOAD_MINIMAL_FILESIZE = 6
+"""
+A data dump file size must be greater than this value to be loaded else it is ignored.
+This limit value is defined in bytes.
+"""
+
 DISKETTE_DOWNLOAD_ALLOWED_PROTOCOLS = ("http://", "https://")
 """
 A tuple or list of network protocols allowed to be used for downloading dump to load.
