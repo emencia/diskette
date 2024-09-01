@@ -3,6 +3,13 @@
 Changelog
 =========
 
+Version 0.3.6 - Unreleased
+--------------------------
+
+* Minor fixes in Makefile, documentation and pytest adopted options
+* Implemented loaddata option ``ignorenonexistent``;
+
+
 Version 0.3.5 - 2024/03/31
 --------------------------
 

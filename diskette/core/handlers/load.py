@@ -87,7 +87,7 @@ class LoadCommandHandler(BaseHandler):
 
     def load(self, archive_path, storages_basepath=None, data_exclusions=None,
              no_data=False, no_storages=False, download_destination=None, keep=False,
-             checksum=None):
+             checksum=None, ignorenonexistent_data=False):
         """
         Proceed to load and deploy archive contents.
 
@@ -118,6 +118,9 @@ class LoadCommandHandler(BaseHandler):
                 * Any other value is assumed to be a string for a checksum to compare.
                   Then a checksum is done on archive and compared to the given one, if
                   comparaison fails it results to a critical error.
+            ignorenonexistent_data (boolean): If true, fields and models that does not
+                exists in current models will be ignored instead of raising an error.
+                This is false on default
 
         Returns:
             dict: Statistics of deployed storages and datas.
@@ -154,6 +157,7 @@ class LoadCommandHandler(BaseHandler):
             download_destination=download_destination,
             keep=keep,
             checksum=checksum,
+            ignorenonexistent_data=ignorenonexistent_data,
         )
 
         return stats

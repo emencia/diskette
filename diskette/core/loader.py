@@ -301,7 +301,8 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
 
         return True
 
-    def deploy_datas(self, archive_dir, manifest, excludes=None):
+    def deploy_datas(self, archive_dir, manifest, excludes=None,
+                     ignorenonexistent=False):
         """
         Deploy storages directories in given destination
 
@@ -310,7 +311,12 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
             manifest (dict): The manifest data.
 
         Keyword Arguments:
-            excludes (list): List of dump filenames to exclude from loading.
+            excludes (list): List of dump filenames to exclude from loading. Notes that
+                rather to be passed to ``loaddata`` command, instead we are directly
+                filter internally excludes.
+            ignorenonexistent (boolean): If true, fields and models that does not
+                exists in current models will be ignored instead of raising an error.
+                This is false on default
 
         Returns:
             list: List of tuples for deployed dumps with respectively source and
@@ -319,14 +325,17 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
         excludes = excludes or []
 
         return [
-            (dump.name, self.call(archive_dir / dump))
+            (
+                dump.name,
+                self.call(archive_dir / dump, ignorenonexistent=ignorenonexistent)
+            )
             for dump in manifest["datas"]
             if self.check_data_dump(archive_dir / dump, excludes)
         ]
 
     def deploy(self, archive, storages_destination, data_exclusions=None,
                with_data=True, with_storages=True, download_destination=None,
-               keep=False, checksum=None):
+               keep=False, checksum=None, ignorenonexistent_data=False):
         """
         Load archive and deploy its content.
 
@@ -355,6 +364,9 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
                 * Any other value is assumed to be a string for a checksum to compare.
                   Then a checksum is done on archive and compared to the given one, if
                   comparaison fails it results to a critical error.
+            ignorenonexistent_data (boolean): If true, fields and models that does not
+                exists in current models will be ignored instead of raising an error.
+                This is false on default
 
         Returns:
             dict: Statistics of deployed storages and datas.
@@ -382,6 +394,7 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
                     tmpdir,
                     manifest,
                     excludes=data_exclusions,
+                    ignorenonexistent=ignorenonexistent_data,
                 )
         finally:
             if tmpdir.exists():

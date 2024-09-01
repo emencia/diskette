@@ -66,8 +66,9 @@ class LoaddataSerializerAbstract:
                 will be loaded, the other ones will be ignored.
             excludes (list): A list of application or FQM labels to ignore from
                 loaded data.
-            ignorenonexistent (boolean): If enabled, fields and models that does not
+            ignorenonexistent (boolean): If true, fields and models that does not
                 exists in current models will be ignored instead of raising an error.
+                This is false on default
 
         Returns:
             string: Output from command.

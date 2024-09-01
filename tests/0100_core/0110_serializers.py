@@ -102,6 +102,29 @@ def test_load_command(db, tests_settings, tmp_path):
     # Without some options
     command = serializer.command(dump, ignorenonexistent=True, excludes=["foo", "bar"])
     assert command == (
-        "loaddata {}/django-site.json"
-        " --ignorenonexistent --exclude foo --exclude bar"
+        "loaddata {}/django-site.json --ignorenonexistent --exclude foo --exclude bar"
+    ).format(data_samples)
+
+
+@freeze_time("2012-10-15 10:00:00")
+def test_load_command_false_option(db, tests_settings, tmp_path):
+    """
+    Since programmatically called, a flag option with a false value is not correctly
+    ignored from the command.
+    """
+    data_samples = tests_settings.fixtures_path / "data_samples"
+
+    serializer = LoaddataSerializer()
+
+    dump = data_samples / "django-site.json"
+
+    # Without any option
+    assert serializer.command(dump) == (
+        "loaddata {}/django-site.json".format(data_samples)
+    )
+
+    # Without some options
+    command = serializer.command(dump, ignorenonexistent=False, excludes=["foo", "bar"])
+    assert command == (
+        "loaddata {}/django-site.json --exclude foo --exclude bar"
     ).format(data_samples)

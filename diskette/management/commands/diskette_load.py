@@ -61,6 +61,14 @@ class Command(BaseCommand, LoadCommandHandler):
             ),
         )
         parser.add_argument(
+            "--ignorenonexistent_data",
+            action="store_true",
+            help=(
+                "If true, fields and models that does not exists in current models "
+                "will be ignored instead of raising an error. This is false on default."
+            ),
+        )
+        parser.add_argument(
             "--keep",
             action="store_true",
             help="Don't automatically remove archive when finished.",
@@ -87,4 +95,5 @@ class Command(BaseCommand, LoadCommandHandler):
             download_destination=options["download_destination"],
             keep=options["keep"],
             checksum=options["checksum"],
+            ignorenonexistent_data=options["ignorenonexistent_data"],
         )
