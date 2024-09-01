@@ -6,8 +6,9 @@ Changelog
 Version 0.3.6 - Unreleased
 --------------------------
 
-* Minor fixes in Makefile, documentation and pytest adopted options
+* Minor fixes in Makefile, documentation and Pytest adopted options;
 * Implemented loaddata option ``ignorenonexistent``;
+* Added support for Django 5.0;
 
 
 Version 0.3.5 - 2024/03/31

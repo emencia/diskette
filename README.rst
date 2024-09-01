@@ -29,8 +29,7 @@ Dependencies
 ************
 
 * `Python`_>=3.9;
-* `Django`_>=4.0,<5.0;
-* `django-sendfile2`_>=0.7.0;
+* `Django`_>=4.0,<5.1;
 * `datalookup`_>=1.0.0;
 
 

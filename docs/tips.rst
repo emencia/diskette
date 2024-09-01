@@ -4,10 +4,6 @@
 Tips
 ****
 
-.. Caution::
-    This document is a draft from some development notes. They may not be well written
-    or contain some errors.
-
 
 Storage deployment
 ------------------
@@ -42,12 +38,21 @@ really change once extracted.
 About data integrity
 --------------------
 
-Did tried to test Diskette dump and load on some large project and finished on failure
-because the production db contains permissions that don't exists anymore. Since Django
-permissions are not really loadable, we can't restore the previous migration which
-include the remove ones. But a single user has all permissions assigned included the
-unexisting one, so loaddata fail on this user because it relies on data that do not
-exists anymore.
+Some specific relation systems like with Django permissions can lead to unexpected
+failures between two installations.
+
+In fact Django permissions can not really be loaded since they are mostly initialized
+through model migrations, they already exist in database before Diskette can load data.
+
+But permissions are not cleared by Django automatically, developer need to perform
+permissions cleaning themselves. It means a production database  can contains stale
+permissions. This is especially annoying with other model objects which rely
+directly on permissions since these object will be dumped with relation to permissions.
+
+Then if you try to load these dumps in another installation where the stale permissions
+do not exist anymore, the dump will fail.
+
+See below for a solution to resolve this situation.
 
 
 Contenttype and permissions fix
@@ -76,9 +81,12 @@ For this specific case (objects related to missing Contenttype or Permission), t
 described command should fix problems.
 
 
-DjangoCMS plugins
------------------
+Applications plugins
+--------------------
 
-All CMS plugins must be configured to be dumped after DjangoCMS dump. These plugins
-may work even they are enabled before CMS but the Django serializer will fail to load
-them.
+Some applications may allow to connect other applications as *plugins*, meaning the
+application plugin depends on another one like DjangoCMS and its plugin system.
+
+These applications plugins must be configured to be dumped after their parent
+application dumps. If you don't follow this rule the dump process will work flawlessly
+but loading will fail, commonly because of foreign keys.
