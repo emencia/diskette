@@ -124,10 +124,6 @@ venv:
 	@printf "$(FORMATBLUE)$(FORMATBOLD)---> Install virtual environment <---$(FORMATRESET)\n"
 	@echo ""
 	virtualenv -p $(PYTHON_INTERPRETER) $(VENV_PATH)
-	# Uncomment these two lines if you want development install support on old
-	# distributions (<2020)
-	#$(PIP_BIN) install --upgrade pip
-	#$(PIP_BIN) install --upgrade setuptools
 .PHONY: venv
 
 install-backend:
@@ -226,7 +222,7 @@ test:
 	@echo ""
 	@printf "$(FORMATBLUE)$(FORMATBOLD)---> Tests <---$(FORMATRESET)\n"
 	@echo ""
-	$(PYTEST_BIN) -vv --reuse-db tests/
+	$(PYTEST_BIN) --reuse-db tests/
 	rm -Rf var/media-tests/
 .PHONY: test
 
@@ -234,7 +230,7 @@ test-initial:
 	@echo ""
 	@printf "$(FORMATBLUE)$(FORMATBOLD)---> Tests from zero <---$(FORMATRESET)\n"
 	@echo ""
-	$(PYTEST_BIN) -vv --reuse-db --create-db tests/
+	$(PYTEST_BIN) --reuse-db --create-db tests/
 	rm -Rf var/media-tests/
 .PHONY: test-initial
 

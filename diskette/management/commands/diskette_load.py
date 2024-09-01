@@ -20,7 +20,7 @@ class Command(BaseCommand, LoadCommandHandler):
             "archive",
             default=None,
             help=(
-                "Archive file path to restore its content."
+                "Archive file path or URL to restore its content."
             )
         )
         parser.add_argument(
