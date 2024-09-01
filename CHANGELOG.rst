@@ -3,7 +3,7 @@
 Changelog
 =========
 
-Version 0.3.6 - Unreleased
+Version 0.3.6 - 2024/09/01
 --------------------------
 
 * Minor fixes in Makefile, documentation and Pytest adopted options;
