@@ -15,7 +15,9 @@ class DjangoAppLookupStore:
     Django application store collects applications and store them with their useful
     parameters.
 
-    This is registry built on top of *Django apps* to implement methods to easily
+    .. _Django apps: https://docs.djangoproject.com/en/stable/ref/applications/
+
+    This registry is built on top of `Django apps`_ to include more useful methods to
     perform queries alike with Django ORM. It helps to find detailed inclusions and
     exclusions with application models.
 

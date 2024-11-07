@@ -35,6 +35,24 @@ Storage files are commonly binary files (image, video, pdf, etc..) so their size
 really change once extracted.
 
 
+Integrity error on missing foreignkey
+-------------------------------------
+
+If an application dump loading process fails on a short message without more details
+like: ::
+
+    Integrity error: ForeignKey missing
+
+Then this Diskette application definition is probably missing a model which is used
+as a foreign relation from one of application models.
+
+This is commonly the case if:
+
+* You explicitely define app models and forgotten a model or a new one has been added
+  after an application upgrade;
+* You are explicitely excluding an app model that is required from another one;
+
+
 About data integrity
 --------------------
 
@@ -44,8 +62,8 @@ failures between two installations.
 In fact Django permissions can not really be loaded since they are mostly initialized
 through model migrations, they already exist in database before Diskette can load data.
 
-But permissions are not cleared by Django automatically, developer need to perform
-permissions cleaning themselves. It means a production database  can contains stale
+However permissions are not cleared by Django automatically, developers need to perform
+permissions cleaning themselves. It means a production database can contains stale
 permissions. This is especially annoying with other model objects which rely
 directly on permissions since these object will be dumped with relation to permissions.
 
@@ -64,14 +82,14 @@ or directly content type: ::
 
     django-admin remove_stale_contenttypes --include-stale-apps
 
-For example, if application *Blog* has been installed in project version 0.1.0. Then
-Blog permissions have been assigned to an admin user. Now on project version 1.0.0,
-Blog is removed. If you dump the user data, Django won't be able to load it because
-an user has relation to unexisting Blog permissions.
+For example, an application *Blog* has been installed in project version 0.1.0 and
+some Blog permissions have been assigned to an user. Then on project version 1.0.0,
+Blog has been removed. If you dump the user data, Django won't be able to load the user
+dump because it includes some relations to unexisting Blog permissions.
 
 .. Note::
-    Permission objects are created automatically from Django migrations, we can't dump
-    and load them.
+    Permission objects are created automatically from Django migrations, we can dump
+    them but we can not load them. And Django Contenttypes will behave identically.
 
 This is because when the data are dumped the permissions still exists but when dump are
 loaded the database is rebooted so Blog permissions won't exists anymore. Finally the

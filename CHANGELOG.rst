@@ -3,8 +3,25 @@
 Changelog
 =========
 
+Development
+***********
+
+Todo
+
+.. Todo::
+    Add Django interfaces to avoid using CLI #10
+
+    * We will start with a simple model to store history of built dump so we have a
+      model to start a conventional admin (because without any model its harder to
+      make an admin)
+    * We should not store dumps indefinitevely, at least only a single one per type
+      (with data, with data+media, with media?)
+    * Does the API key have to be manageable from admin (to revoke old ones and make
+      a new one) ?
+
+
 Version 0.3.6 - 2024/09/01
---------------------------
+**************************
 
 * Minor fixes in Makefile, documentation and Pytest adopted options;
 * Implemented loaddata option ``ignorenonexistent``;
@@ -12,7 +29,7 @@ Version 0.3.6 - 2024/09/01
 
 
 Version 0.3.5 - 2024/03/31
---------------------------
+**************************
 
 * Added option ``--exclude-data`` to ``diskette_load`` to exclude some dump filenames
   from loading;
@@ -21,14 +38,14 @@ Version 0.3.5 - 2024/03/31
 
 
 Version 0.3.4 - 2024/03/30
---------------------------
+**************************
 
 * Added options ``--app`` and  ``--exclude`` to  ``diskette_apps``;
 * Removed forgotten debug print from dump code;
 
 
 Version 0.3.3 - 2024/03/28
---------------------------
+**************************
 
 * Added option ``--check`` to ``diskette_dump`` to perform validation and checking
   without to query database or writing anything onto filesystem;
@@ -39,7 +56,7 @@ Version 0.3.3 - 2024/03/28
 
 
 Version 0.3.2 - 2024/03/25
---------------------------
+**************************
 
 * Added support of archive URL to download in ``diskette_load``;
 * Added options for archive checksum creation and comparison in ``diskette_load``;
@@ -48,13 +65,13 @@ Version 0.3.2 - 2024/03/25
 
 
 Version 0.3.1 - 2024/03/21
---------------------------
+**************************
 
 Fix release for missing commandline script from package.
 
 
 Version 0.3.0 - 2024/03/21
---------------------------
+**************************
 
 * Added ``diskette_load`` command;
 * Added ``diskette_apps`` command;
@@ -82,7 +99,7 @@ some lacks:
 
 
 Version 0.2.0 - Not released as a package
------------------------------------------
+*****************************************
 
 * Implemented storages dump chain;
 * Added ``diskette_dump`` command;
@@ -91,7 +108,7 @@ Version 0.2.0 - Not released as a package
 
 
 Version 0.1.0 - Not released as a package
------------------------------------------
+*****************************************
 
 * Started with ``cookiecutter-sveetch-djangoapp==0.7.0``;
 * Added dump management with Django ``dumpdata`` command;
