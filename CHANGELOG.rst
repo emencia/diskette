@@ -9,15 +9,44 @@ Development
 Todo
 
 .. Todo::
-    Add Django interfaces to avoid using CLI #10
+    Add Django interfaces to avoid using CLI #10 to build a dump, in resume:
 
     * We will start with a simple model to store history of built dump so we have a
       model to start a conventional admin (because without any model its harder to
-      make an admin)
-    * We should not store dumps indefinitevely, at least only a single one per type
-      (with data, with data+media, with media?)
-    * Does the API key have to be manageable from admin (to revoke old ones and make
-      a new one) ?
+      make an admin);
+    * We will store only a single dump per option set (with data, with data+media,
+      with media);
+    * the API key objects have to be manageable from admin (not the key itself that is
+      automatically filled);
+    * Admin views to manage dump and keys, only reachable for superusers;
+    * A single public view that requires a valid API key to get a dump
+    * Keep automatic standard dump filename so they are automatically overwritten (no
+      need to purge) and standard to configure from client;
+
+    * And what if admin would want to give different key to different persons ? (so they
+      can revoke a key per person) If so, they should have a name to be recognizable.
+      And maybe a settings to limit amount of allowed keys;
+
+    * Add hint in documentation about usage of ``b2sum`` to validate dump checksum;
+
+    Ongoing:
+
+    - [x] Dump and Key models;
+    - [x] Manage deprecation;
+    - [x] Dump process;
+    - [x] Dump purge;
+    - [ ] Improve admin with changelist features;
+    - [ ] tests;
+    - [ ] Update load command (known as "the API client") so it send required options
+      about data and storages in request headers. We will use a view URL for the
+      request;
+    - [ ] View for the client to receive options and determine what dump to search for.
+      If not found send a proper error else use sendfile to give the file data to
+      download;
+    - [ ] View is restricted to a valid API key only, no Django auth layer;
+    - [ ] View will only respond with Http status or file data (dump find success);
+
+
 
 
 Version 0.3.6 - 2024/09/01

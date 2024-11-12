@@ -36,9 +36,24 @@ Filename for dump tarball file. It must ends with ``.tar.gz``. The pattern
 For a dump with data and storages it would be ``diskette_data_storages.tar.gz``.
 """
 
+DISKETTE_DUMP_AUTO_PURGE = True
+"""
+When this setting is true, a routine is executed to purge all deprecated dumps that
+still have a file (in case of internal failures). This routine is only executed after
+the end of a new created dump process.
+
+If false, there won't be any purge and you will have either to delete each deprecated
+dump or manually execute ``DumpFile.purge_deprecated_dumps()`` to remove deprecated
+dump files.
+
+.. Warning::
+    Bulk deletion will not remove dump file, you need to manually delete each dump from
+    their detail form.
+"""
+
 DISKETTE_LOAD_STORAGES_PATH = Path.cwd()
 """
-For where to extract archive storages contents. On default this will be the current
+From where to extract archive storages contents. On default this will be the current
 working directory.
 """
 

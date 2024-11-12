@@ -11,7 +11,7 @@ def file_checksum(filepath):
         filepath (pathlib.Path): File path to open and checksum.
 
     Returns:
-        string: The file checksum as 40 characters.
+        string: The file checksum with exactly 128 characters.
     """
     h = hashlib.blake2b()
     b = bytearray(128 * 1024)
