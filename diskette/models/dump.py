@@ -118,7 +118,7 @@ class DumpFile(models.Model):
 
     def purge_file(self, commit=True):
         """
-        Remove path file if it exists then prefix its path with a mark "removed:/"
+        Remove path file if it exists then prefix path value with a mark ``removed:/``.
         """
         filepath = Path(self.path)
 

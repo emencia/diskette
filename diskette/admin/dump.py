@@ -1,6 +1,8 @@
 """
 DumpFile admin interface
 """
+from pathlib import Path
+
 from django.contrib import admin
 from django.template.defaultfilters import filesizeformat
 from django.utils.safestring import mark_safe
@@ -9,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from ..forms import DumpFileAdminForm
 from ..models import DumpFile
 from ..core.processes import post_dump_save_process
+from .filters import AvailabilityFilter
 
 
 @admin.register(DumpFile)
@@ -32,6 +35,10 @@ class DumpFileAdmin(admin.ModelAdmin):
         "checksum",
         "logs",
     ]
+    list_filter = (
+        AvailabilityFilter,
+        "created",
+    )
 
     def is_available(self, obj):
         """
@@ -63,3 +70,35 @@ class DumpFileAdmin(admin.ModelAdmin):
         saved = super().save_model(request, obj, form, change)
 
         post_dump_save_process(obj)
+
+    def delete_queryset(self, request, queryset):
+        """
+        Customized method for the 'delete selected objects' admin action to correctly
+        remove dump files.
+
+        Instead of the legacy admin action this one performs an additional queryset
+        to get the dump file paths. Then performs the queryset deletion and finally
+        remove path files.
+
+        .. Warning::
+            This is still efficient but have a flaw with files that can be delete from
+            the Django instance (like because of wrong permissions). Selected objects
+            from queryset will be delete but files would still on filesystem and there
+            would be no object anymore to know about them.
+
+        .. Todo::
+            We could filter out path files that seems impossible to delete from
+            permissions. It would need a more advanced algorithm checking about chmod
+            and current thread user.
+        """
+        files = [
+            Path(item)
+            for item in queryset.exclude(
+                path__startswith="removed:/"
+            ).values_list("path", flat=True)
+        ]
+
+        queryset.delete()
+
+        for path in files:
+            path.unlink(missing_ok=True)

@@ -62,6 +62,17 @@ APP_DEFINITIONS = [
         }
     ],
     [
+        "diskette",
+        {
+            "comments": "Diskette",
+            "models": [
+                "diskette.DumpFile",
+                "diskette.APIkey",
+            ],
+            "natural_foreign": True,
+        },
+    ],
+    [
         "sandbox.djangoapp_sample",
         {
             "comments": "Django app sample",
@@ -73,7 +84,7 @@ APP_DEFINITIONS = [
                 "djangoapp_sample.Article"
             ]
         }
-    ]
+    ],
 ]
 
 
@@ -175,6 +186,7 @@ def test_apps_cmd_exclusions(caplog, db, settings, tests_settings, tmp_path):
         "--exclude=admin",
         "--exclude=contenttypes",
         "--exclude=djangoapp_sample",
+        "--exclude=diskette",
         "--exclude=sessions",
     ]
     out = StringIO()

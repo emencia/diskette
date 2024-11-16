@@ -130,6 +130,8 @@ def test_get_all_model_labels():
         "contenttypes.ContentType",
         "sessions.Session",
         "sites.Site",
+        "diskette.DumpFile",
+        "diskette.APIkey",
         "djangoapp_sample.Blog",
         "djangoapp_sample.Category",
         "djangoapp_sample.Article_categories",

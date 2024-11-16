@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from ..forms import APIkeyAdminForm
 from ..models import APIkey
+from .filters import AvailabilityFilter
 
 
 @admin.register(APIkey)
@@ -20,6 +21,10 @@ class APIkeyAdmin(admin.ModelAdmin):
         "created",
         "api_key",
     ]
+    list_filter = (
+        AvailabilityFilter,
+        "created",
+    )
 
     @admin.display(description=_("public key"))
     def api_key(self, instance):

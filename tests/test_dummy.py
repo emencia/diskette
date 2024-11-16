@@ -10,8 +10,9 @@
     Once runned, they should fail only on the ``assert 1 == 42``, you should copy
     the created archive path to move it at your current directory, then copy it data
     dump files to ``data_fixtures/data_samples/`` and then copy the archives to
-    ``data_fixtures/archive_samples/``. Finally uncomment again the skip line and re
-    run the full test suites.
+    ``data_fixtures/archive_samples/``. Finally uncomment the ``pytest.skip`` lines,
+    run again the full test suites and when it is ok comment again the ``pytest.skip``
+    lines.
 """
 
 import json

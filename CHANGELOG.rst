@@ -6,6 +6,8 @@ Changelog
 Development
 ***********
 
+* Added a dummy homepage in sandbox instead of the previous 404 page;
+
 Todo
 
 .. Todo::
@@ -35,7 +37,8 @@ Todo
     - [x] Manage deprecation;
     - [x] Dump process;
     - [x] Dump purge;
-    - [ ] Improve admin with changelist features;
+    - [x] Improve admin with some changelist features;
+    - [x] Proper admin action to delete dumps with their path file;
     - [ ] tests;
     - [ ] Update load command (known as "the API client") so it send required options
       about data and storages in request headers. We will use a view URL for the

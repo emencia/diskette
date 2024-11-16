@@ -21,6 +21,9 @@ Add it to your installed Django apps in settings : ::
         "diskette",
     )
 
+Diskette app does not require any specific order position, commonly you would want to
+put it after the Django builtin apps at least.
+
 Then load default Diskette :ref:`settings_intro` in your settings file: ::
 
     from diskette.settings import *
