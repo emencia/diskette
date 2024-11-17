@@ -29,7 +29,7 @@ class APIkeyAdmin(admin.ModelAdmin):
     @admin.display(description=_("public key"))
     def api_key(self, instance):
         """
-        Format 'api_key' value to display it if not empty else display a notice
+        Format 'api_key' value to display if not empty else display a notice.
         """
         if instance.id:
             return mark_safe("<code>{}</code>".format(instance.key))

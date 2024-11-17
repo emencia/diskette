@@ -51,6 +51,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
+    "sphinx.ext.todo",
     "sphinx_copybutton",
 ]
 

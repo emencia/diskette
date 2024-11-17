@@ -4,7 +4,7 @@ from io import StringIO
 from django.core import management
 
 
-def test_dump_cmd(caplog, db, settings, tests_settings, tmp_path):
+def test_dump_cmd(caplog, db, tests_settings, tmp_path):
     """
     Dump command should respect arguments and build a proper dump archive.
     """
@@ -50,7 +50,7 @@ def test_dump_cmd(caplog, db, settings, tests_settings, tmp_path):
     ]
 
 
-def test_dump_cmd_no_archive(caplog, db, settings, tests_settings, tmp_path):
+def test_dump_cmd_no_archive(caplog, db, tests_settings, tmp_path):
     """
     Dump command should respect arguments and build a proper dump archive.
     """
@@ -91,7 +91,7 @@ def test_dump_cmd_no_archive(caplog, db, settings, tests_settings, tmp_path):
     ]
 
 
-def test_dump_cmd_check(caplog, db, settings, tests_settings, tmp_path):
+def test_dump_cmd_check(caplog, db, tests_settings, tmp_path):
     """
     Check mode should output debug informations without creating archive file.
     """

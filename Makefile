@@ -156,8 +156,7 @@ check-migrations:
 	@echo ""
 	@printf "$(FORMATBLUE)$(FORMATBOLD)---> Checking for pending backend model migrations <---$(FORMATRESET)\n"
 	@echo ""
-	$(PYTHON_BIN) $(DJANGO_MANAGE) makemigrations --dry-run -v 3 $(APPLICATION_NAME)
-	$(PYTHON_BIN) $(DJANGO_MANAGE) makemigrations --check -v 3 $(APPLICATION_NAME)
+	$(PYTHON_BIN) $(DJANGO_MANAGE) makemigrations --dry-run --check -v 3 $(APPLICATION_NAME)
 .PHONY: check-migrations
 
 migrate:

@@ -27,21 +27,21 @@ class APIkeyAdminForm(forms.ModelForm):
         Add custom global input cleaner validations.
         """
         cleaned_data = super().clean()
-        deprecated = cleaned_data.get("deprecated")
+        submitted_deprecation = cleaned_data.get("deprecated")
 
         if self.instance.pk:
-            if self.instance.deprecated and not deprecated:
+            if self.instance.deprecated and not submitted_deprecation:
                 self.add_error(
                     "deprecated",
                     forms.ValidationError(
                         _(
-                            "You can't change deprecation value."
+                            "Once deprecated a key can not be available anymore."
                         ),
                         code="invalid",
                     ),
                 )
         else:
-            if deprecated:
+            if submitted_deprecation:
                 self.add_error(
                     "deprecated",
                     forms.ValidationError(

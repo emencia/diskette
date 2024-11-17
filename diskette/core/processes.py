@@ -4,7 +4,7 @@ from io import StringIO
 from django.conf import settings
 from django.utils import timezone
 
-from ..choices import STATUS_CREATED, STATUS_PENDING, STATUS_PROCESSED
+from ..choices import STATUS_CREATED, STATUS_PROCESSED
 from ..core.handlers import DumpCommandHandler
 from ..models import DumpFile
 from ..utils import hashs

@@ -5,7 +5,6 @@ from pathlib import Path
 
 from django.contrib import admin
 from django.template.defaultfilters import filesizeformat
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from ..forms import DumpFileAdminForm
@@ -69,7 +68,7 @@ class DumpFileAdmin(admin.ModelAdmin):
         """
         saved = super().save_model(request, obj, form, change)
 
-        post_dump_save_process(obj)
+        post_dump_save_process(saved)
 
     def delete_queryset(self, request, queryset):
         """

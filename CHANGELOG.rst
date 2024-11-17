@@ -39,7 +39,11 @@ Todo
     - [x] Dump purge;
     - [x] Improve admin with some changelist features;
     - [x] Proper admin action to delete dumps with their path file;
-    - [ ] tests;
+    - [DOING] tests;
+
+      - [x] APIKey;
+      - [ ] DumpFile;
+
     - [ ] Update load command (known as "the API client") so it send required options
       about data and storages in request headers. We will use a view URL for the
       request;
@@ -48,6 +52,11 @@ Todo
       download;
     - [ ] View is restricted to a valid API key only, no Django auth layer;
     - [ ] View will only respond with Http status or file data (dump find success);
+
+    Further:
+
+    - [ ] Add setting to manage amount of keys that can be non deprecated;
+    - [ ] Or add a setting to disable auto deprecation routine;
 
 
 

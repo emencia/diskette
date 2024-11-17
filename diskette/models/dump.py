@@ -3,7 +3,6 @@ from pathlib import Path
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.urls import reverse
 from django.utils import timezone
 
 from ..choices import get_status_choices, get_status_default
@@ -13,9 +12,8 @@ class DumpFile(models.Model):
     """
     Created dump file history object.
 
-    We still keep deprecated dump for history but their files won't be available, in
-    fact the same filename could be available but it would be overwritten by a new
-    dump.
+    Commonly a deprecated dump is meant to be keeped for history but its file would be
+    deleted (by the way of the purge method).
 
     Attributes:
         created (models.DateTimeField): Required creation datetime, automatically
@@ -27,8 +25,12 @@ class DumpFile(models.Model):
         with_storage (models.BooleanField): Option to enable storage medias save in
             dump.
         deprecated (models.BooleanField): Option to mark a dump as deprecated after a
-            new one with the same options has been created.
-        path (models.CharField): Required unique absolute directory path.
+            new one with the same options has been created. Deprecation is done either
+            manually from admin form or automatically when a dump with the same option
+            set is created.
+        path (models.CharField): Required unique absolute directory path. Once purged
+            a deprecated dump will have its path file deleted and the path value
+            prefixed with ``removed:/``.
         checksum (models.CharField): Required unique checksum string.
         size (models.BigIntegerField): Dump file size integer.
         logs (models.TextField): Stored logs for a sucessful process dump.
@@ -82,8 +84,12 @@ class DumpFile(models.Model):
     )
     path = models.TextField(
         _("path"),
-        blank=False,
+        blank=True,
         default="",
+        help_text=_(
+            "Dump file path on filesystem. A deprecated dump will have its path "
+            "prefixed with 'removed:/' once it has been purged."
+        ),
     )
     checksum = models.CharField(
         _("checksum"),
@@ -119,9 +125,10 @@ class DumpFile(models.Model):
     def purge_file(self, commit=True):
         """
         Remove path file if it exists then prefix path value with a mark ``removed:/``.
+
+        This method should not be used on non deprecated dump.
         """
         filepath = Path(self.path)
-
         filepath.unlink(missing_ok=True)
         self.path = "removed:/" + self.path
 
@@ -146,8 +153,6 @@ class DumpFile(models.Model):
         """
         Delete dump file once its object has been deleted.
         """
-        holded_filepath = self.path
-
         super().delete(*args, **kwargs)
 
         self.purge_file(commit=False)
