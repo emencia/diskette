@@ -346,7 +346,7 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
         self.validate_storages()
 
     def make_archive(self, destination, filename, with_data=True, with_storages=True,
-                     with_storages_excludes=True, destination_chmod=0o644):
+                     with_storages_excludes=True, destination_chmod=None):
         """
         Dump data and storages then archive everything in an archive.
 
@@ -367,11 +367,13 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
                 collecting storages files.
             destination_chmod (integer): File permission to apply on archive files and
                 also on destination directory if it did not exists. Value must be in
-                an octal notation, default is ``0o644``.
+                an octal notation, default is ``0o755``.
 
         Returns:
             Path: Path to the written archive file.
         """
+        destination_chmod = destination_chmod or 0o755
+
         if not with_data and not with_storages:
             raise DumperError(
                 "Arguments 'with_data' and 'with_storages' can not be both 'False'"
@@ -488,7 +490,7 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
         return "\n".join(commandlines)
 
     def check(self, destination, filename, with_data=True, with_storages=True,
-              with_storages_excludes=True, destination_chmod=0o644):
+              with_storages_excludes=True, destination_chmod=None):
         """
         Check what would be done.
 
@@ -504,8 +506,7 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
             with_storages_excludes (boolean): Enable usage of excluding patterns when
                 collecting storages files.
             destination_chmod (integer): File permission to apply on archive files and
-                also on destination directory if it did not exists. Value must be in
-                an octal notation, default is ``0o644``.
+                also on destination directory if it did not exists.
 
         Returns:
             Path: Path to the written archive file.

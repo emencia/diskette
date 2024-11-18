@@ -63,12 +63,13 @@ class DumpFileAdmin(admin.ModelAdmin):
         """
         WARNING: This is performed under a transaction so if process fail from
         'post_dump_save_process', dump object won't be saved. We may use Django
-        signals instead to execute 'post_dump_save_process'  so it could fail without
-        losing object (as we want it for failure history).
+        signals instead (or something else) to detach 'post_dump_save_process'
+        execution so it could fail without losing object (as we want it for failure
+        history).
         """
-        saved = super().save_model(request, obj, form, change)
+        super().save_model(request, obj, form, change)
 
-        post_dump_save_process(saved)
+        post_dump_save_process(obj)
 
     def delete_queryset(self, request, queryset):
         """

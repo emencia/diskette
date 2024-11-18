@@ -55,6 +55,9 @@ Todo
 
     Further:
 
+    - [ ] 'destination_chmod' argument for dumper is currently not used from handler or
+      else. It should be changed at least from settings. (dumper need read and write
+      perms).
     - [ ] Add setting to manage amount of keys that can be non deprecated;
     - [ ] Or add a setting to disable auto deprecation routine;
 

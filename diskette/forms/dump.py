@@ -21,7 +21,7 @@ class DumpFileAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Deprecation field can only be edited for existing and non deprecated object
+        # Deprecation field can only be edited from existing and non deprecated object
         if not self.instance.pk or (
             self.instance.pk and self.instance.deprecated
         ):
@@ -37,26 +37,26 @@ class DumpFileAdminForm(forms.ModelForm):
         Add custom global input cleaner validations.
         """
         cleaned_data = super().clean()
-        deprecated = cleaned_data.get("deprecated")
+        submitted_deprecation = cleaned_data.get("deprecated")
 
         if self.instance.pk:
-            if self.instance.deprecated and not deprecated:
+            if self.instance.deprecated and not submitted_deprecation:
                 self.add_error(
                     "deprecated",
                     forms.ValidationError(
                         _(
-                            "You can't change deprecation value."
+                            "Once deprecated a dump can not be available anymore."
                         ),
                         code="invalid",
                     ),
                 )
         else:
-            if deprecated:
+            if submitted_deprecation:
                 self.add_error(
                     "deprecated",
                     forms.ValidationError(
                         _(
-                            "You can't create a deprecated key."
+                            "You can't create a deprecated dump."
                         ),
                         code="invalid",
                     ),

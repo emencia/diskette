@@ -40,6 +40,8 @@ DISKETTE_STORAGES_EXCLUDES = [
     "public/thumbnails/*",
 ]
 
+DISKETTE_DUMP_PATH = VAR_PATH / "dumps"
+
 # Import local settings if any
 try:
     from .local import *  # noqa: F401,F403

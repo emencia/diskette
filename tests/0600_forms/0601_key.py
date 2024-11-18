@@ -68,7 +68,7 @@ def test_key_form_create_deprecated(db):
 
 def test_key_form_change_deprecated(db):
     """
-    Form should only allow to deprecate an available key.
+    Change form should only allow to deprecate an available key.
     """
     created = APIkeyFactory(deprecated=False)
 

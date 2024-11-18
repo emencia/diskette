@@ -16,7 +16,8 @@ class APIkeyAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Deprecation field can only be edited for an existing and non deprecated object
+        # Deprecation field can only be edited from an existing and non deprecated
+        # object
         if not self.instance.pk or (
             self.instance.pk and self.instance.deprecated
         ):
