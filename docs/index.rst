@@ -11,8 +11,8 @@ Contents
    install.rst
    settings.rst
    overview.rst
-   appdef.rst
    basic_sample.rst
+   appdef.rst
    commands.rst
    tips.rst
    references/index.rst

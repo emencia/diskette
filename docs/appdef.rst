@@ -128,7 +128,7 @@ Because Diskette stands on Django serializer through usage of ``dumpdata`` and
 ``loaddata``, models must be serialized in the right order. It means if a model B has
 relation on model A, the model B must be defined after the model A definition.
 
-Commonly, dumping data won't fail with wrong order but loadding data will always fail
+Commonly dumping data won't fail with a wrong order but loadding data will always fail
 because serializer will expect some related objects that don't exist yet.
 
 

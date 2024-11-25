@@ -128,12 +128,15 @@ class DumpFile(models.Model):
 
         This method should not be used on non deprecated dump.
         """
-        filepath = Path(self.path)
-        filepath.unlink(missing_ok=True)
-        self.path = "removed:/" + self.path
+        if self.path:
+            filepath = Path(self.path)
 
-        if commit:
-            self.save()
+            if filepath.is_file():
+                filepath.unlink(missing_ok=True)
+                self.path = "removed:/" + self.path
+
+                if commit:
+                    self.save()
 
     @classmethod
     def purge_deprecated_dumps(cls):
@@ -146,8 +149,8 @@ class DumpFile(models.Model):
         purge_queryset = cls.objects.filter(deprecated=True).exclude(
             path__startswith="removed:/"
         )
-        for deprecated_dumps in purge_queryset:
-            deprecated_dumps.purge_file()
+        for deprecated_dump in purge_queryset:
+            deprecated_dump.purge_file()
 
     def delete(self, *args, **kwargs):
         """

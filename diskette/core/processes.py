@@ -10,9 +10,6 @@ from ..models import DumpFile
 from ..utils import hashs
 
 
-DISKETTE_AUTO_DUMP_PURGE = True
-
-
 def post_dump_save_process(obj):
     """
     Launch dump process and maintain dump object status.
@@ -21,7 +18,7 @@ def post_dump_save_process(obj):
         This may help to implement custom post processing with something like django-q
         or another queue library.
 
-        Also this may be broken in two function, one to save pending status then
+        Also this could be divided in two functions, one to save pending status then
         launching process and another alike a callback to fill infos from archive and
         finalize to status processed.
     """

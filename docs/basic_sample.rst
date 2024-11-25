@@ -70,7 +70,8 @@ and storages in settings: ::
 
 * ``BASE_DIR`` and ``VAR_PATH`` are only there as good practice to build the path of
   ``MEDIA_ROOT``;
-* ``DISKETTE_APPS`` defines dump for sites applications and some Django auth models;
+* ``DISKETTE_APPS`` defines data to dump for sites applications and some Django auth
+  models;
 * ``DISKETTE_STORAGES`` defines a single storage for the whole media directory using
   related setting;
 * ``DISKETTE_STORAGES_EXCLUDES`` defines some exclusion patterns for storage;

@@ -42,9 +42,9 @@ Todo
     - [DOING] tests;
 
       - [x] APIKey;
-      - [ ] DumpFile;
+      - [x] DumpFile;
 
-    - [ ] Update load command (known as "the API client") so it send required options
+    - [ ] Update load command (known as "the API client") so it sends required options
       about data and storages in request headers. We will use a view URL for the
       request;
     - [ ] View for the client to receive options and determine what dump to search for.
@@ -55,12 +55,16 @@ Todo
 
     Further:
 
+    - [ ] Storing DumpFile path as absolute path may be a security issue. If path is
+      edited to be something like '/etc/important-keys', user then can download this
+      file. We should store it relatively to a path from a setting like
+      'DISKETTE_DUMP_PATH';
+    - [ ] Add an admin action for dumps changelist to select dump to deprecate;
     - [ ] 'destination_chmod' argument for dumper is currently not used from handler or
       else. It should be changed at least from settings. (dumper need read and write
       perms).
     - [ ] Add setting to manage amount of keys that can be non deprecated;
     - [ ] Or add a setting to disable auto deprecation routine;
-
 
 
 

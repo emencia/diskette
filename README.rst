@@ -2,6 +2,11 @@
 .. _Django: https://www.djangoproject.com/
 .. _django-sendfile2: https://github.com/moggers87/django-sendfile2
 .. _datalookup: https://datalookup.readthedocs.io/
+.. _Django Applications: https://docs.djangoproject.com/en/stable/ref/applications/
+.. _dumpdata command: https://docs.djangoproject.com/en/stable/ref/django-admin/#dumpdata
+.. _loaddata command: https://docs.djangoproject.com/en/stable/ref/django-admin/#loaddata
+.. _django-polymorphic: https://github.com/jazzband/django-polymorphic
+.. _fixtures: https://docs.djangoproject.com/en/stable/topics/db/fixtures/
 
 ========
 Diskette
@@ -13,16 +18,21 @@ Export and import Django application datas and medias.
 Features
 ********
 
-* Based on *Django apps* to know about applications and their models;
-* Application datas are dumped with Django ``dumpdata`` command as JSON fixtures, dumps
-  can be naturally loaded in any database type using Django command  ``loaddata``;
-* Define application to be dumped with multiple options;
+* Based on `Django Applications`_ to know about applications and their models;
+* Application datas are dumped with `dumpdata command`_ command as JSON `fixtures`_;
+* Dump archive can be naturally loaded in any database type using Django command
+  `loaddata command`_;
+* You define applications to be dumped (or not) with multiple options;
 * Advanced data drainage for undefined applications;
-* Media archiving is done through *Storages* (not *Django storages*) that can be
+* Media archiving is done through storage paths (not *Django storages*) that can be
   whatever directory you need to backup;
 * Many excluding rules for datas and storages to avoid useless content in archive;
 * Build a complete archive that can be automatically loaded with Diskette or manually;
-* Support models made with ``django-polymorphic``;
+* Support models made with `django-polymorphic`_;
+* Django admin interface to manage dumps and API keys;
+* Diskette load command can get a dump archive either from a local file, a simple
+  archive URL to download or automatically from the Django admin view (securized with
+  API key);
 
 
 Dependencies
