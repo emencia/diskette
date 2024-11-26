@@ -56,7 +56,7 @@ def post_dump_save_process(obj):
         archive_checksum = hashs.file_checksum(archive_file)
 
         # Update object to fill data related to processed dump
-        obj.path = str(archive_file)
+        obj.path = str(archive_file.relative_to(settings.DISKETTE_DUMP_PATH))
         obj.size = archive_file.stat().st_size
         obj.processed = dump_processed
         obj.checksum = archive_checksum

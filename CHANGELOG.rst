@@ -31,7 +31,7 @@ Todo
 
     * Add hint in documentation about usage of ``b2sum`` to validate dump checksum;
 
-    Ongoing:
+    Base Ongoing:
 
     - [x] Dump and Key models;
     - [x] Manage deprecation;
@@ -39,10 +39,19 @@ Todo
     - [x] Dump purge;
     - [x] Improve admin with some changelist features;
     - [x] Proper admin action to delete dumps with their path file;
-    - [DOING] tests;
+    - [x] tests;
 
       - [x] APIKey;
       - [x] DumpFile;
+
+    - [ ] Storing DumpFile path as absolute path may be a security issue. If path is
+      edited to be something like '/etc/important-keys', user then can download this
+      file. We should store it relatively to a path from a setting like
+      'DISKETTE_DUMP_PATH';
+    - [ ] Add an admin action for dumps changelist to select dump and apply
+      deprecation;
+
+    API/Client Ongoing:
 
     - [ ] Update load command (known as "the API client") so it sends required options
       about data and storages in request headers. We will use a view URL for the
@@ -51,15 +60,12 @@ Todo
       If not found send a proper error else use sendfile to give the file data to
       download;
     - [ ] View is restricted to a valid API key only, no Django auth layer;
-    - [ ] View will only respond with Http status or file data (dump find success);
+    - [ ] View will only respond with Http status and file data (on dump find success);
 
     Further:
 
-    - [ ] Storing DumpFile path as absolute path may be a security issue. If path is
-      edited to be something like '/etc/important-keys', user then can download this
-      file. We should store it relatively to a path from a setting like
-      'DISKETTE_DUMP_PATH';
-    - [ ] Add an admin action for dumps changelist to select dump to deprecate;
+    - [ ] Dump command should include a new argument ``--save`` (or ``-no-save``?) so
+      created dump from commandline store the dump as a DumpFile;
     - [ ] 'destination_chmod' argument for dumper is currently not used from handler or
       else. It should be changed at least from settings. (dumper need read and write
       perms).

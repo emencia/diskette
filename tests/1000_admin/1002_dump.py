@@ -146,5 +146,5 @@ def test_dump_admin_creation_process(db, admin_client, rf, settings, tmp_path):
         obj=created, request=rf, form=f, change=False
     )
 
-    assert DumpFile.objects.filter(path=expected_destination).count() == 1
+    assert DumpFile.objects.filter(path=expected_destination.name).count() == 1
     assert expected_destination.exists() is True

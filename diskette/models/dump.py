@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -28,9 +29,9 @@ class DumpFile(models.Model):
             new one with the same options has been created. Deprecation is done either
             manually from admin form or automatically when a dump with the same option
             set is created.
-        path (models.CharField): Required unique absolute directory path. Once purged
-            a deprecated dump will have its path file deleted and the path value
-            prefixed with ``removed:/``.
+        path (models.CharField): Required unique path relative to
+            ``settings.DISKETTE_DUMP_PATH``. Once purged a deprecated dump will have
+            its path file deleted and the path value prefixed with ``removed:/``.
         checksum (models.CharField): Required unique checksum string.
         size (models.BigIntegerField): Dump file size integer.
         logs (models.TextField): Stored logs for a sucessful process dump.
@@ -87,8 +88,8 @@ class DumpFile(models.Model):
         blank=True,
         default="",
         help_text=_(
-            "Dump file path on filesystem. A deprecated dump will have its path "
-            "prefixed with 'removed:/' once it has been purged."
+            "Dump file path relatively to setting 'DISKETTE_DUMP_PATH'. A deprecated "
+            "dump will have its path prefixed with 'removed:/' once it has been purged."
         ),
     )
     checksum = models.CharField(
@@ -129,7 +130,7 @@ class DumpFile(models.Model):
         This method should not be used on non deprecated dump.
         """
         if self.path:
-            filepath = Path(self.path)
+            filepath = settings.DISKETTE_DUMP_PATH / self.path
 
             if filepath.is_file():
                 filepath.unlink(missing_ok=True)
