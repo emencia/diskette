@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from ..forms import APIkeyAdminForm
 from ..models import APIkey
+from .actions import make_deprecated
 from .filters import AvailabilityFilter
 
 
@@ -25,6 +26,7 @@ class APIkeyAdmin(admin.ModelAdmin):
         AvailabilityFilter,
         "created",
     )
+    actions = [make_deprecated]
 
     @admin.display(description=_("public key"))
     def api_key(self, instance):

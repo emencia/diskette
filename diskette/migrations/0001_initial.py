@@ -138,7 +138,7 @@ class Migration(migrations.Migration):
                     models.TextField(
                         blank=True,
                         default='',
-                        help_text="Dump file path on filesystem. A deprecated dump will have its path prefixed with 'removed:/' once it has been purged.",
+                        help_text="Dump file path relatively to setting 'DISKETTE_DUMP_PATH'. A deprecated dump will have its path prefixed with 'removed:/' once it has been purged.",
                         verbose_name='path',
                     ),
                 ),

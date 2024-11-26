@@ -10,6 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from ..forms import DumpFileAdminForm
 from ..models import DumpFile
 from ..core.processes import post_dump_save_process
+from .actions import make_deprecated
 from .filters import AvailabilityFilter
 
 
@@ -38,6 +39,7 @@ class DumpFileAdmin(admin.ModelAdmin):
         AvailabilityFilter,
         "created",
     )
+    actions = [make_deprecated]
 
     def is_available(self, obj):
         """
@@ -61,11 +63,12 @@ class DumpFileAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         """
-        WARNING: This is performed under a transaction so if process fail from
-        'post_dump_save_process', dump object won't be saved. We may use Django
-        signals instead (or something else) to detach 'post_dump_save_process'
-        execution so it could fail without losing object (as we want it for failure
-        history).
+        .. Todo::
+            This is performed under a transaction so if process fail from
+            'post_dump_save_process', dump object won't be saved. We may use Django
+            signals instead (or something else) to detach 'post_dump_save_process'
+            execution so it could fail without losing object (as we want it for failure
+            history).
         """
         super().save_model(request, obj, form, change)
 
@@ -81,10 +84,10 @@ class DumpFileAdmin(admin.ModelAdmin):
         remove path files.
 
         .. Warning::
-            This is still efficient but have a flaw with files that can be delete from
-            the Django instance (like because of wrong permissions). Selected objects
-            from queryset will be delete but files would still on filesystem and there
-            would be no object anymore to know about them.
+            This is still efficient but have a flaw with files that cant be deleted from
+            the Django instance (like in case of wrong permissions). The selected
+            objects from queryset will be deleted but files would still on filesystem
+            and there would be no object anymore to know about them.
 
         .. Todo::
             We could filter out path files that seems impossible to delete from

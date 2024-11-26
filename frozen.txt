@@ -1,4 +1,4 @@
-# Frozen requirement versions from '0.4.0rc4' installation
+# Frozen requirement versions from '0.4.0rc6' installation
 datalookup==1.0.0
 Django==4.2.11
 factory-boy==3.3.0

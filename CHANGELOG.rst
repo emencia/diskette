@@ -44,7 +44,7 @@ Todo
       - [x] APIKey;
       - [x] DumpFile;
 
-    - [ ] Storing DumpFile path as absolute path may be a security issue. If path is
+    - [x] Storing DumpFile path as absolute path may be a security issue. If path is
       edited to be something like '/etc/important-keys', user then can download this
       file. We should store it relatively to a path from a setting like
       'DISKETTE_DUMP_PATH';
