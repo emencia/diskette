@@ -10,6 +10,7 @@ Development
 * Added Django admin interface to manage dumps:
 
   * Added models to manage dump files and API keys;
+  * Added **django-sendfile2** to requirements and use it to serve dump file;
   * API keys is currently unused until command ``diskette_load`` has been updated;
   * Dump file are limited to a single availability for the same option set (with data,
     with storages and with everything);
@@ -20,6 +21,8 @@ Development
     than the object creation so if it fails, the object is never saved. However it
     won't create ghost files;
   * Available dump can be downloaded directly from their admin detail view;
+
+* Added minimal version for all requirements;
 
 .. Todo::
     Add Django interfaces to avoid using CLI #10 to build a dump, in resume:
@@ -76,7 +79,6 @@ Development
 
     Further:
 
-    - [ ] Requirement for 'requests' should have a minimal version;
     - [ ] Dump command should include a new argument ``--save`` (or ``-no-save``?) so
       created dump from commandline store the dump as a DumpFile;
     - [ ] 'destination_chmod' argument for dumper is currently not used from handler or
