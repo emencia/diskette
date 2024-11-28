@@ -145,8 +145,6 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "django.contrib.staticfiles",
     "django.forms",
-    "diskette",
-    "sandbox.djangoapp_sample",
 ]
 
 LOGIN_REDIRECT_URL = "/"
@@ -158,6 +156,22 @@ FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 
 """
-SPECIFIC BASE APPLICATIONS SETTINGS BELOW
+django-sendfile2 configuration
+"""
+INSTALLED_APPS.append("django_sendfile")
+
+SENDFILE_BACKEND = "django_sendfile.backends.simple"
+SENDFILE_ROOT = VAR_PATH / "protected-media"
+SENDFILE_URL = "/protected"
+
+"""
+Diskette configuration
 """
 from diskette.settings import *  # noqa: E402,F401,F403
+
+INSTALLED_APPS.append("diskette")
+
+"""
+Sample sandbox app configuration
+"""
+INSTALLED_APPS.append("sandbox.djangoapp_sample")

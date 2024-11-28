@@ -1,6 +1,7 @@
-# Frozen requirement versions from '0.4.0rc6' installation
+# Frozen requirement versions from '0.4.0rc7' installation
 datalookup==1.0.0
 Django==4.2.11
+django-sendfile2==0.7.1
 factory-boy==3.3.0
 flake8==7.0.0
 freezegun==1.4.0

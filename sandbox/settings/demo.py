@@ -40,7 +40,7 @@ DISKETTE_STORAGES_EXCLUDES = [
     "public/thumbnails/*",
 ]
 
-DISKETTE_DUMP_PATH = VAR_PATH / "dumps"
+DISKETTE_DUMP_PATH = SENDFILE_ROOT / "dumps"
 
 # Import local settings if any
 try:

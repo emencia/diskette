@@ -7,8 +7,19 @@ Development
 ***********
 
 * Added a dummy homepage in sandbox instead of the previous 404 page;
+* Added Django admin interface to manage dumps:
 
-Todo
+  * Added models to manage dump files and API keys;
+  * API keys is currently unused until command ``diskette_load`` has been updated;
+  * Dump file are limited to a single availability for the same option set (with data,
+    with storages and with everything);
+  * Creating a new dump will deprecate other dumps with identical option set then and
+    purge files of deprecated dumps;
+  * Dump process logs everything into Dump object attribute ``logs``;
+  * Dump process is not safe yet because it is still included in the same transaction
+    than the object creation so if it fails, the object is never saved. However it
+    won't create ghost files;
+  * Available dump can be downloaded directly from their admin detail view;
 
 .. Todo::
     Add Django interfaces to avoid using CLI #10 to build a dump, in resume:
@@ -31,7 +42,7 @@ Todo
 
     * Add hint in documentation about usage of ``b2sum`` to validate dump checksum;
 
-    Base Ongoing:
+    [x] Base Ongoing:
 
     - [x] Dump and Key models;
     - [x] Manage deprecation;
@@ -48,22 +59,24 @@ Todo
       edited to be something like '/etc/important-keys', user then can download this
       file. We should store it relatively to a path from a setting like
       'DISKETTE_DUMP_PATH';
-    - [ ] Add an admin action for dumps changelist to select dump and apply
+    - [x] Add an admin action for dumps changelist to select dump and apply
       deprecation;
+    - [x] Admin view to download available dump directly from its detail view;
 
-    API/Client Ongoing:
+    [ ] API/Client Ongoing:
 
-    - [ ] Update load command (known as "the API client") so it sends required options
-      about data and storages in request headers. We will use a view URL for the
-      request;
     - [ ] View for the client to receive options and determine what dump to search for.
       If not found send a proper error else use sendfile to give the file data to
       download;
+    - [ ] Update load command (known as "the API client") so it sends required options
+      about data and storages in request headers. We will use a view URL for the
+      request;
     - [ ] View is restricted to a valid API key only, no Django auth layer;
     - [ ] View will only respond with Http status and file data (on dump find success);
 
     Further:
 
+    - [ ] Requirement for 'requests' should have a minimal version;
     - [ ] Dump command should include a new argument ``--save`` (or ``-no-save``?) so
       created dump from commandline store the dump as a DumpFile;
     - [ ] 'destination_chmod' argument for dumper is currently not used from handler or

@@ -14,7 +14,6 @@ class DumpFileAdminForm(forms.ModelForm):
             "deprecated",
             "with_data",
             "with_storage",
-            "path",
             "checksum",
         ]
 

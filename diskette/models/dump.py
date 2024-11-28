@@ -121,6 +121,9 @@ class DumpFile(models.Model):
     def __str__(self):
         return self.created.isoformat(timespec="seconds")
 
+    def get_absolute_path(self):
+        return settings.DISKETTE_DUMP_PATH / self.path
+
     def purge_file(self, commit=True):
         """
         Remove path file if it exists then prefix path value with a mark ``removed:/``.
@@ -128,7 +131,7 @@ class DumpFile(models.Model):
         This method should not be used on non deprecated dump.
         """
         if self.path:
-            filepath = settings.DISKETTE_DUMP_PATH / self.path
+            filepath = self.get_absolute_path()
 
             if filepath.is_file():
                 filepath.unlink(missing_ok=True)

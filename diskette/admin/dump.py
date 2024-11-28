@@ -5,11 +5,14 @@ from pathlib import Path
 
 from django.contrib import admin
 from django.template.defaultfilters import filesizeformat
+from django.urls import path, reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
+from ..core.processes import post_dump_save_process
 from ..forms import DumpFileAdminForm
 from ..models import DumpFile
-from ..core.processes import post_dump_save_process
+from ..views.dump import DumpFileAdminDownloadView
 from .actions import make_deprecated
 from .filters import AvailabilityFilter
 
@@ -30,7 +33,7 @@ class DumpFileAdmin(admin.ModelAdmin):
         "created",
         "processed",
         "status",
-        "path",
+        "path_url",
         "humanized_filesize",
         "checksum",
         "logs",
@@ -60,6 +63,39 @@ class DumpFileAdmin(admin.ModelAdmin):
 
         return filesizeformat(obj.size)
     humanized_filesize.short_description = _("archive size")
+
+    @admin.display(description=_("dump file"))
+    def path_url(self, obj):
+        """
+        Either return the HTML link to download dump (if not deprecated) or just the
+        stored value.
+        """
+        if not obj.path:
+            return "-"
+        elif obj.deprecated or obj.path.startswith("removed:/"):
+            return obj.path
+
+        url = reverse("admin:diskette_admin_dump_download", args=[obj.id])
+        link = "<a href=\"{}\" target=\"_blank\" title=\"Download dump file\">{}</a>"
+        return mark_safe(link.format(url, obj.path))
+
+    def get_urls(self):
+        """
+        Set some additional custom admin views
+        """
+        urls = super().get_urls()
+
+        extra_urls = [
+            path(
+                "download/dump/<int:pk>/",
+                self.admin_site.admin_view(
+                    DumpFileAdminDownloadView.as_view(),
+                ),
+                name="diskette_admin_dump_download",
+            ),
+        ]
+
+        return extra_urls + urls
 
     def save_model(self, request, obj, form, change):
         """
@@ -103,5 +139,5 @@ class DumpFileAdmin(admin.ModelAdmin):
 
         queryset.delete()
 
-        for path in files:
-            path.unlink(missing_ok=True)
+        for filepath in files:
+            filepath.unlink(missing_ok=True)

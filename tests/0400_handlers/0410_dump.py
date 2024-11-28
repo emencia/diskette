@@ -238,7 +238,7 @@ def test_dump(caplog, settings, db, mocked_checksum, mocked_version, tests_setti
             "diskette:10:- storage-1/plop/green.png (1.6 KB)",
             "diskette:10:- storage-2/pong/sample.nope (11 bytes)",
             "diskette:10:- storage-2/ping/grey.png (1.6 KB)",
-            "diskette:20:Dump archive was created at: {archive} (3.7 KB)",
+            "diskette:20:Dump archive was created at: {archive} ({size})",
             "diskette:20:Checksum: dummy-checksum",
         ]
     ),
@@ -278,7 +278,7 @@ def test_dump(caplog, settings, db, mocked_checksum, mocked_version, tests_setti
             "diskette:10:- storage-1/plop/green.png (1.6 KB)",
             "diskette:10:- storage-2/pong/sample.nope (11 bytes)",
             "diskette:10:- storage-2/ping/grey.png (1.6 KB)",
-            "diskette:20:Dump archive was created at: {archive} (3.7 KB)",
+            "diskette:20:Dump archive was created at: {archive} ({size})",
         ]
     ),
     (
@@ -303,7 +303,7 @@ def test_dump(caplog, settings, db, mocked_checksum, mocked_version, tests_setti
             "diskette:10:- storage-1/plop/green.png (1.6 KB)",
             "diskette:10:- storage-2/pong/sample.nope (11 bytes)",
             "diskette:10:- storage-2/ping/grey.png (1.6 KB)",
-            "diskette:20:Dump archive was created at: {archive} (3.5 KB)",
+            "diskette:20:Dump archive was created at: {archive} ({size})",
             "diskette:20:Checksum: dummy-checksum",
         ]
     ),

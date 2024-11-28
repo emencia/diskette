@@ -1,4 +1,5 @@
 from django.contrib.admin.sites import AdminSite
+from django.urls import reverse
 
 import pytest
 from freezegun import freeze_time
@@ -10,7 +11,7 @@ from diskette.admin import DumpFileAdmin
 from diskette.forms import DumpFileAdminForm
 from diskette.utils.tests import (
     get_admin_add_url, get_admin_change_url, get_admin_list_url,
-    build_post_data_from_object,
+    build_post_data_from_object, html_pyquery,
 )
 
 
@@ -51,8 +52,7 @@ def test_dump_admin_ping_detail(db, admin_client):
     (False, True),
 ])
 @freeze_time("2012-10-15 10:00:00")
-def test_dump_process(db, admin_client, rf, settings, tmp_path, purge_enable,
-                      deprecated_exists):
+def test_dump_process(db, settings, tmp_path, purge_enable, deprecated_exists):
     """
     Process function should only care about created and non deprecated dump then
     possibly purge deprecated dump depending value of setting
@@ -105,7 +105,7 @@ def test_dump_process(db, admin_client, rf, settings, tmp_path, purge_enable,
 
 
 @freeze_time("2012-10-15 10:00:00")
-def test_dump_admin_creation_process(db, admin_client, rf, settings, tmp_path):
+def test_dump_admin_creation_process(db, rf, settings, tmp_path):
     """
     Creating a dump from admin will trigger the dump process that should correctly
     dump data into an archive.
@@ -148,3 +148,110 @@ def test_dump_admin_creation_process(db, admin_client, rf, settings, tmp_path):
 
     assert DumpFile.objects.filter(path=expected_destination.name).count() == 1
     assert expected_destination.exists() is True
+
+
+def test_dump_admin_download_deprecated(db, admin_client, settings, tmp_path):
+    """
+    Deprecated dump won't have any link to download and the download view should
+    return a 404 status.
+    """
+    settings.SENDFILE_ROOT = tmp_path
+    settings.DISKETTE_DUMP_PATH = settings.SENDFILE_ROOT
+
+    # Create a deprecated dump with a dummy file
+    dummy_dump = tmp_path / "dummy_dump.txt"
+    dummy_dump.write_text("Nope")
+    dummy = DumpFileFactory(deprecated=True, path=str(dummy_dump))
+
+    # No link for deprecated
+    response = admin_client.get(get_admin_change_url(dummy))
+    assert response.status_code == 200
+    dom = html_pyquery(response)
+    assert dom.find(".field-path_url a") == []
+
+    # Even trying to directly request the download view for this dump would lead to
+    # a 404 response because deprecated dump are excluded from view queryset
+    url = reverse("admin:diskette_admin_dump_download", args=[dummy.id])
+    download_response = admin_client.get(url)
+    assert download_response.status_code == 404
+
+
+def test_dump_admin_download_empty(db, admin_client, settings, tmp_path):
+    """
+    Dump with an empty path won't have any link to download and the download view
+    should return a 404 status.
+    """
+    settings.SENDFILE_ROOT = tmp_path
+    settings.DISKETTE_DUMP_PATH = settings.SENDFILE_ROOT
+
+    # Create a deprecated dump with a dummy file
+    dummy = DumpFileFactory(deprecated=False)
+
+    # No link for deprecated
+    response = admin_client.get(get_admin_change_url(dummy))
+    assert response.status_code == 200
+    dom = html_pyquery(response)
+    assert dom.find(".field-path_url a") == []
+
+    # Even trying to directly request the download view for this dump would lead to
+    # a 404 response because deprecated dump are excluded from view queryset
+    url = reverse("admin:diskette_admin_dump_download", args=[dummy.id])
+    download_response = admin_client.get(url)
+    assert download_response.status_code == 404
+
+
+def test_dump_admin_download_purged(db, admin_client, settings, tmp_path):
+    """
+    Dump with a purged path won't have any link to download and the download view
+    should return a 404 status.
+    """
+    settings.SENDFILE_ROOT = tmp_path
+    settings.DISKETTE_DUMP_PATH = settings.SENDFILE_ROOT
+
+    # Create a deprecated dump with a dummy file
+    dummy = DumpFileFactory(deprecated=False, path="removed://foo.txt")
+
+    # No link for deprecated
+    response = admin_client.get(get_admin_change_url(dummy))
+    assert response.status_code == 200
+    dom = html_pyquery(response)
+    assert dom.find(".field-path_url a") == []
+
+    # Even trying to directly request the download view for this dump would lead to
+    # a 404 response because deprecated dump are excluded from view queryset
+    url = reverse("admin:diskette_admin_dump_download", args=[dummy.id])
+    download_response = admin_client.get(url)
+    assert download_response.status_code == 404
+
+
+def test_dump_admin_download_available(db, client, admin_client, settings, tmp_path):
+    """
+    Available dump should display a download link that is restricted to staff users.
+    """
+    settings.SENDFILE_ROOT = tmp_path
+    settings.DISKETTE_DUMP_PATH = settings.SENDFILE_ROOT
+
+    # Create an available dump with a dummy file
+    available_dump = tmp_path / "available_dump.txt"
+    available_dump.write_text("Yolo")
+    available = DumpFileFactory(deprecated=False, path=str(available_dump))
+    assert available_dump.exists() is True
+
+    # Link is present for available dump
+    response = admin_client.get(get_admin_change_url(available))
+    assert response.status_code == 200
+
+    # Link return the file content to download
+    dom = html_pyquery(response)
+    file_url = dom.find(".field-path_url a")[0].get("href")
+    download_response = admin_client.get(file_url)
+    assert download_response.status_code == 200
+    assert download_response.content == b"Yolo"
+
+    # Download link is only reachable from staff user, lambda user are redirected to
+    # admin login view to authenticate with a proper staff account
+    download_response = client.get(file_url, follow=True)
+    assert download_response.redirect_chain == [
+        ("/admin/login/?next={}".format(file_url), 302)
+    ]
+    assert download_response.status_code == 200
