@@ -28,6 +28,8 @@ there is no incompatibility with previous version.
 * Added minimal version for all requirements;
 * Fixed usage of settings ``DISKETTE_DUMP_PATH`` and ``DISKETTE_LOAD_STORAGES_PATH``
   when there are empty value, Diskette code now fallbacks to ``Path.cwd()``;
+* Added support for Python 3.11;
+* Added support for Django 5.1;
 
 .. Todo::
     Add Django interfaces to avoid using CLI #10 to build a dump, in resume:
