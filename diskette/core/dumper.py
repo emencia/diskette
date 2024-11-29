@@ -5,6 +5,7 @@ import tarfile
 import tempfile
 from pathlib import Path
 
+from django.conf import settings
 from django.template.defaultfilters import filesizeformat
 
 from ..exceptions import (
@@ -372,7 +373,9 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
         Returns:
             Path: Path to the written archive file.
         """
-        destination_chmod = destination_chmod or 0o755
+        destination_chmod = (
+            destination_chmod or settings.DISKETTE_DUMP_PERMISSIONS or 0o755
+        )
 
         if not with_data and not with_storages:
             raise DumperError(
@@ -490,7 +493,7 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
         return "\n".join(commandlines)
 
     def check(self, destination, filename, with_data=True, with_storages=True,
-              with_storages_excludes=True, destination_chmod=None):
+              with_storages_excludes=True):
         """
         Check what would be done.
 
@@ -505,8 +508,6 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
             with_storages (boolean): Enable dump of media storages.
             with_storages_excludes (boolean): Enable usage of excluding patterns when
                 collecting storages files.
-            destination_chmod (integer): File permission to apply on archive files and
-                also on destination directory if it did not exists.
 
         Returns:
             Path: Path to the written archive file.

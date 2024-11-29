@@ -8,6 +8,7 @@ from ..settings import (
     DISKETTE_DUMP_AUTO_PURGE,
     DISKETTE_DUMP_PATH,
     DISKETTE_DUMP_FILENAME,
+    DISKETTE_DUMP_PERMISSIONS,
     DISKETTE_LOAD_STORAGES_PATH,
     DISKETTE_LOAD_MINIMAL_FILESIZE,
     DISKETTE_DOWNLOAD_ALLOWED_PROTOCOLS,
@@ -31,8 +32,8 @@ class DisketteDefaultSettings:
 
             DISKETTE_DUMP_FILENAME = "foo.tar.gz"
 
-    This will override only the setting ``DISKETTE_DUMP_FILENAME``, all other
-    Diskette settings will have the default values from ``diskette.settings``.
+    This will only override the setting ``DISKETTE_DUMP_FILENAME`` and all other
+    settings will use the default Diskette settings.
     """
 
     DISKETTE_APPS = DISKETTE_APPS
@@ -46,6 +47,8 @@ class DisketteDefaultSettings:
     DISKETTE_DUMP_PATH = DISKETTE_DUMP_PATH
 
     DISKETTE_DUMP_FILENAME = DISKETTE_DUMP_FILENAME
+
+    DISKETTE_DUMP_PERMISSIONS = DISKETTE_DUMP_PERMISSIONS
 
     DISKETTE_LOAD_STORAGES_PATH = DISKETTE_LOAD_STORAGES_PATH
 

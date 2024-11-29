@@ -10,6 +10,8 @@ Development
 there is no incompatibility with previous version.
 
 * Added a dummy homepage in sandbox instead of the previous 404 page;
+* Added new setting ``DISKETTE_DUMP_PERMISSIONS`` to define filesystem permissions to
+  apply on dump destination directory and archive file. It defaults to ``0o755``;
 * Added Django admin interface to manage dumps:
 
   * Added models to manage dump files and API keys;

@@ -11,9 +11,8 @@ from .base import BaseHandler
 
 class DumpCommandHandler(BaseHandler):
     """
-    Abstraction layer between Dumper and the management command, it holds getters
-    to get and validate values for manager options and provide a shortand to
-    dump or load contents with options.
+    Abstraction layer between Dumper and end interfaces, it contains getters
+    to get and validate options values and provide a shortand to dump.
 
     This relies on ``logger`` attribute that is not provided here. The logger object
     should be one of compatible classes from ``diskette.utils.loggers``.

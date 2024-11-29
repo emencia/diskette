@@ -24,6 +24,15 @@ If value is empty Diskette will use the current working directory from the Pytho
 execution.
 """
 
+DISKETTE_DUMP_PERMISSIONS = None
+"""
+Octal value (like ``0o644`` and not ``644``) for filesystem permissions to apply on
+dump destination directory when it needs to be created (if it does not exist yet) and
+on the dump archive file.
+
+If value is empty Diskette will use ``0o755``.
+"""
+
 DISKETTE_DUMP_FILENAME = "diskette{features}.tar.gz"
 """
 Filename for dump tarball file. It must ends with ``.tar.gz``. The pattern
