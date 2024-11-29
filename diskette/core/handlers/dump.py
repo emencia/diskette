@@ -5,8 +5,8 @@ from django.conf import settings
 from django.template.defaultfilters import filesizeformat
 
 from ...utils import hashs
-from .base import BaseHandler
 from ..dumper import Dumper
+from .base import BaseHandler
 
 
 class DumpCommandHandler(BaseHandler):
@@ -29,7 +29,7 @@ class DumpCommandHandler(BaseHandler):
         Returns:
             Path: Discovered path.
         """
-        path = path or settings.DISKETTE_DUMP_PATH
+        path = path or settings.DISKETTE_DUMP_PATH or Path.cwd()
 
         if not path:
             self.logger.critical("Destination path can not be an empty value")

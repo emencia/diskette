@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -96,7 +98,9 @@ class DumpFile(models.Model):
         max_length=128,
         default="",
         help_text=_(
-            "A blake2 hash for dump file checksum."
+            "A blake2 hash for dump file checksum. Use command "
+            "'b2sum yourfile.tar.gz' to get checksum of downloaded file and compare it "
+            "to this one."
         ),
     )
     size = models.BigIntegerField(
@@ -122,7 +126,8 @@ class DumpFile(models.Model):
         return self.created.isoformat(timespec="seconds")
 
     def get_absolute_path(self):
-        return settings.DISKETTE_DUMP_PATH / self.path
+        basepath = settings.DISKETTE_DUMP_PATH or Path.cwd()
+        return basepath / self.path
 
     def purge_file(self, commit=True):
         """

@@ -1,11 +1,11 @@
 import logging
+from pathlib import Path
 
 import pytest
 
 from django.template.defaultfilters import filesizeformat
 
 from diskette.core.handlers import DumpCommandHandler
-from diskette.exceptions import DisketteError
 from diskette.utils.loggers import LoggingOutput
 
 
@@ -13,30 +13,17 @@ from diskette.utils.loggers import LoggingOutput
     ("foo", None, "foo"),
     ("foo", "bar", "bar"),
     (None, "bar", "bar"),
+    (None, None, Path.cwd()),
 ])
 def test_archive_destination_valid(settings, setting, arg, expected):
     """
-    Command properly discover the destination to use
+    Method should properly discover the destination to use.
     """
     handler = DumpCommandHandler()
     handler.logger = LoggingOutput()
 
     settings.DISKETTE_DUMP_PATH = setting
     assert handler.get_archive_destination(arg) == expected
-
-
-def test_archive_destination_invalid(settings):
-    """
-    Command should raise an error when resolved value for archive destination is empty.
-    """
-    handler = DumpCommandHandler()
-    handler.logger = LoggingOutput()
-
-    settings.DISKETTE_DUMP_PATH = None
-    with pytest.raises(DisketteError) as excinfo:
-        handler.get_archive_destination("")
-
-    assert str(excinfo.value) == "Destination path can not be an empty value"
 
 
 @pytest.mark.parametrize("setting, value, disabled, expected", [

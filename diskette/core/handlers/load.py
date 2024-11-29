@@ -74,7 +74,7 @@ class LoadCommandHandler(BaseHandler):
         Returns:
             Path: Storage basepath.
         """
-        path = path or settings.DISKETTE_LOAD_STORAGES_PATH
+        path = path or settings.DISKETTE_LOAD_STORAGES_PATH or Path.cwd()
 
         if not path:
             self.logger.critical("Storages destination path can not be an empty value")

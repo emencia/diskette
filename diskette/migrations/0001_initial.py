@@ -147,7 +147,7 @@ class Migration(migrations.Migration):
                     models.CharField(
                         blank=True,
                         default="",
-                        help_text="A blake2 hash for dump file checksum.",
+                        help_text="A blake2 hash for dump file checksum. Use command 'b2sum yourfile.tar.gz' to get checksum of downloaded file and compare it to this one.",
                         max_length=128,
                         verbose_name="checksum",
                     ),

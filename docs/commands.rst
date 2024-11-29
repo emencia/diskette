@@ -12,6 +12,8 @@ detail does not include it, they all inherit from
 `Django command default options <https://docs.djangoproject.com/en/5.0/ref/django-admin/#default-options>`_.
 
 
+.. _commands_dump:
+
 diskette_dump
 *************
 
@@ -29,6 +31,8 @@ Options
     .. include:: ./_static/commands/dump.rst
 
 
+.. _commands_load:
+
 diskette_load
 *************
 
@@ -43,6 +47,8 @@ Usage
 Options
     .. include:: ./_static/commands/load.rst
 
+
+.. _commands_apps:
 
 diskette_apps
 *************
@@ -60,6 +66,8 @@ Usage: ::
 Options
     .. include:: ./_static/commands/apps.rst
 
+
+.. _commands_polymorphic:
 
 polymorphic_dumpdata
 ********************

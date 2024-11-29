@@ -1,7 +1,8 @@
 .. _Python: https://www.python.org/
 .. _Django: https://www.djangoproject.com/
-.. _django-sendfile2: https://github.com/moggers87/django-sendfile2
 .. _datalookup: https://datalookup.readthedocs.io/
+.. _Requests: https://requests.readthedocs.io/en/latest/
+.. _Django Sendfile: https://github.com/moggers87/django-sendfile2
 .. _Django Applications: https://docs.djangoproject.com/en/stable/ref/applications/
 .. _dumpdata command: https://docs.djangoproject.com/en/stable/ref/django-admin/#dumpdata
 .. _loaddata command: https://docs.djangoproject.com/en/stable/ref/django-admin/#loaddata
@@ -41,6 +42,8 @@ Dependencies
 * `Python`_>=3.9;
 * `Django`_>=4.0,<5.1;
 * `datalookup`_>=1.0.0;
+* `Requests`_>=2.32.3;
+* `Django Sendfile`_>=0.7.0;
 
 
 Links

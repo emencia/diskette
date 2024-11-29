@@ -1,5 +1,6 @@
 import logging
 import shutil
+from pathlib import Path
 
 import pytest
 
@@ -7,7 +8,6 @@ from django.apps import apps
 from django.contrib.sites.models import Site
 
 from diskette.core.handlers import LoadCommandHandler
-from diskette.exceptions import DisketteError
 from diskette.utils.loggers import LoggingOutput
 
 
@@ -15,6 +15,7 @@ from diskette.utils.loggers import LoggingOutput
     ("foo", None, "foo"),
     ("foo", "bar", "bar"),
     (None, "bar", "bar"),
+    (None, None, Path.cwd()),
 ])
 def test_storages_basepath_valid(settings, setting, arg, expected):
     """
@@ -25,20 +26,6 @@ def test_storages_basepath_valid(settings, setting, arg, expected):
 
     settings.DISKETTE_LOAD_STORAGES_PATH = setting
     assert handler.get_storages_basepath(arg) == expected
-
-
-def test_storages_basepath_invalid(settings):
-    """
-    Command should raise an error when resolved value for archive destination is empty.
-    """
-    handler = LoadCommandHandler()
-    handler.logger = LoggingOutput()
-
-    settings.DISKETTE_LOAD_STORAGES_PATH = None
-    with pytest.raises(DisketteError) as excinfo:
-        handler.get_storages_basepath("")
-
-    assert str(excinfo.value) == "Storages destination path can not be an empty value"
 
 
 @pytest.mark.parametrize("options, expected", [

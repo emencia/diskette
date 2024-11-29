@@ -6,12 +6,15 @@ Changelog
 Development
 ***********
 
+**Major release for new feature to create and manage dump from Django admin**,
+there is no incompatibility with previous version.
+
 * Added a dummy homepage in sandbox instead of the previous 404 page;
 * Added Django admin interface to manage dumps:
 
   * Added models to manage dump files and API keys;
-  * Added **django-sendfile2** to requirements and use it to serve dump file;
   * API keys is currently unused until command ``diskette_load`` has been updated;
+  * Added **django-sendfile2** to requirements and use it to serve dump file;
   * Dump file are limited to a single availability for the same option set (with data,
     with storages and with everything);
   * Creating a new dump will deprecate other dumps with identical option set then and
@@ -23,6 +26,8 @@ Development
   * Available dump can be downloaded directly from their admin detail view;
 
 * Added minimal version for all requirements;
+* Fixed usage of settings ``DISKETTE_DUMP_PATH`` and ``DISKETTE_LOAD_STORAGES_PATH``
+  when there are empty value, Diskette code now fallbacks to ``Path.cwd()``;
 
 .. Todo::
     Add Django interfaces to avoid using CLI #10 to build a dump, in resume:
@@ -86,6 +91,9 @@ Development
       perms).
     - [ ] Add setting to manage amount of keys that can be non deprecated;
     - [ ] Or add a setting to disable auto deprecation routine;
+    - [ ] On dump creation form, display a message with an estimated size. Currently
+      this is only possible for storages, data estimation need some custom query
+      related to database driver;
 
 
 

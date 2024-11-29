@@ -62,3 +62,65 @@ commonly the current working directory. You can tweak the configuration to bypas
 protection but it is rarely a good idea.
 
 Diskette knows storages to archive from list defined in ``settings.DISKETTE_STORAGES``.
+
+
+Dump management from Django admin
+*********************************
+
+Dumps can be created from the Django admin interface by staff users.
+
+Preservation
+------------
+
+The Diskette admin registers all created dump and manage to only keep the latest ones
+for an identical option set which is either:
+
+* Dump with data only;
+* Dump with storages only;
+* Dump with data and storages;
+
+The latest dump of an option set is available to download and the other ones are
+automatically marked as deprecated.
+
+Deprecation
+-----------
+
+A deprecated dump can not be downloaded anymore and if the related setting is enabled
+its file is automatically purged from filesystem.
+
+Automatic purge and deprecation jobs are done during dump creation.
+
+Once created a dump can not be changed except for its ``deprecated`` field that can be
+checked to deprecate dump but this is not reversible, a deprecated dump can not be made
+available again.
+
+Integrity
+---------
+
+You may need to check if download dump archive has been correctly downloaded and to do
+so the dump stores a *BLAKE2* checksum that you can compare to your downloaded file.
+
+The `GNU Core Utilities <https://www.gnu.org/software/coreutils/>`_ (that is
+installed on almost all non Windows systems) provides a command ``b2sum`` to compute
+a *BLAKE2* checksum for a file: ::
+
+    b2sum yourdownloadedfile.tar.gz
+
+Download
+--------
+
+Currently the only way to get a dump archive file is to download it from the Django
+admin, you will retrieve its download link from the dump detail view.
+
+The download is only available for a non deprecated dump with a non empty or purged
+file path.
+
+Dump download view is protected with Django Sendfile and can only be reached from the
+admin for an authenticated staff user.
+
+.. Note::
+    With :ref:`commands_load` you won't be able to directly download and load a dump
+    using its download URL since it needs an authentication.
+
+    You will have to download file on your filesystem then give its local path to the
+    command.

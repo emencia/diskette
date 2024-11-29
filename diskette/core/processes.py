@@ -1,5 +1,6 @@
 import logging
 from io import StringIO
+from pathlib import Path
 
 from django.conf import settings
 from django.utils import timezone
@@ -24,6 +25,7 @@ def post_dump_save_process(obj):
     """
     # Process dump can only happens for a new created object
     if not obj.deprecated and obj.status == STATUS_CREATED:
+        archive_destination = settings.DISKETTE_DUMP_PATH or Path.cwd()
         # Get dump handler with a custom logger to catch process logs to store
         dumper = DumpCommandHandler()
         dummystream = StringIO()
@@ -40,7 +42,7 @@ def post_dump_save_process(obj):
 
         # Build dump
         archive_file = dumper.dump(
-            archive_destination=settings.DISKETTE_DUMP_PATH,
+            archive_destination=archive_destination,
             archive_filename=archive_filename,
             application_configurations=settings.DISKETTE_APPS,
             storages=settings.DISKETTE_STORAGES,
@@ -56,7 +58,7 @@ def post_dump_save_process(obj):
         archive_checksum = hashs.file_checksum(archive_file)
 
         # Update object to fill data related to processed dump
-        obj.path = str(archive_file.relative_to(settings.DISKETTE_DUMP_PATH))
+        obj.path = str(archive_file.relative_to(archive_destination))
         obj.size = archive_file.stat().st_size
         obj.processed = dump_processed
         obj.checksum = archive_checksum
