@@ -49,15 +49,16 @@ Then you need to define the
 `Django Sendfile settings <https://django-sendfile2.readthedocs.io/en/latest/getting-started.html#installation>`_.
 
 .. Hint::
-    In our local sandbox we are using settings for the simple sendfile backend: ::
+    In our local sandbox we are using these settings for the simple sendfile backend: ::
 
         SENDFILE_BACKEND = "django_sendfile.backends.simple"
         SENDFILE_ROOT = VAR_PATH / "protected-media"
         SENDFILE_URL = "/protected"
 
-    Where ``VAR_PATH`` is a ``pathlib.Path`` object to a ``var/`` in project directory.
+    Where ``VAR_PATH`` is a ``pathlib.Path`` object to a ``var/`` directory in project
+    directory.
 
-    The simple sendfile backend is not suited for production usage, see the
+    The simple sendfile backend is not the best one for production usage, see the
     `Django Sendfile backend <https://django-sendfile2.readthedocs.io/en/latest/backends.html>`_
     documentation for details.
 

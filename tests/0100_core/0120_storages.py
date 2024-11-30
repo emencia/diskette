@@ -176,7 +176,6 @@ def test_iter_storages_files(settings, tests_settings, excludes, expected):
     'Unix shell-style wildcards' filters.
 
     .. Note::
-
         Expected values are defined with a relative path which will be prefixed with
         'storage_samples' path during assertions.
     """

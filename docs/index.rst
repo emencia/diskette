@@ -13,6 +13,7 @@ Contents
    overview.rst
    basic_sample.rst
    appdef.rst
+   storagedef.rst
    commands.rst
    tips.rst
    references/index.rst

@@ -225,7 +225,11 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
 
     def deploy_storages(self, archive_dir, manifest, destination):
         """
-        Deploy storages directories in given destination
+        Deploy storages directories in given destination.
+
+        .. Note::
+            When a storage path already exists it is removed just before deploying
+            the storage content.
 
         Arguments:
             archive_dir (Path): Path to directory where archive has been exracted.

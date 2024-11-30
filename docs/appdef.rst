@@ -6,52 +6,69 @@
 Application definition
 ======================
 
-An application definition describes the models to dump and possible dump options. The
-simpliest definition form is: ::
+An application definition describes the models to dump and possible dump options.
+
+Commonly you will dedicate an application definition to a single application but you
+can also gather multiple applications models or split application models into multiple
+definitions.
+
+Simpliest sample
+****************
+
+The simpliest definition form is: ::
 
     ["django.contrib.sites", {"models": "sites"}]
+
+It would generate a dump named ``django-contrib-sites.json`` that would contains the
+entries from ``django_site`` table.
+
+
+Full sample
+***********
 
 Or a full example: ::
 
     [
-        [
-            "django.contrib.auth",
-            {
-                "comments": "Authentication and Authorization",
-                "natural_foreign": true,
-                "natural_primary": true,
-                "allow_drain": true,
-                "is_drain": false,
-                "dump_command": "mydumper",
-                "filename": "my_dump.json",
-                "models": [
-                    "auth.Group",
-                    "auth.User"
-                ],
-                "excludes": [
-                    "auth.Permission"
-                ]
-            }
-        ],
+        "django.contrib.auth",
+        {
+            "comments": "Authentication and Authorization",
+            "natural_foreign": true,
+            "natural_primary": true,
+            "allow_drain": true,
+            "is_drain": false,
+            "dump_command": "mydumper",
+            "filename": "my_dump.json",
+            "models": [
+                "auth.Group",
+                "auth.User"
+            ],
+            "excludes": [
+                "auth.Permission"
+            ]
+        }
     ]
 
-Note than in this example, the ``excludes`` item is useless since models have been
-explicitely defined for the right models to get.
+.. Note::
+    In this example the ``excludes`` item is useless since ``models`` explicitely
+    defines the right models to get.
 
-Commonly you will dedicate an application definition to a single application but you
-can also gather multiple applications models or split application models into multiple
-applications.
+It would generate a dump named ``my_dump.json`` that would contains the
+entries from ``auth_group``, ``auth_user`` and ``auth_user_groups`` tables.
 
 .. _appdef_app_parameters:
 
 Parameters
 **********
 
-As seen from previous example, an application definition is a list of two items:
-firstly the application name then a dictionnary of parameters. The name is mostly used
-to retrieve the application from registry and to build the default dump filename.
+An application definition is a list of two items:
 
-Parameters are:
+#. The application name
+#. Then a dictionnary of parameters.
+
+The name is mostly used to retrieve the application from registry and to build the
+default dump filename.
+
+Available parameter items are:
 
 comments
     *Optional*, *<string>*, *Default: empty*
@@ -62,9 +79,9 @@ comments
 natural_foreign
     *Optional*, *<boolean>*, *Default: false*
 
-    Enable usage of `natural keys`_, not all model support natural keys but you should
-    always try to enable it if possible since non natural foreign key may cause issue
-    when loaded.
+    Enable usage of `natural keys`_, not all model support natural keys but this is rare
+    and you should always try to enable it if possible because non-natural foreign key
+    may cause issues when loaded.
 
 natural_primary
     *Optional*, *<boolean>*, *Default: false*
@@ -94,8 +111,11 @@ dump_command
 filename
     *Optional*, *<string>*, *Default: empty*
 
-    A custom filename for the application dump. If not given it will be automatically
-    built from the slugified application name.
+    A custom filename for the application dump.
+
+    If not given it will be automatically built from the slugified application name. For
+    example the filename for the application name ``Django Auth`` would be
+    ``django-auth``.
 
 models
     *Optional*, *<list>*, *Default: empty*
@@ -105,6 +125,12 @@ models
 
     If you only have one label to define, you can give it as a simple string instead
     of a list.
+
+    .. Hint::
+        We recommend you to just define the application label and then excludes
+        unwanted ones if there is any. This is because the explicit model definition can
+        lead to missing new models or still defining some that have been removed from
+        an application upgrade.
 
 excludes
     *Optional*, *<list>*, *Default: empty*

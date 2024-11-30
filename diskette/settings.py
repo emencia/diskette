@@ -7,6 +7,13 @@ List of application definitions to dump their data.
 DISKETTE_STORAGES = []
 """
 List of Path objects for storage to collect and dump.
+
+Each storage path is expected to be an absolute path.
+
+.. Warning::
+    When a storage path already exists on filesystem, it is removed just before
+    deploying storage content from a dump archive. This is not an incremental
+    operation.
 """
 
 DISKETTE_STORAGES_EXCLUDES = []
@@ -14,6 +21,8 @@ DISKETTE_STORAGES_EXCLUDES = []
 List of *Unix shell-style wildcards* patterns to filter out some storages files.
 
 You may find more details on these pattern syntax in Python builtin module ``fnmatch``.
+
+These patterns are checked relatively to inside each storages directory.
 """
 
 DISKETTE_DUMP_PATH = None
@@ -59,49 +68,14 @@ dump files.
 
 DISKETTE_LOAD_STORAGES_PATH = None
 """
-A ``pathlib.Path`` object for where to extract archive storages contents from a dump.
+A ``pathlib.Path`` object for where to extract archive content from a dump.
 
 If value is empty Diskette will use the current working directory from the Python
 execution.
 
 .. Warning::
-    It must always be a parent directory of all your storages because a dump store the
-    storages directories relatively to this setting.
-
-    During dump, there is a check on storages content that will fails if some storages
-    have different parent tree.
-
-Commonly a project only define the media directory as a storage so for this
-structure: ::
-
-    /home/sample
-    └── project
-        └── medias
-            ├── covers
-            └── thumbs
-
-You would have these settings: ::
-
-    DISKETTE_STORAGES = ["/home/sample/project/medias"]
-    DISKETTE_LOAD_STORAGES_PATH = "/home/sample/project"
-
-But for more specific project where you would want to store things outside of project
-like with this structure: ::
-
-    .
-    ├── important-data
-    └── project
-        └── medias
-            ├── covers
-            └── thumbs
-
-You would have these settings: ::
-
-    DISKETTE_STORAGES = [
-        "/home/sample/important-data",
-        "/home/sample/project/medias",
-    ]
-    DISKETTE_LOAD_STORAGES_PATH = "/home/sample"
+    It must always be a parent directory of all your storages because a dump stores the
+    storage directories relatively to this setting.
 
 """
 

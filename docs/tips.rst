@@ -5,19 +5,6 @@ Tips
 ****
 
 
-Storage deployment
-------------------
-
-Currently the storage directories are archived with relative path deducted from their
-path minus the ``storages_basepath`` value (optionnally given to manager or default to
-CWD path).
-
-This implies that all storages are children path of ``storages_basepath``, else it is
-an error. This is because we use ``storages_basepath`` to make relative path of a
-storage path, since we do not allow for absolute directories (to avoid catastrophic
-issue and prevent some malicious attacks).
-
-
 About required freespace size
 -----------------------------
 
@@ -107,4 +94,4 @@ application plugin depends on another one like DjangoCMS and its plugin system.
 
 These applications plugins must be configured to be dumped after their parent
 application dumps. If you don't follow this rule the dump process will work flawlessly
-but loading will fail, commonly because of foreign keys.
+but loading will fail, commonly because of foreign keys that does not exists yet.

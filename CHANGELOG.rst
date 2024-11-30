@@ -98,6 +98,8 @@ there is no incompatibility with previous version.
     - [ ] On dump creation form, display a message with an estimated size. Currently
       this is only possible for storages, data estimation need some custom query
       related to database driver;
+    - [ ] Dump in script mode should also contains command lines to copy storages and
+      command line to make a tarball of everything;
 
 
 

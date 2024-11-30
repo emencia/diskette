@@ -108,7 +108,7 @@ class DumpCommandHandler(BaseHandler):
 
     def get_storage_paths(self, paths=None, no_storages=False):
         """
-        Returns given storage paths from args if any else use
+        Returns given storage paths from arguments if there is any else use
         ``settings.DISKETTE_STORAGES``.
 
         Keyword Arguments:

@@ -80,8 +80,8 @@ Now Diskette is correctly configured, you will need some data, creating some use
 should be enough for this demonstration.
 
 
-Dumping
-*******
+Dump
+****
 
 The command is simple enough as: ::
 
@@ -112,8 +112,8 @@ That would output: ::
 You will still have to prefix these command with the Django script ``django-admin.py``
 or ``manage.py``.
 
-Loading
-*******
+Load
+****
 
 So from the first step before, we got an archive file at
 ``/home/foo/myproject/var/diskette_data_storages.tar.gz`` that we can load.
@@ -130,10 +130,10 @@ And then it should succeed to load data and storages from archive. The archive i
 automatically removed once finished.
 
 
-Creating data definitions
-*************************
+Create data definitions
+***********************
 
-With Diskette default settings on a fresh new project, the definition list from
+With default Diskette settings on a fresh new project the definition list from
 ``DISKETTE_APPS`` is empty and you need to fill it yourself.
 
 To help you start on this, there is a command that will search for all enabled
@@ -213,7 +213,8 @@ As you can see the built definition list is opinionated:
   ``permissions``;
 * It explicitely list all application models for inclusion instead of using the simple
   application name as it could be. This is to help you to see all available models and
-  find the ones to excludes;
+  find the ones to excludes, you should instead prefer to just define the application
+  label;
 * It always enable the ``natural_foreign`` option because you should always use it
   except with very special models that really don't support them;
 * It include the ``comments`` option filled with the application verbose name. It does
