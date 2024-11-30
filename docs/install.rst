@@ -62,9 +62,10 @@ Then you need to define the
     `Django Sendfile backend <https://django-sendfile2.readthedocs.io/en/latest/backends.html>`_
     documentation for details.
 
+And finally you can run the Django command to apply the Diskette migrations.
 
 At this point Diskette is correctly installed but won't archive anything, you will
-need to define some applications and storages in settings, respectively
+need to define some applications and storages in :ref:`settings_intro`, respectively
 ``DISKETTE_APPS`` and ``DISKETTE_STORAGES``. You may also define ``DISKETTE_DUMP_PATH``
 because with its default value it stores dump files in the current working directory
 of your Python process.

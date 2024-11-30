@@ -2,6 +2,8 @@
 DISKETTE_APPS = []
 """
 List of application definitions to dump their data.
+
+See :ref:`appdef_intro` for details.
 """
 
 DISKETTE_STORAGES = []
@@ -14,6 +16,8 @@ Each storage path is expected to be an absolute path.
     When a storage path already exists on filesystem, it is removed just before
     deploying storage content from a dump archive. This is not an incremental
     operation.
+
+See :ref:`storagedef_intro` for details.
 """
 
 DISKETTE_STORAGES_EXCLUDES = []
@@ -77,6 +81,7 @@ execution.
     It must always be a parent directory of all your storages because a dump stores the
     storage directories relatively to this setting.
 
+See :ref:`storagedef_intro` for details.
 """
 
 DISKETTE_LOAD_MINIMAL_FILESIZE = 6

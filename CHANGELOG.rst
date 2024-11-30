@@ -3,12 +3,17 @@
 Changelog
 =========
 
-Development
-***********
+Version 0.4.0 - 2024/11/30
+**************************
 
 **Major release for new feature to create and manage dump from Django admin**,
 there is no incompatibility with previous version.
 
+* Added support for **Python 3.11**;
+* Added support for **Django 5.1**;
+* Added minimal version for all requirements;
+* Fixed usage of settings ``DISKETTE_DUMP_PATH`` and ``DISKETTE_LOAD_STORAGES_PATH``
+  when there are empty value, Diskette code now fallbacks to ``Path.cwd()``;
 * Added a dummy homepage in sandbox instead of the previous 404 page;
 * Added new setting ``DISKETTE_DUMP_PERMISSIONS`` to define filesystem permissions to
   apply on dump destination directory and archive file. It defaults to ``0o755``;
@@ -27,80 +32,6 @@ there is no incompatibility with previous version.
     won't create ghost files;
   * Available dump can be downloaded directly from their admin detail view;
 
-* Added minimal version for all requirements;
-* Fixed usage of settings ``DISKETTE_DUMP_PATH`` and ``DISKETTE_LOAD_STORAGES_PATH``
-  when there are empty value, Diskette code now fallbacks to ``Path.cwd()``;
-* Added support for Python 3.11;
-* Added support for Django 5.1;
-
-.. Todo::
-    Add Django interfaces to avoid using CLI #10 to build a dump, in resume:
-
-    * We will start with a simple model to store history of built dump so we have a
-      model to start a conventional admin (because without any model its harder to
-      make an admin);
-    * We will store only a single dump per option set (with data, with data+media,
-      with media);
-    * the API key objects have to be manageable from admin (not the key itself that is
-      automatically filled);
-    * Admin views to manage dump and keys, only reachable for superusers;
-    * A single public view that requires a valid API key to get a dump
-    * Keep automatic standard dump filename so they are automatically overwritten (no
-      need to purge) and standard to configure from client;
-
-    * And what if admin would want to give different key to different persons ? (so they
-      can revoke a key per person) If so, they should have a name to be recognizable.
-      And maybe a settings to limit amount of allowed keys;
-
-    * Add hint in documentation about usage of ``b2sum`` to validate dump checksum;
-
-    [x] Base Ongoing:
-
-    - [x] Dump and Key models;
-    - [x] Manage deprecation;
-    - [x] Dump process;
-    - [x] Dump purge;
-    - [x] Improve admin with some changelist features;
-    - [x] Proper admin action to delete dumps with their path file;
-    - [x] tests;
-
-      - [x] APIKey;
-      - [x] DumpFile;
-
-    - [x] Storing DumpFile path as absolute path may be a security issue. If path is
-      edited to be something like '/etc/important-keys', user then can download this
-      file. We should store it relatively to a path from a setting like
-      'DISKETTE_DUMP_PATH';
-    - [x] Add an admin action for dumps changelist to select dump and apply
-      deprecation;
-    - [x] Admin view to download available dump directly from its detail view;
-
-    [ ] API/Client Ongoing:
-
-    - [ ] View for the client to receive options and determine what dump to search for.
-      If not found send a proper error else use sendfile to give the file data to
-      download;
-    - [ ] Update load command (known as "the API client") so it sends required options
-      about data and storages in request headers. We will use a view URL for the
-      request;
-    - [ ] View is restricted to a valid API key only, no Django auth layer;
-    - [ ] View will only respond with Http status and file data (on dump find success);
-
-    Further:
-
-    - [ ] Dump command should include a new argument ``--save`` (or ``-no-save``?) so
-      created dump from commandline store the dump as a DumpFile;
-    - [ ] 'destination_chmod' argument for dumper is currently not used from handler or
-      else. It should be changed at least from settings. (dumper need read and write
-      perms).
-    - [ ] Add setting to manage amount of keys that can be non deprecated;
-    - [ ] Or add a setting to disable auto deprecation routine;
-    - [ ] On dump creation form, display a message with an estimated size. Currently
-      this is only possible for storages, data estimation need some custom query
-      related to database driver;
-    - [ ] Dump in script mode should also contains command lines to copy storages and
-      command line to make a tarball of everything;
-
 
 
 Version 0.3.6 - 2024/09/01
@@ -108,7 +39,7 @@ Version 0.3.6 - 2024/09/01
 
 * Minor fixes in Makefile, documentation and Pytest adopted options;
 * Implemented loaddata option ``ignorenonexistent``;
-* Added support for Django 5.0;
+* Added support for **Django 5.0**;
 
 
 Version 0.3.5 - 2024/03/31

@@ -40,7 +40,7 @@ Dependencies
 ************
 
 * `Python`_>=3.9;
-* `Django`_>=4.0,<5.1;
+* `Django`_>=4.0;
 * `datalookup`_>=1.0.0;
 * `Requests`_>=2.32.3;
 * `Django Sendfile`_>=0.7.0;
