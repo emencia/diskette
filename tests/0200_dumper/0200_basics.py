@@ -77,6 +77,7 @@ def test_exported_dicts():
                 "excludes": ["djangoapp_sample.Category"],
                 "natural_foreign": False,
                 "natural_primary": True,
+                "use_base_manager": True,
                 "filename": "blog.json",
                 "allow_drain": True,
             }
@@ -89,6 +90,7 @@ def test_exported_dicts():
             "excludes": [],
             "natural_foreign": True,
             "natural_primary": False,
+            "use_base_manager": False,
             "filename": "djangocontribsites.json"
         },
         {
@@ -101,6 +103,7 @@ def test_exported_dicts():
             ],
             "natural_foreign": True,
             "natural_primary": False,
+            "use_base_manager": False,
             "filename": "djangocontribauth.json"
         },
         {
@@ -112,6 +115,7 @@ def test_exported_dicts():
             "excludes": ["djangoapp_sample.Category"],
             "natural_foreign": False,
             "natural_primary": True,
+            "use_base_manager": True,
             "filename": "blog.json"
         }
     ]
@@ -124,6 +128,7 @@ def test_exported_dicts():
             "retention": ["sites.Site"],
             "natural_foreign": True,
             "natural_primary": False,
+            "use_base_manager": False,
             "comments": "django.contrib.sites",
             "dump_command": "custom_dumpdata",
             "filename": "djangocontribsites.json",
@@ -149,6 +154,7 @@ def test_exported_dicts():
             ],
             "natural_foreign": True,
             "natural_primary": False,
+            "use_base_manager": False,
             "comments": "django.contrib.auth: user and groups, no perms",
             "dump_command": None,
             "filename": "djangocontribauth.json",
@@ -172,6 +178,7 @@ def test_exported_dicts():
             ],
             "natural_foreign": False,
             "natural_primary": True,
+            "use_base_manager": True,
             "comments": "Lorem ipsum",
             "dump_command": None,
             "filename": "blog.json",

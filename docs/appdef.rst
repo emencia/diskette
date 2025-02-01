@@ -89,6 +89,13 @@ natural_primary
     Omits the primary key in the serialized data of objects since it can be calculated
     during deserialization.
 
+use_base_manager
+    *Optional*, *<boolean>*, *Default: false*
+
+    Enable option to bypass a possible custom model manager to get model objects. This
+    is helpful with some application that override the default manager method
+    ``get_queryset`` to filter out some objects for some reasons.
+
 allow_drain
     *Optional*, *<boolean>*, *Default: false*
 
@@ -105,7 +112,7 @@ dump_command
     *Optional*, *<string>*, *Default: empty*
 
     A Django command name to use instead of ``dumpdata``. Diskette include a special
-    command named ``polymorphic_dumpdata`` that is dumpdata alike that is able to
+    command :ref:`commands_polymorphic` that is like ``dumpdata`` but is able to
     properly dump models made with ``django-polymorphic``.
 
 filename

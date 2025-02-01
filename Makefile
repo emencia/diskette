@@ -237,9 +237,9 @@ test-initial:
 
 freeze-dependencies:
 	@echo ""
-	@printf "$(FORMATBLUE)$(FORMATBOLD)---> Freeze dependencies versions <---$(FORMATRESET)\n"
+	@printf "$(FORMATBLUE)$(FORMATBOLD)---> Freezing backend dependencies versions <---$(FORMATRESET)\n"
 	@echo ""
-	$(VENV_PATH)/bin/python freezer.py
+	$(PYTHON_BIN) freezer.py ${PACKAGE_NAME} --destination=frozen.txt
 .PHONY: freeze-dependencies
 
 build-package:

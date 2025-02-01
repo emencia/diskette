@@ -3,6 +3,14 @@
 Changelog
 =========
 
+Development
+***********
+
+* Added new option ``use_base_manager`` application definition which can be used to
+  bypass custom model manager from an application. Under the hood it just enables
+  option ``--all`` from ``dumpdata``;
+
+
 Version 0.4.0 - 2024/11/30
 **************************
 

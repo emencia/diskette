@@ -121,6 +121,7 @@ def test_application_valid_basic():
         "retention": ["sites.Site"],
         "natural_foreign": False,
         "natural_primary": False,
+        "use_base_manager": False,
         "filename": "site-objects.json",
     }
 
@@ -129,6 +130,7 @@ def test_application_valid_basic():
         "excludes": [],
         "natural_foreign": False,
         "natural_primary": False,
+        "use_base_manager": False,
         "filename": "site-objects.json",
     }
 
@@ -144,6 +146,7 @@ def test_application_valid_full():
         dump_command="custom-dumpdata",
         natural_foreign=True,
         natural_primary=True,
+        use_base_manager=True,
         excludes=["auth.Group"],
         filename="ping_pong.json",
         allow_drain=True,
@@ -172,6 +175,7 @@ def test_application_valid_full():
         ],
         "natural_foreign": True,
         "natural_primary": True,
+        "use_base_manager": True,
         "filename": "ping_pong.json",
     }
     assert app_ping.as_options() == {
@@ -185,6 +189,7 @@ def test_application_valid_full():
         "excludes": ["auth.Group"],
         "natural_foreign": True,
         "natural_primary": True,
+        "use_base_manager": True,
         "filename": "ping_pong.json",
     }
 
@@ -216,6 +221,7 @@ def test_drain_payload():
         "excludes": [],
         "natural_foreign": False,
         "natural_primary": False,
+        "use_base_manager": False,
         "filename": "foobar.json",
     }
     assert app.as_options() == {
@@ -223,5 +229,6 @@ def test_drain_payload():
         "excludes": [],
         "natural_foreign": False,
         "natural_primary": False,
+        "use_base_manager": False,
         "filename": "foobar.json",
     }

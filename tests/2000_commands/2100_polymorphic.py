@@ -69,7 +69,6 @@ def test_polymorphic_cmd_basic(caplog, db, tmp_path):
 
 
 @pytest.mark.parametrize("arguments", [
-    ["--all"],
     ["--format=xml"],
     ["--pks=42"],
     ["--database=foo"],

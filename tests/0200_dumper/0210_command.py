@@ -49,6 +49,7 @@ from diskette.core.dumper import Dumper
                     "excludes": ["djangoapp_sample.Category"],
                     "natural_foreign": False,
                     "natural_primary": True,
+                    "use_base_manager": True,
                     "filename": "blog.json",
                     "allow_drain": False,
                 }
@@ -68,7 +69,7 @@ from diskette.core.dumper import Dumper
             ("sample blog", (
                 "dumpdata --indent=2 djangoapp_sample.Blog "
                 "djangoapp_sample.Article_categories djangoapp_sample.Article "
-                "--natural-primary --output=/output/blog.json"
+                "--natural-primary --all --output=/output/blog.json"
             )),
         ],
     ),

@@ -52,10 +52,10 @@ through model migrations, they already exist in database before Diskette can loa
 However permissions are not cleared by Django automatically, developers need to perform
 permissions cleaning themselves. It means a production database can contains stale
 permissions. This is especially annoying with other model objects which rely
-directly on permissions since these object will be dumped with relation to permissions.
+directly on permissions since these objects will be dumped with relation to permissions.
 
-Then if you try to load these dumps in another installation where the stale permissions
-do not exist anymore, the dump will fail.
+Finally if you try to load these dumps in another installation where the stale
+permissions do not exist anymore, the dump will fail.
 
 See below for a solution to resolve this situation.
 
@@ -95,3 +95,12 @@ application plugin depends on another one like DjangoCMS and its plugin system.
 These applications plugins must be configured to be dumped after their parent
 application dumps. If you don't follow this rule the dump process will work flawlessly
 but loading will fail, commonly because of foreign keys that does not exists yet.
+
+Some objects are missing from an application data
+-------------------------------------------------
+
+Some application models may implement a custom manager that override it to filter out
+some results in the base queryset.
+
+See the option ``use_base_manager`` in Application definition
+:ref:`appdef_app_parameters`.

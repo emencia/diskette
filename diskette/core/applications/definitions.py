@@ -15,9 +15,10 @@ class ApplicationConfig:
     """
     Application model to validate and store application details.
 
-    TODO: Another name would better to avoid mental clash with Django "AppConfig".
-    ApplicationModel (+2) ? ApplicationDataDef (0)? ApplicationDefinition (+3) ?
-    DataDefinition (+3) ?
+    .. todo:
+        Another name would better to avoid mental clash with Django "AppConfig".
+        ApplicationModel (+2) ? ApplicationDataDef (0)? ApplicationDefinition (+3) ?
+        DataDefinition (+3) ?
 
     Arguments:
         name (string): Application name, almost anything but it may be slugified for
@@ -45,23 +46,46 @@ class ApplicationConfig:
         dump_command (string): Custom dump command to use for this specific application
             instead of default ``dumpdata``. If you have models that use
             ``django-polymorphic`` you should give value ``polymorphic_dumpdata`` here.
+        use_base_manager (boolean): Bypass possible custom manager from model(s). This
+            is the equivalent of ``all`` option from Django command ``dumpdata``.
 
     Attributes:
+        CONFIG_ATTRS (list): List of object attribute names to export in application
+            configuration dump.
+        OPTIONS_ATTRS (list): List of object attribute names that will be passed to
+            Django ``dumpdata`` command. All attributes that are not in this list can
+            be assumed to be internal parameters.
         is_drain (boolean): Declare application as a special drain application. This
             should always be ``False`` for a common application, ``True`` value is
             reserved to ``DrainApplicationConfig``.
     """
     CONFIG_ATTRS = [
-        "name", "models", "excludes", "retention", "natural_foreign", "natural_primary",
-        "comments", "filename", "is_drain", "allow_drain", "dump_command",
+        "name",
+        "models",
+        "excludes",
+        "retention",
+        "natural_foreign",
+        "natural_primary",
+        "comments",
+        "filename",
+        "is_drain",
+        "allow_drain",
+        "dump_command",
+        "use_base_manager",
     ]
     OPTIONS_ATTRS = [
-        "models", "excludes", "natural_foreign", "natural_primary", "filename",
+        "models",
+        "excludes",
+        "natural_foreign",
+        "natural_primary",
+        "filename",
+        "use_base_manager",
     ]
 
     def __init__(self, name, models=[], excludes=None, natural_foreign=False,
                  natural_primary=False, comments=None, filename=None,
-                 is_drain=None, allow_drain=False, dump_command=None):
+                 is_drain=None, allow_drain=False, dump_command=None,
+                 use_base_manager=False):
         self.name = name
         self._models = [models] if isinstance(models, str) else models
         self._excludes = excludes or []
@@ -72,6 +96,7 @@ class ApplicationConfig:
         self.allow_drain = allow_drain
         self.dump_command = dump_command
         self.is_drain = False
+        self.use_base_manager = use_base_manager
 
     def __repr__(self):
         return "<{klass}: {name}>".format(
@@ -302,11 +327,25 @@ class DrainApplicationConfig(ApplicationConfig):
             application exclusion. Default is disabled.
     """
     CONFIG_ATTRS = [
-        "name", "models", "excludes", "natural_foreign", "natural_primary", "comments",
-        "filename", "is_drain", "drain_excluded", "dump_command",
+        "name",
+        "models",
+        "excludes",
+        "natural_foreign",
+        "natural_primary",
+        "use_base_manager",
+        "comments",
+        "filename",
+        "is_drain",
+        "drain_excluded",
+        "dump_command",
     ]
     OPTIONS_ATTRS = [
-        "models", "excludes", "natural_foreign", "natural_primary", "filename",
+        "models",
+        "excludes",
+        "natural_foreign",
+        "natural_primary",
+        "use_base_manager",
+        "filename",
     ]
 
     def __init__(self, *args, **kwargs):

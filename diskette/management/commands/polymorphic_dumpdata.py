@@ -93,7 +93,7 @@ class Command(BaseCommand):
             help=(
                 "Use Django's base manager to dump all models stored in the database, "
                 "including those that would otherwise be filtered or modified by a "
-                "custom manager. NOT IMPLEMENTED."
+                "custom manager."
             ),
         )
         parser.add_argument(
@@ -113,16 +113,24 @@ class Command(BaseCommand):
         )
 
     def export_models(self, inclusions, indent=None, use_natural_foreign_keys=False,
-                      use_natural_primary_keys=False, output=None):
+                      use_natural_primary_keys=False, use_base_manager=False,
+                      output=None):
         """
         Exports serialized model contents as JSON to output.
         """
         def get_objects():
             for model in inclusions:
+                # Enforce usage of builtin base model manager instead of a possible
+                # custom one
+                if use_base_manager:
+                    objects = model._base_manager
+                else:
+                    objects = model._default_manager
+
                 # Restore legacy model Queryset instead of custom one from
                 # 'django-polyporphic' that may break dumped data.
-                model.objects.queryset_class = QuerySet
-                for obj in model.objects.iterator():
+                objects.queryset_class = QuerySet
+                for obj in objects.iterator():
                     yield obj
 
         serializers.serialize(
@@ -140,9 +148,8 @@ class Command(BaseCommand):
         output = options["output"]
         use_natural_foreign_keys = options["use_natural_foreign_keys"]
         use_natural_primary_keys = options["use_natural_primary_keys"]
+        use_base_manager = options["use_base_manager"]
 
-        if options["use_base_manager"]:
-            raise NotImplementedError("Option '--all' is not implemented.")
         if options["format"] != "json":
             raise NotImplementedError("This command only support the 'json' format.")
         if options["primary_keys"]:
@@ -180,6 +187,7 @@ class Command(BaseCommand):
             indent=indent,
             use_natural_foreign_keys=use_natural_foreign_keys,
             use_natural_primary_keys=use_natural_primary_keys,
+            use_base_manager=use_base_manager,
             output=out,
         )
 

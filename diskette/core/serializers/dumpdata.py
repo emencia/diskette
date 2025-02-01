@@ -49,9 +49,6 @@ class DumpdataSerializerAbstract:
         """
         options = []
 
-        # NOTE: This should be enabled with the proper option
-        # options.append("--all")
-
         if indent:
             options.append("--indent={}".format(indent))
 
@@ -63,6 +60,9 @@ class DumpdataSerializerAbstract:
 
         if application.natural_primary:
             options.append("--natural-primary")
+
+        if application.use_base_manager:
+            options.append("--all")
 
         if application.is_drain:
             options.append(" ".join([
@@ -110,6 +110,7 @@ class DumpdataSerializerAbstract:
 
         models = options.pop("models")
         filename = options.pop("filename")
+        use_base_manager = options.pop("use_base_manager")
 
         # Build args for command
         if destination:
@@ -117,6 +118,10 @@ class DumpdataSerializerAbstract:
 
         if indent:
             options["indent"] = indent
+
+        if use_base_manager:
+            self.logger.debug("- Custom model manager is disabled")
+            options["all"] = use_base_manager
 
         # Diskette never use 'excludes' for common applications
         excludes = options.pop("excludes")
