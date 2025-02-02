@@ -11,11 +11,13 @@ class DumpFileAdminDownloadView(SingleObjectMixin, View):
     View to download a dump from admin.
 
     This view is intended to be included in admin site only where it naturally benefits
-    of its authentication so only staff user can download the dump.
+    of its authentication so only staff user can download the dump. The view itself
+    does not include anything about authentication and permission.
 
     .. Todo::
-        This view is only for admin browsing. Another view will be need for the client
-        since it will be not subject to authentication rather use the APIKey.
+        This view is only for admin browsing. Another view will be developed for the
+        futur client since it will not be subject to authentication and rather use the
+        APIKey.
     """
     model = DumpFile
     http_method_names = ["get", "head", "options", "trace"]
@@ -33,4 +35,10 @@ class DumpFileAdminDownloadView(SingleObjectMixin, View):
         Send file to download.
         """
         dump = self.get_object()
-        return sendfile(request, dump.get_absolute_path(), mimetype="application/gzip")
+        return sendfile(
+            request,
+            dump.get_absolute_path(),
+            encoding="tar",
+            attachment=True,
+            mimetype="application/x-gzip"
+        )

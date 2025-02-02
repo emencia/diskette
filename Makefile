@@ -205,6 +205,24 @@ docs:
 	cd docs && make html
 .PHONY: docs
 
+disk-dump:
+	@echo ""
+	@printf "$(FORMATBLUE)$(FORMATBOLD)---> Creating a Diskette archive from demo <---$(FORMATRESET)\n"
+	@echo ""
+	$(PYTHON_BIN) $(DJANGO_MANAGE) diskette_dump -v 2
+.PHONY: disk-dump
+
+disk-load:
+	@echo ""
+	@printf "$(FORMATBLUE)$(FORMATBOLD)---> Loading local Diskette archive into demo <---$(FORMATRESET)\n"
+	@echo ""
+	rm -Rf var/backup_db
+	rm -Rf var/backup_media
+	$(MAKE) create-var-dirs
+	$(MAKE) migrate
+	$(PYTHON_BIN) $(DJANGO_MANAGE) diskette_load -v 2 --keep --storages-basepath . diskette_data_storages.tar.gz
+.PHONY: disk-load
+
 livedocs:
 	@echo ""
 	@printf "$(FORMATBLUE)$(FORMATBOLD)---> Watching documentation sources <---$(FORMATRESET)\n"

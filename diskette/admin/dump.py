@@ -87,7 +87,7 @@ class DumpFileAdmin(admin.ModelAdmin):
 
         extra_urls = [
             path(
-                "download/dump/<int:pk>/",
+                "download/dump/<int:pk>.tar.gz",
                 self.admin_site.admin_view(
                     DumpFileAdminDownloadView.as_view(),
                 ),

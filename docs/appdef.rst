@@ -184,7 +184,7 @@ to be avoided, a drain only collect exclusions from applications that allow it w
 their option ``allow_drain``. Undefined application are fully collected.
 
 .. Warning::
-    Usage of drain is a risk to collect too many useless data or to break dump loading
+    Usage of drain is a risk of collecting many useless data or to break dump loading
     because of invalid data, so use it with caution.
 
     Commonly it is better to stand on application definitions.

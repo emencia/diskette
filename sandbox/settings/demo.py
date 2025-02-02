@@ -30,7 +30,14 @@ DISKETTE_APPS = [
             "natural_foreign": True,
             "models": ["auth.Group","auth.User"]
         }
-    ]
+    ],
+    [
+        "sandbox.djangoapp_sample", {
+            "comments": "Sample blogs",
+            "natural_foreign": True,
+            "models": "djangoapp_sample"
+        }
+    ],
 ]
 
 DISKETTE_STORAGES = [MEDIA_ROOT]

@@ -99,8 +99,13 @@ but loading will fail, commonly because of foreign keys that does not exists yet
 Some objects are missing from an application data
 -------------------------------------------------
 
-Some application models may implement a custom manager that override it to filter out
-some results in the base queryset.
+Some application models may implement a custom manager that override the default manager
+to implement a base queryset that filter out some results. For example with a blog that
+would want to exclude unpublished articles.
+
+But the base queryset model is what is used from Django command ``dumpdata`` to
+retrieve objects so it would exclude a lot of objects. This is unsatisfying for a
+backup solution.
 
 See the option ``use_base_manager`` in Application definition
-:ref:`appdef_app_parameters`.
+:ref:`appdef_app_parameters` to bypass custom manager for application models.
