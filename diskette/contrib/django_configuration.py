@@ -2,6 +2,7 @@
 .. _django-configuration: https://django-configurations.readthedocs.io/en/stable/
 """
 from ..settings import (
+    DISKETTE_ADMIN_ENABLED,
     DISKETTE_APPS,
     DISKETTE_STORAGES,
     DISKETTE_STORAGES_EXCLUDES,
@@ -35,6 +36,7 @@ class DisketteDefaultSettings:
     This will only override the setting ``DISKETTE_DUMP_FILENAME`` and all other
     settings will use the default Diskette settings.
     """
+    DISKETTE_ADMIN_ENABLED = DISKETTE_ADMIN_ENABLED
 
     DISKETTE_APPS = DISKETTE_APPS
 

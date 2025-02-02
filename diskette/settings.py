@@ -1,4 +1,10 @@
 
+DISKETTE_ADMIN_ENABLED = True
+"""
+Enable the Diskette admin to manage dumps and api keys. If you only want to manage
+dumps from commandline you may disable it here.
+"""
+
 DISKETTE_APPS = []
 """
 List of application definitions to dump their data.

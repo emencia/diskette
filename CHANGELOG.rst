@@ -12,7 +12,8 @@ Development
 * Fixed Dump admin download view that was not working well. Because of some wrong
   response headers the downloaded archive was uncompressed by browsers but still named
   as a ``tar.gz`` file and so Diskette failed to load them;
-
+* Introduced new setting ``DISKETTE_ADMIN_ENABLED`` to allow disabling the Diskette
+  admin views. Diskette will still be usable only from its commands;
 
 
 Version 0.4.0 - 2024/11/30
