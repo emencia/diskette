@@ -7,7 +7,7 @@ from sandbox.settings.base import *  # noqa: F403
 
 DEBUG = True
 
-TEMPLATES[0]['OPTIONS']['debug'] = DEBUG  # noqa: F405
+TEMPLATES[0]["OPTIONS"]["debug"] = DEBUG  # noqa: F405
 
 DATABASES = {
     "default": {

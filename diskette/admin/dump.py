@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from ..core.processes import post_dump_save_process
 from ..forms import DumpFileAdminForm
 from ..models import DumpFile
-from ..views.dump import DumpFileAdminDownloadView
+from ..views.dump import DumpFileAdminDownloadView, DumpLogAdminView
 from .actions import make_deprecated
 from .filters import AvailabilityFilter
 
@@ -36,7 +36,7 @@ class DumpFileAdmin(admin.ModelAdmin):
         "path_url",
         "humanized_filesize",
         "checksum",
-        "logs",
+        "processed_logs",
     ]
     list_filter = (
         AvailabilityFilter,
@@ -46,7 +46,9 @@ class DumpFileAdmin(admin.ModelAdmin):
 
     def is_available(self, obj):
         """
-        Format 'deprecated' value to makes it more intelligible
+        Format 'deprecated' value to makes it more intelligible.
+
+        This is just the reversed value of "deprecated".
         """
         return not obj.deprecated
     is_available.short_description = _("available")
@@ -79,6 +81,22 @@ class DumpFileAdmin(admin.ModelAdmin):
         link = "<a href=\"{}\" target=\"_blank\" title=\"Download dump file\">{}</a>"
         return mark_safe(link.format(url, obj.path))
 
+    @admin.display(description=_("processed logs"))
+    def processed_logs(self, obj):
+        """
+        Either return the HTML link to see logs (in plain text) or a single dash
+        for when the dump has not been created yet.
+        """
+        if not obj.id:
+            return "-"
+
+        url = reverse("admin:diskette_admin_dump_logs", args=[obj.id])
+        link = (
+            "<a href=\"{}\" target=\"_blank\" title=\"Display logs\">"
+            "Click to see logs</a>"
+        )
+        return mark_safe(link.format(url, obj.path))
+
     def get_urls(self):
         """
         Set some additional custom admin views
@@ -86,6 +104,13 @@ class DumpFileAdmin(admin.ModelAdmin):
         urls = super().get_urls()
 
         extra_urls = [
+            path(
+                "download/dump/logs/<int:pk>/",
+                self.admin_site.admin_view(
+                    DumpLogAdminView.as_view(),
+                ),
+                name="diskette_admin_dump_logs",
+            ),
             path(
                 "download/dump/<int:pk>.tar.gz",
                 self.admin_site.admin_view(

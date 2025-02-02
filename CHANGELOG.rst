@@ -14,6 +14,8 @@ Development
   as a ``tar.gz`` file and so Diskette failed to load them;
 * Introduced new setting ``DISKETTE_ADMIN_ENABLED`` to allow disabling the Diskette
   admin views. Diskette will still be usable only from its commands;
+* Dump logs are not displayed in dump admin view. Instead a link is showed to display
+  it in a dedicated plain text view;
 
 
 Version 0.4.0 - 2024/11/30

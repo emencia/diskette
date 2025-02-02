@@ -237,7 +237,7 @@ def test_dump_admin_download_available(db, client, admin_client, settings, tmp_p
     available = DumpFileFactory(deprecated=False, path=str(available_dump))
     assert available_dump.exists() is True
 
-    # Link is present for available dump
+    # Ensure detail view does not return an error response
     response = admin_client.get(get_admin_change_url(available))
     assert response.status_code == 200
 
@@ -255,3 +255,36 @@ def test_dump_admin_download_available(db, client, admin_client, settings, tmp_p
         ("/admin/login/?next={}".format(file_url), 302)
     ]
     assert download_response.status_code == 200
+
+
+def test_dump_admin_logs_available(db, client, admin_client, settings, tmp_path):
+    """
+    Available dump should display a download link that is restricted to staff users.
+    """
+    settings.SENDFILE_ROOT = tmp_path
+    settings.DISKETTE_DUMP_PATH = settings.SENDFILE_ROOT
+
+    # Create an available dump with a dummy file
+    available_dump = tmp_path / "available_dump.txt"
+    available_dump.write_text("Yolo")
+    available = DumpFileFactory(deprecated=False, path=str(available_dump), logs="Foo")
+    assert available_dump.exists() is True
+
+    # Ensure detail view does not return an error response
+    response = admin_client.get(get_admin_change_url(available))
+    assert response.status_code == 200
+
+    # Link return the file content to download
+    dom = html_pyquery(response)
+    logs_url = dom.find(".field-processed_logs a")[0].get("href")
+    response = admin_client.get(logs_url)
+    assert response.status_code == 200
+    assert response.content == b"Foo"
+
+    # Logs link is only reachable from staff user, lambda user are redirected to
+    # admin login view to authenticate with a proper staff account
+    response = client.get(logs_url, follow=True)
+    assert response.redirect_chain == [
+        ("/admin/login/?next={}".format(logs_url), 302)
+    ]
+    assert response.status_code == 200

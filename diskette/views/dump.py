@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.views import View
 from django.views.generic.detail import SingleObjectMixin
 
@@ -9,10 +10,6 @@ from ..models import DumpFile
 class DumpFileAdminDownloadView(SingleObjectMixin, View):
     """
     View to download a dump from admin.
-
-    This view is intended to be included in admin site only where it naturally benefits
-    of its authentication so only staff user can download the dump. The view itself
-    does not include anything about authentication and permission.
 
     .. Todo::
         This view is only for admin browsing. Another view will be developed for the
@@ -35,6 +32,7 @@ class DumpFileAdminDownloadView(SingleObjectMixin, View):
         Send file to download.
         """
         dump = self.get_object()
+
         return sendfile(
             request,
             dump.get_absolute_path(),
@@ -42,3 +40,19 @@ class DumpFileAdminDownloadView(SingleObjectMixin, View):
             attachment=True,
             mimetype="application/x-gzip"
         )
+
+
+class DumpLogAdminView(SingleObjectMixin, View):
+    """
+    View to display dump logs (in plain text) from admin..
+    """
+    model = DumpFile
+    http_method_names = ["get", "head", "options", "trace"]
+
+    def get(self, request, *args, **kwargs):
+        """
+        Send file to download.
+        """
+        dump = self.get_object()
+
+        return HttpResponse(dump.logs, content_type="text/plain; charset=utf8")
