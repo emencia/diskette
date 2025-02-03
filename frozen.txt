@@ -1,4 +1,4 @@
-# Frozen requirement versions for 'diskette==0.5.0rc4' installation
+# Frozen requirement versions for 'diskette==0.5.0rc5' installation
 Django==5.0.9
 datalookup==1.0.1
 requests==2.32.3

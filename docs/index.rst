@@ -15,6 +15,7 @@ Contents
    appdef.rst
    storagedef.rst
    commands.rst
+   admin.rst
    tips.rst
    references/index.rst
 

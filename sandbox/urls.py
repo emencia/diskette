@@ -9,14 +9,10 @@ from django.urls import path
 
 from django.views.generic import TemplateView
 
-#TODO: temp
-from django.urls import include
 
 urlpatterns = [
     path("", TemplateView.as_view(template_name="home.html")),
     path("admin/", admin.site.urls),
-    #TODO: temp
-    path("", include("diskette.urls")),
 ]
 
 # This is only needed when using runserver with settings "DEBUG" enabled

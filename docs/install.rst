@@ -56,7 +56,10 @@ Then you need to define the
         SENDFILE_URL = "/protected"
 
     Where ``VAR_PATH`` is a ``pathlib.Path`` object to a ``var/`` directory in project
-    directory.
+    directory. It is important that Diskette is configured to dump archive files in the
+    sendfile directory like ::
+
+        DISKETTE_DUMP_PATH = SENDFILE_ROOT / "dumps"
 
     The simple sendfile backend is not the best one for production usage, see the
     `Django Sendfile backend <https://django-sendfile2.readthedocs.io/en/latest/backends.html>`_

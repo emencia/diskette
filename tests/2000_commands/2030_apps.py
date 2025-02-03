@@ -99,10 +99,8 @@ def test_apps_cmd_json(caplog, db, settings, tests_settings, tmp_path):
         "--destination={}".format(output_path),
         "--format=json",
     ]
-    out = StringIO()
-    management.call_command("diskette_apps", *args, stdout=out)
-    # content = out.getvalue()
-    out.close()
+    with StringIO() as out:
+        management.call_command("diskette_apps", *args, stdout=out)
 
     # Check collected paths match the expected storage files from archive
     assert json.loads(output_path.read_text()) == APP_DEFINITIONS
@@ -119,9 +117,8 @@ def test_apps_cmd_python(caplog, db, settings, tests_settings, tmp_path):
         "--destination={}".format(output_path),
         "--format=python",
     ]
-    out = StringIO()
-    management.call_command("diskette_apps", *args, stdout=out)
-    out.close()
+    with StringIO() as out:
+        management.call_command("diskette_apps", *args, stdout=out)
 
     parsed = ast.literal_eval(output_path.read_text())
 
@@ -140,9 +137,8 @@ def test_apps_cmd_inclusions(caplog, db, settings, tests_settings, tmp_path):
         "--app=auth",
         "--app=sites",
     ]
-    out = StringIO()
-    management.call_command("diskette_apps", *args, stdout=out)
-    out.close()
+    with StringIO() as out:
+        management.call_command("diskette_apps", *args, stdout=out)
 
     # Check collected paths match the expected storage files from archive
     assert json.loads(output_path.read_text()) == [
@@ -189,9 +185,8 @@ def test_apps_cmd_exclusions(caplog, db, settings, tests_settings, tmp_path):
         "--exclude=diskette",
         "--exclude=sessions",
     ]
-    out = StringIO()
-    management.call_command("diskette_apps", *args, stdout=out)
-    out.close()
+    with StringIO() as out:
+        management.call_command("diskette_apps", *args, stdout=out)
 
     # Check collected paths match the expected storage files from archive
     assert json.loads(output_path.read_text()) == [
@@ -242,9 +237,8 @@ def test_apps_cmd_mixed(caplog, db, settings, tests_settings, tmp_path):
         "--exclude=djangoapp_sample",
         "--exclude=sessions",
     ]
-    out = StringIO()
-    management.call_command("diskette_apps", *args, stdout=out)
-    out.close()
+    with StringIO() as out:
+        management.call_command("diskette_apps", *args, stdout=out)
 
     # Check collected paths match the expected storage files from archive
     assert json.loads(output_path.read_text()) == [

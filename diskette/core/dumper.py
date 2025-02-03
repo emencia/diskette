@@ -60,6 +60,7 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
         self.storages = storages or []
         self.storages_excludes = storages_excludes or []
         self.indent = indent
+        self.now = datetime.datetime.now()
 
         self.apps = self.load(apps)
 
@@ -250,9 +251,10 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
 
         Keyword Arguments:
             filename (string): Filename to use instead. It must end with ``.tar.gz``.
-                Filename format should be like ``diskette{features}.tar.gz`` where
-                features pattern can include either ``_data``, ``_storages`` or both
-                depending enabled dump kinds.
+                Filename format may be like ``diskette{features}_{date}.tar.gz`` where
+                ``features`` pattern can include either ``_data``, ``_storages`` or both
+                depending enabled dump kinds, and ``date`` pattern would be a datetime
+                string like ``2025-02-03T175309``.
             with_data (boolean): Enable dump of application datas.
             with_storages (boolean): Enable dump of media storages.
 
@@ -265,7 +267,10 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
         if with_storages is True:
             filename_features += "_storages"
 
-        return filename.format(features=filename_features)
+        return filename.format(
+            features=filename_features,
+            date=self.now.isoformat(timespec="seconds").replace(":", ""),
+        )
 
     def build_dump_manifest(self, destination, data_path, with_data=True,
                             with_storages=True):
@@ -315,7 +320,7 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
         manifest_path = destination / self.MANIFEST_FILENAME
         data = {
             "version": self.get_diskette_version(),
-            "creation": datetime.datetime.now().isoformat(timespec="seconds"),
+            "creation": self.now.isoformat(timespec="seconds"),
             "datas": None,
             "storages": None,
         }

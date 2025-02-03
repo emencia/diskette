@@ -22,11 +22,19 @@ def post_dump_save_process(obj):
         Also this could be divided in two functions, one to save pending status then
         launching process and another alike a callback to fill infos from archive and
         finalize to status processed.
+
+    Arguments:
+        obj (diskette.models.DumpFile): A freshly created DumpFile object with a
+            "created" status and is not deprecated.
+
+    Returns:
+        diskette.models.DumpFile: The given dump object with modified updated values
+            after processing.
     """
-    # Process dump can only happens for a new created object
+    # Only process new created dump
     if not obj.deprecated and obj.status == STATUS_CREATED:
         archive_destination = settings.DISKETTE_DUMP_PATH or Path.cwd()
-        # Get dump handler with a custom logger to catch process logs to store
+        # Set dump handler with a custom logger handler to catch process logs to store
         dumper = DumpCommandHandler()
         dummystream = StringIO()
         handler = logging.StreamHandler(dummystream)
@@ -73,7 +81,7 @@ def post_dump_save_process(obj):
             "logs",
         ])
 
-        # Purge handler from the process logger
+        # Purge handler from the process logger handler
         dumper.logger.removeHandler(handler)
 
         # Purge all deprecated dumps from their file

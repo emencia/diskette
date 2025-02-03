@@ -1,10 +1,15 @@
+from io import StringIO
 from pathlib import Path
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from ...core.handlers import DumpCommandHandler
-from ...utils.loggers import DjangoCommandOutput
 from ...exceptions import ApplicationRegistryError
+from ...choices import STATUS_PROCESSED
+from ...core.handlers import DumpCommandHandler
+from ...models import DumpFile
+from ...utils import hashs
+from ...utils.loggers import DjangoCommandOutput
 
 
 class Command(BaseCommand, DumpCommandHandler):
@@ -123,43 +128,95 @@ class Command(BaseCommand, DumpCommandHandler):
                 "this with option '-v 3' to get the whole informations."
             ),
         )
+        parser.add_argument(
+            "--save",
+            action="store_true",
+            help=(
+                "Save a Dump object from created dump. This is incompatible with "
+                "options '--check', '--no-archive' and with disabled admin."
+            ),
+        )
 
     def handle(self, *args, **options):
-        self.logger = DjangoCommandOutput(command=self, verbosity=options["verbosity"])
+        with StringIO() as msg_buffer:
+            self.logger = DjangoCommandOutput(
+                command=self,
+                verbosity=options["verbosity"],
+                msg_buffer=msg_buffer,
+            )
 
-        try:
-            if not options["no_archive"]:
-                self.dump(
-                    archive_destination=options["destination"],
-                    archive_filename=options["filename"],
-                    application_configurations=options["appconf"],
-                    storages=options["storage"],
-                    storages_basepath=options["storages_basepath"],
-                    storages_excludes=options["storages_exclude"],
-                    no_data=options["no_data"],
-                    no_checksum=options["no_checksum"],
-                    no_storages=options["no_storages"],
-                    no_storages_excludes=options["no_storages_excludes"],
-                    indent=options["indent"],
-                    check=options["check"],
-                )
-            else:
-                self.stdout.write(
-                    self.script(
+            if options["save"]:
+                if (
+                    options["check"] or
+                    options["no_archive"] or
+                    not settings.DISKETTE_ADMIN_ENABLED
+                ):
+                    self.logger.critical(
+                        "The option '--save' is incompatible with options '--check', "
+                        "'--no-archive' and disabled admin from setting "
+                        "'DISKETTE_ADMIN_ENABLED'."
+                    )
+
+            try:
+                if not options["no_archive"]:
+                    archive_file = self.dump(
                         archive_destination=options["destination"],
+                        archive_filename=options["filename"],
                         application_configurations=options["appconf"],
                         storages=options["storage"],
                         storages_basepath=options["storages_basepath"],
                         storages_excludes=options["storages_exclude"],
                         no_data=options["no_data"],
+                        no_checksum=options["no_checksum"],
                         no_storages=options["no_storages"],
                         no_storages_excludes=options["no_storages_excludes"],
                         indent=options["indent"],
+                        check=options["check"],
                     )
-                )
-        except ApplicationRegistryError as excinfo:
-            # Manage specific registry error that may include a detail
-            self.logger.error(excinfo)
-            for msg in excinfo.get_payload_details():
-                self.logger.error(msg)
-            self.logger.critical("Aborted operation.")
+                else:
+                    self.stdout.write(
+                        self.script(
+                            archive_destination=options["destination"],
+                            application_configurations=options["appconf"],
+                            storages=options["storage"],
+                            storages_basepath=options["storages_basepath"],
+                            storages_excludes=options["storages_exclude"],
+                            no_data=options["no_data"],
+                            no_storages=options["no_storages"],
+                            no_storages_excludes=options["no_storages_excludes"],
+                            indent=options["indent"],
+                        )
+                    )
+            except ApplicationRegistryError as excinfo:
+                # Manage specific registry error that may include a detail
+                self.logger.error(excinfo)
+                for msg in excinfo.get_payload_details():
+                    self.logger.error(msg)
+                self.logger.critical("Aborted operation.")
+            else:
+                if options["save"]:
+                    # Create new dump object with created archive
+                    destination = self.get_archive_destination(options["destination"])
+                    dump = DumpFile(
+                        with_data=not options["no_data"],
+                        with_storage=not options["no_storages"],
+                        deprecated=False,
+                        path=str(archive_file.relative_to(destination)),
+                        size=archive_file.stat().st_size,
+                        checksum=hashs.file_checksum(archive_file),
+                        status=STATUS_PROCESSED,
+                        logs=self.logger.msg_buffer.getvalue(),
+                    )
+                    dump.processed = dump.created
+                    dump.save()
+
+                    # Deprecated previous identical dump(s)
+                    DumpFile.objects.filter(
+                        deprecated=False,
+                        with_data=not options["no_data"],
+                        with_storage=not options["no_storages"],
+                    ).exclude(pk=dump.id).update(deprecated=True)
+
+                    # Purge all deprecated dumps from their file
+                    if settings.DISKETTE_DUMP_AUTO_PURGE:
+                        DumpFile.purge_deprecated_dumps()

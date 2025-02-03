@@ -78,34 +78,48 @@ class DjangoCommandOutput:
             so it won't have any additional effect than level 2.
 
             Errors are always printed.
+        msg_buffer (io.StringIO): Buffer to store each messages, on default there is no
+            buffer.
     """
     def __init__(self, *args, **kwargs):
         self.command = kwargs.get("command")
         self.verbosity = kwargs.get("verbosity", 1)
+        self.msg_buffer = kwargs.get("msg_buffer", None)
+
+    def fill_buffer(self, msg):
+        if self.msg_buffer is not None:
+            self.msg_buffer.write(str(msg) + "\n")
 
     def debug(self, msg):
         if self.verbosity > 1:
             self.command.stdout.write(str(msg))
+            self.fill_buffer(msg)
 
     def info(self, msg):
         if self.verbosity > 0:
             self.command.stdout.write(
                 self.command.style.SUCCESS(str(msg))
             )
+            self.fill_buffer(msg)
 
     def warning(self, msg):
         if self.verbosity > 0:
             self.command.stdout.write(
                 self.command.style.WARNING(str(msg))
             )
+            self.fill_buffer(msg)
 
     def error(self, msg):
         self.command.stdout.write(
             self.command.style.ERROR(str(msg))
         )
+        self.fill_buffer(msg)
 
     def critical(self, msg):
         """
-        Critical error is assumed to be a breaking event.
+        Critical error is assumed to be a breaking event but buffer is still filled
+        correctly.
         """
+        self.fill_buffer(msg)
+
         raise CommandError(str(msg))

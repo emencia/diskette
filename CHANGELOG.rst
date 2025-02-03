@@ -16,6 +16,10 @@ Development
   admin views. Diskette will still be usable only from its commands;
 * Dump logs are not displayed in dump admin view. Instead a link is showed to display
   it in a dedicated plain text view;
+* Added new option ``--save`` to diskette dump command to save created archive to a new
+  DumpFile object that can be used from admin;
+* Added new possible pattern ``date`` in dump filename to include a datetime like
+  ``2025-02-03T175309``;
 
 
 Version 0.4.0 - 2024/11/30

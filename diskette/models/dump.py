@@ -140,10 +140,11 @@ class DumpFile(models.Model):
 
             if filepath.is_file():
                 filepath.unlink(missing_ok=True)
-                self.path = "removed:/" + self.path
 
-                if commit:
-                    self.save()
+            self.path = "removed:/" + self.path
+
+            if commit:
+                self.save()
 
     @classmethod
     def purge_deprecated_dumps(cls):

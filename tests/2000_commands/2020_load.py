@@ -25,10 +25,8 @@ def test_load_cmd(caplog, db, settings, tests_settings, tmp_path):
         "{}".format(archive_path),
         "--storages-basepath={}".format(tmp_path),
     ]
-    out = StringIO()
-    management.call_command("diskette_load", *args, stdout=out)
-    # content = out.getvalue()
-    out.close()
+    with StringIO() as out:
+        management.call_command("diskette_load", *args, stdout=out)
 
     # Ensure archive has been removed once done
     assert archive_path.exists() is False
