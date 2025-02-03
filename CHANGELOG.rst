@@ -3,8 +3,8 @@
 Changelog
 =========
 
-Development
-***********
+Version 0.5.0 - 2025/02/03
+**************************
 
 * Added new option ``use_base_manager`` application definition which can be used to
   bypass custom model manager from an application. Under the hood it just enables
