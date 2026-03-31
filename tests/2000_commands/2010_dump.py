@@ -41,16 +41,16 @@ def test_dump_cmd(caplog, db, tests_settings, tmp_path):
         ]
 
     # Check expected archived files are all there
-    assert archived == [
+    assert sorted(archived) == [
         "data/djangocontribauth.json",
         "data/djangocontribsites.json",
+        "manifest.json",
         "tests/data_fixtures/storage_samples/storage-1/blue.png",
-        "tests/data_fixtures/storage_samples/storage-1/sample.txt",
+        "tests/data_fixtures/storage_samples/storage-1/foo/bar/bar.txt",
         "tests/data_fixtures/storage_samples/storage-1/foo/foo_sample.txt",
         "tests/data_fixtures/storage_samples/storage-1/foo/grass.png",
-        "tests/data_fixtures/storage_samples/storage-1/foo/bar/bar.txt",
         "tests/data_fixtures/storage_samples/storage-1/plop/green.png",
-        "manifest.json"
+        "tests/data_fixtures/storage_samples/storage-1/sample.txt",
     ]
 
 

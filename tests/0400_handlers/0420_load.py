@@ -42,11 +42,11 @@ def test_storages_basepath_valid(settings, setting, arg, expected):
             "diskette:10:Archive checksum: dummy-checksum",
             "diskette:10:Creating storage parent directory: {tmp_path}/storage_samples",
             (
-                "diskette:20:Restoring storage directory (7.2 KB): storage_samples/"
+                "diskette:20:Restoring storage directory (12.5 KB): storage_samples/"
                 "storage-1"
             ),
             (
-                "diskette:20:Restoring storage directory (9.6 KB): storage_samples/"
+                "diskette:20:Restoring storage directory (12.5 KB): storage_samples/"
                 "storage-2"
             ),
             "diskette:20:Loading data from dump 'django-auth.json' (959 bytes)",
@@ -67,11 +67,11 @@ def test_storages_basepath_valid(settings, setting, arg, expected):
             "diskette:10:- Storages contents will be restored into: {tmp_path}",
             "diskette:10:Creating storage parent directory: {tmp_path}/storage_samples",
             (
-                "diskette:20:Restoring storage directory (7.2 KB): storage_samples/"
+                "diskette:20:Restoring storage directory (12.5 KB): storage_samples/"
                 "storage-1"
             ),
             (
-                "diskette:20:Restoring storage directory (9.6 KB): storage_samples/"
+                "diskette:20:Restoring storage directory (12.5 KB): storage_samples/"
                 "storage-2"
             ),
             "diskette:20:Loading data from dump 'django-auth.json' (959 bytes)",
@@ -108,18 +108,19 @@ def test_storages_basepath_valid(settings, setting, arg, expected):
             "diskette:10:Archive checksum: dummy-checksum",
             "diskette:10:Creating storage parent directory: {tmp_path}/storage_samples",
             (
-                "diskette:20:Restoring storage directory (7.2 KB): storage_samples/"
+                "diskette:20:Restoring storage directory (12.5 KB): storage_samples/"
                 "storage-1"
             ),
             (
-                "diskette:20:Restoring storage directory (9.6 KB): storage_samples/"
+                "diskette:20:Restoring storage directory (12.5 KB): storage_samples/"
                 "storage-2"
             ),
         ]
     ),
 ])
 def test_load_options(caplog, settings, db, mocked_checksum, mocked_version,
-                      tests_settings, tmp_path, options, expected):
+                      mocked_loader_dirsize, tests_settings, tmp_path, options,
+                      expected):
     """
     Load method with the right arguments should correctly proceed to restore archive
     contents and output some logs.

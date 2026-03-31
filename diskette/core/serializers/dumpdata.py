@@ -6,9 +6,10 @@ from django.core import management
 from django.template.defaultfilters import filesizeformat
 
 from ...utils.loggers import NoOperationLogger
+from ..bases import BaseFileSizeAbstract
 
 
-class DumpdataSerializerAbstract:
+class DumpdataSerializerAbstract(BaseFileSizeAbstract):
     """
     Dump data serializer is in charge to serialize applications with Django dumpdata
     command.
@@ -154,10 +155,12 @@ class DumpdataSerializerAbstract:
         if destination:
             out.close()
             application._written = options["output"]
-            self.logger.debug("- Written file: {name} ({size})".format(
-                name=filename,
-                size=filesizeformat(options["output"].stat().st_size),
-            ))
+            self.logger.debug(
+                "- Written file: {name} ({size})".format(
+                    name=filename,
+                    size=filesizeformat(self.get_file_size(options["output"])),
+                )
+            )
             return json.dumps({"destination": str(application._written)})
 
         # No destination to write just write it into the string buffer

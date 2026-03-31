@@ -13,7 +13,7 @@ COMMAND_DOC_PARSER_BIN=$(PYTHON_BIN) docs/command_parser.py
 TOX_BIN=$(VENV_PATH)/bin/tox
 TWINE_BIN=$(VENV_PATH)/bin/twine
 
-DJANGO_MANAGE=$(SANDBOX_DIR)/manage.py
+DJANGO_MANAGE=manage.py
 
 PACKAGE_NAME=diskette
 PACKAGE_SLUG=django_diskette

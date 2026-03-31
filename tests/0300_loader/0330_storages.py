@@ -6,7 +6,7 @@ from diskette.core.loader import Loader
 from diskette.utils.loggers import LoggingOutput
 
 
-def test_deploy_storages(caplog, tmp_path, tests_settings):
+def test_deploy_storages(caplog, tmp_path, tests_settings, mocked_loader_dirsize):
     """
     Storages should be correctly deployed as expected into destination.
     """
@@ -51,10 +51,10 @@ def test_deploy_storages(caplog, tmp_path, tests_settings):
             )
         ),
         ("diskette", logging.INFO, (
-            "Restoring storage directory (16.8 KB): storages/storage-1"
+            "Restoring storage directory (12.5 KB): storages/storage-1"
         )),
         ("diskette", logging.INFO, (
-            "Restoring storage directory (9.6 KB): storages/storage-2"
+            "Restoring storage directory (12.5 KB): storages/storage-2"
         )),
     ]
 

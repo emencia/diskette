@@ -4,9 +4,10 @@ from django.core import management
 from django.template.defaultfilters import filesizeformat
 
 from ...utils.loggers import NoOperationLogger
+from ..bases import BaseFileSizeAbstract
 
 
-class LoaddataSerializerAbstract:
+class LoaddataSerializerAbstract(BaseFileSizeAbstract):
     """
     Data loader serializer is in charge to load data fixtures in database with Django
     loaddata command.
@@ -79,9 +80,12 @@ class LoaddataSerializerAbstract:
             "exclude": excludes or [],
         }
 
-        self.logger.info("Loading data from dump '{path}' ({size})".format(
-            path=dump.name,
-            size=filesizeformat(dump.stat().st_size)))
+        self.logger.info(
+            "Loading data from dump '{path}' ({size})".format(
+                path=dump.name,
+                size=filesizeformat(self.get_file_size(dump)),
+            )
+        )
 
         out = StringIO()
         management.call_command(self.COMMAND_NAME, dump, stdout=out, **options)

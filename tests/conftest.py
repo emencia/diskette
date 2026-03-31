@@ -6,6 +6,8 @@ from pathlib import Path
 import pytest
 
 import diskette
+from diskette.core.loader import Loader
+from diskette.core.dumper import Dumper
 from diskette.utils import hashs
 from diskette.utils import versionning
 
@@ -103,5 +105,48 @@ def mocked_checksum(monkeypatch):
         return "dummy-checksum"
 
     monkeypatch.setattr(hashs, "file_checksum", _callable)
+
+    return _callable
+
+
+@pytest.fixture
+def mocked_loader_dirsize(monkeypatch):
+    """
+    Mock ``diskette.core.loader:Loader.get_dir_size()`` to return a stable size.
+
+    Size will always be 12800octets (12.5KB).
+
+    .. Note:
+        This is useful because of some stability issue with some dump file size through
+        Python and Django versions and we don't want to include condition in result
+        assertion for tests that does not exactly assert about file size (and just
+        contain it in some output).
+    """
+    def _callable(*args, **kwargs):
+        return 12800
+
+    monkeypatch.setattr(Loader, "get_dir_size", _callable)
+
+    return _callable
+
+
+@pytest.fixture
+def mocked_dumper_filesize(monkeypatch):
+    """
+    Mock ``diskette.core.bases:BaseFileSizeAbstract.get_file_size()`` to return a
+    stable size.
+
+    Size will always be 800octets.
+
+    .. Note:
+        This is useful because of some stability issue with some dump file size through
+        Python and Django versions and we don't want to include condition in result
+        assertion for tests that does not exactly assert about file size (and just
+        contain it in some output).
+    """
+    def _callable(*args, **kwargs):
+        return 800
+
+    monkeypatch.setattr(Dumper, "get_file_size", _callable)
 
     return _callable

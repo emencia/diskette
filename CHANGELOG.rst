@@ -3,6 +3,16 @@
 Changelog
 =========
 
+Development
+***********
+
+* Fixed package setup with modern Python;
+* Added support for Python 3.12 and 3.13;
+* Added support for Django 5.2 and 6;
+* Fixed some tests that were not stable between Python and Django (because of file
+  sizes);
+
+
 Version 0.5.0 - 2025/02/03
 **************************
 

@@ -433,7 +433,7 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
                     ):
                         self.logger.debug("- {name} ({size})".format(
                             name=arcname,
-                            size=filesizeformat(path.stat().st_size),
+                            size=filesizeformat(self.get_file_size(path)),
                         ))
                         tar.add(path, arcname=arcname)
 
@@ -534,7 +534,7 @@ class Dumper(StorageMixin, DumpdataSerializerAbstract):
                 allow_excludes=with_storages_excludes
             ):
                 files_length += 1
-                size = path.stat().st_size
+                size = self.get_file_size(path)
                 files_total += size
                 self.logger.debug("- {name} ({size})".format(
                     name=arcname,

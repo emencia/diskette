@@ -118,8 +118,8 @@ def test_storage_excludes(settings, tmp_path, setting, value, disabled, expected
     assert handler.get_storage_excludes(value, disabled) == expected
 
 
-def test_dump(caplog, settings, db, mocked_checksum, mocked_version, tests_settings,
-              tmp_path):
+def test_dump(caplog, settings, db, mocked_checksum, mocked_version,
+              mocked_dumper_filesize, tests_settings, tmp_path):
     """
     Dump method with the right arguments should correctly proceed to dump, archive
     everything and output some logs.
@@ -173,17 +173,17 @@ def test_dump(caplog, settings, db, mocked_checksum, mocked_version, tests_setti
             "diskette:10:- Excluding: auth.Permission, auth.Group_permissions, "
             "auth.User_groups, auth.User_user_permissions"
         ),
-        "diskette:10:- Written file: django-auth.json (2 bytes)",
+        "diskette:10:- Written file: django-auth.json (800 bytes)",
         "diskette:20:Dumping data for application 'Django site'",
         "diskette:10:- Including: sites.Site",
-        "diskette:10:- Written file: django-site.json (94 bytes)",
+        "diskette:10:- Written file: django-site.json (800 bytes)",
         "diskette:20:Appending data to the archive",
         "diskette:20:Appending storages to the archive",
-        "diskette:10:- storage-1/blue.png (1.5 KB)",
-        "diskette:10:- storage-1/sample.txt (11 bytes)",
-        "diskette:10:- storage-1/plop/green.png (1.6 KB)",
-        "diskette:10:- storage-2/pong/sample.nope (11 bytes)",
-        "diskette:10:- storage-2/ping/grey.png (1.6 KB)",
+        "diskette:10:- storage-1/blue.png (800 bytes)",
+        "diskette:10:- storage-1/sample.txt (800 bytes)",
+        "diskette:10:- storage-1/plop/green.png (800 bytes)",
+        "diskette:10:- storage-2/pong/sample.nope (800 bytes)",
+        "diskette:10:- storage-2/ping/grey.png (800 bytes)",
         "diskette:20:Dump archive was created at: {} (3.7 KB)".format(archive),
         "diskette:20:Checksum: dummy-checksum",
     ]
@@ -214,17 +214,17 @@ def test_dump(caplog, settings, db, mocked_checksum, mocked_version, tests_setti
                 "diskette:10:- Excluding: auth.Permission, auth.Group_permissions, "
                 "auth.User_groups, auth.User_user_permissions"
             ),
-            "diskette:10:- Written file: django-auth.json (2 bytes)",
+            "diskette:10:- Written file: django-auth.json (800 bytes)",
             "diskette:20:Dumping data for application 'Django site'",
             "diskette:10:- Including: sites.Site",
-            "diskette:10:- Written file: django-site.json (94 bytes)",
+            "diskette:10:- Written file: django-site.json (800 bytes)",
             "diskette:20:Appending data to the archive",
             "diskette:20:Appending storages to the archive",
-            "diskette:10:- storage-1/blue.png (1.5 KB)",
-            "diskette:10:- storage-1/sample.txt (11 bytes)",
-            "diskette:10:- storage-1/plop/green.png (1.6 KB)",
-            "diskette:10:- storage-2/pong/sample.nope (11 bytes)",
-            "diskette:10:- storage-2/ping/grey.png (1.6 KB)",
+            "diskette:10:- storage-1/blue.png (800 bytes)",
+            "diskette:10:- storage-1/sample.txt (800 bytes)",
+            "diskette:10:- storage-1/plop/green.png (800 bytes)",
+            "diskette:10:- storage-2/pong/sample.nope (800 bytes)",
+            "diskette:10:- storage-2/ping/grey.png (800 bytes)",
             "diskette:20:Dump archive was created at: {archive} ({size})",
             "diskette:20:Checksum: dummy-checksum",
         ]
@@ -254,17 +254,17 @@ def test_dump(caplog, settings, db, mocked_checksum, mocked_version, tests_setti
                 "diskette:10:- Excluding: auth.Permission, auth.Group_permissions, "
                 "auth.User_groups, auth.User_user_permissions"
             ),
-            "diskette:10:- Written file: django-auth.json (2 bytes)",
+            "diskette:10:- Written file: django-auth.json (800 bytes)",
             "diskette:20:Dumping data for application 'Django site'",
             "diskette:10:- Including: sites.Site",
-            "diskette:10:- Written file: django-site.json (94 bytes)",
+            "diskette:10:- Written file: django-site.json (800 bytes)",
             "diskette:20:Appending data to the archive",
             "diskette:20:Appending storages to the archive",
-            "diskette:10:- storage-1/blue.png (1.5 KB)",
-            "diskette:10:- storage-1/sample.txt (11 bytes)",
-            "diskette:10:- storage-1/plop/green.png (1.6 KB)",
-            "diskette:10:- storage-2/pong/sample.nope (11 bytes)",
-            "diskette:10:- storage-2/ping/grey.png (1.6 KB)",
+            "diskette:10:- storage-1/blue.png (800 bytes)",
+            "diskette:10:- storage-1/sample.txt (800 bytes)",
+            "diskette:10:- storage-1/plop/green.png (800 bytes)",
+            "diskette:10:- storage-2/pong/sample.nope (800 bytes)",
+            "diskette:10:- storage-2/ping/grey.png (800 bytes)",
             "diskette:20:Dump archive was created at: {archive} ({size})",
         ]
     ),
@@ -285,11 +285,11 @@ def test_dump(caplog, settings, db, mocked_checksum, mocked_version, tests_setti
             "diskette:10:- Storage exclude patterns enabled:",
             "diskette:10:  └── foo/*",
             "diskette:20:Appending storages to the archive",
-            "diskette:10:- storage-1/blue.png (1.5 KB)",
-            "diskette:10:- storage-1/sample.txt (11 bytes)",
-            "diskette:10:- storage-1/plop/green.png (1.6 KB)",
-            "diskette:10:- storage-2/pong/sample.nope (11 bytes)",
-            "diskette:10:- storage-2/ping/grey.png (1.6 KB)",
+            "diskette:10:- storage-1/blue.png (800 bytes)",
+            "diskette:10:- storage-1/sample.txt (800 bytes)",
+            "diskette:10:- storage-1/plop/green.png (800 bytes)",
+            "diskette:10:- storage-2/pong/sample.nope (800 bytes)",
+            "diskette:10:- storage-2/ping/grey.png (800 bytes)",
             "diskette:20:Dump archive was created at: {archive} ({size})",
             "diskette:20:Checksum: dummy-checksum",
         ]
@@ -314,10 +314,10 @@ def test_dump(caplog, settings, db, mocked_checksum, mocked_version, tests_setti
                 "diskette:10:- Excluding: auth.Permission, auth.Group_permissions, "
                 "auth.User_groups, auth.User_user_permissions"
             ),
-            "diskette:10:- Written file: django-auth.json (2 bytes)",
+            "diskette:10:- Written file: django-auth.json (800 bytes)",
             "diskette:20:Dumping data for application 'Django site'",
             "diskette:10:- Including: sites.Site",
-            "diskette:10:- Written file: django-site.json (94 bytes)",
+            "diskette:10:- Written file: django-site.json (800 bytes)",
             "diskette:20:Appending data to the archive",
             "diskette:20:Dump archive was created at: {archive} ({size})",
             "diskette:20:Checksum: dummy-checksum",
@@ -325,7 +325,8 @@ def test_dump(caplog, settings, db, mocked_checksum, mocked_version, tests_setti
     ),
 ])
 def test_dump_options(caplog, settings, db, mocked_checksum, mocked_version,
-                      tests_settings, tmp_path, options, expected):
+                      mocked_dumper_filesize, tests_settings, tmp_path, options,
+                      expected):
     """
     Dump method with the right arguments should correctly proceed to dump, archive
     everything and output some logs.

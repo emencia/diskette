@@ -95,7 +95,9 @@ class StorageMixin:
                 defined exclusion patterns. Default value enables it.
 
         Returns:
-            iterator: Iterator for all storages files.
+            iterator: Iterator for all storages files. Note than the order of items can
+            be arbitrary, you may need to order it yourself if item order does matter to
+            your project.
         """
         for storage in self.storages:
             # Recursively walk through storage path

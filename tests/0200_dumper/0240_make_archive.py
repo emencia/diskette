@@ -3,8 +3,24 @@ import tarfile
 import pytest
 from freezegun import freeze_time
 
+from django import VERSION as django_version
+
 from diskette.core.dumper import Dumper
 from diskette.factories import UserFactory
+
+
+# Dump file sizes before Django 6
+DJANGO_PRE_6_DUMPFILES = [
+    ("data/django-auth.json", 328),
+    ("data/django-site.json", 94),
+]
+
+
+# Dump file sizes before Django 6
+DJANGO_6_DUMPFILES = [
+    ("data/django-auth.json", 329),
+    ("data/django-site.json", 95),
+]
 
 
 @pytest.fixture(scope="function")
@@ -57,9 +73,10 @@ def test_archive_data(mocked_version, tmp_path, archive_initials):
         ]
 
     # Check expected archived files are all there with their expected size
-    assert archived == [
-        ("data/django-auth.json", 328),
-        ("data/django-site.json", 94),
+    expected_dumps = (
+        DJANGO_PRE_6_DUMPFILES if django_version[0] < 6 else DJANGO_6_DUMPFILES
+    )
+    assert sorted(archived) == expected_dumps + [
         ("manifest.json", 139),
     ]
 
@@ -88,17 +105,17 @@ def test_archive_storages(mocked_version, tmp_path, archive_initials):
         ]
 
     # Check expected archived files are all there with their expected size
-    assert archived == [
+    assert sorted(archived) == [
+        ("manifest.json", 187),
         ("tests/data_fixtures/storage_samples/storage-1/blue.png", 1543),
-        ("tests/data_fixtures/storage_samples/storage-1/sample.txt", 11),
-        ("tests/data_fixtures/storage_samples/storage-1/foo/foo_sample.txt", 3),
-        ("tests/data_fixtures/storage_samples/storage-1/foo/grass.png", 1659),
         ("tests/data_fixtures/storage_samples/storage-1/foo/bar/bar.nope", 8),
         ("tests/data_fixtures/storage_samples/storage-1/foo/bar/bar.txt", 3),
+        ("tests/data_fixtures/storage_samples/storage-1/foo/foo_sample.txt", 3),
+        ("tests/data_fixtures/storage_samples/storage-1/foo/grass.png", 1659),
         ("tests/data_fixtures/storage_samples/storage-1/plop/green.png", 1681),
-        ("tests/data_fixtures/storage_samples/storage-2/pong/sample.nope", 11),
+        ("tests/data_fixtures/storage_samples/storage-1/sample.txt", 11),
         ("tests/data_fixtures/storage_samples/storage-2/ping/grey.png", 1646),
-        ("manifest.json", 187),
+        ("tests/data_fixtures/storage_samples/storage-2/pong/sample.nope", 11),
     ]
 
     assert archive_path.name == "foo_storages.tar.gz"
@@ -135,19 +152,20 @@ def test_archive_all(mocked_version, tmp_path, archive_initials):
     # print()
 
     # Check expected archived files are all there with their expected size
-    assert archived == [
-        ("data/django-auth.json", 328),
-        ("data/django-site.json", 94),
+    expected_dumps = (
+        DJANGO_PRE_6_DUMPFILES if django_version[0] < 6 else DJANGO_6_DUMPFILES
+    )
+    assert sorted(archived) == expected_dumps + [
+        ("manifest.json", 233),
         ("tests/data_fixtures/storage_samples/storage-1/blue.png", 1543),
-        ("tests/data_fixtures/storage_samples/storage-1/sample.txt", 11),
-        ("tests/data_fixtures/storage_samples/storage-1/foo/foo_sample.txt", 3),
-        ("tests/data_fixtures/storage_samples/storage-1/foo/grass.png", 1659),
         ("tests/data_fixtures/storage_samples/storage-1/foo/bar/bar.nope", 8),
         ("tests/data_fixtures/storage_samples/storage-1/foo/bar/bar.txt", 3),
+        ("tests/data_fixtures/storage_samples/storage-1/foo/foo_sample.txt", 3),
+        ("tests/data_fixtures/storage_samples/storage-1/foo/grass.png", 1659),
         ("tests/data_fixtures/storage_samples/storage-1/plop/green.png", 1681),
-        ("tests/data_fixtures/storage_samples/storage-2/pong/sample.nope", 11),
+        ("tests/data_fixtures/storage_samples/storage-1/sample.txt", 11),
         ("tests/data_fixtures/storage_samples/storage-2/ping/grey.png", 1646),
-        ("manifest.json", 233),
+        ("tests/data_fixtures/storage_samples/storage-2/pong/sample.nope", 11),
     ]
 
     assert archive_path.name == "foo_data_storages.tar.gz"
@@ -186,12 +204,13 @@ def test_archive_excludes(mocked_version, tmp_path, archive_initials):
         ]
 
     # Check expected archived files are all there with their expected size
-    assert archived == [
-        ("data/django-auth.json", 328),
-        ("data/django-site.json", 94),
-        ("tests/data_fixtures/storage_samples/storage-1/blue.png", 1543),
-        ("tests/data_fixtures/storage_samples/storage-1/sample.txt", 11),
-        ("tests/data_fixtures/storage_samples/storage-1/foo/grass.png", 1659),
-        ("tests/data_fixtures/storage_samples/storage-2/ping/grey.png", 1646),
+    expected_dumps = (
+        DJANGO_PRE_6_DUMPFILES if django_version[0] < 6 else DJANGO_6_DUMPFILES
+    )
+    assert sorted(archived) == expected_dumps + [
         ("manifest.json", 233),
+        ("tests/data_fixtures/storage_samples/storage-1/blue.png", 1543),
+        ("tests/data_fixtures/storage_samples/storage-1/foo/grass.png", 1659),
+        ("tests/data_fixtures/storage_samples/storage-1/sample.txt", 11),
+        ("tests/data_fixtures/storage_samples/storage-2/ping/grey.png", 1646),
     ]

@@ -112,48 +112,48 @@ def test_validate_reserved(tmp_path):
         [],
         [
             "storage-1/blue.png",
-            "storage-1/sample.txt",
-            "storage-1/foo/foo_sample.txt",
-            "storage-1/foo/grass.png",
             "storage-1/foo/bar/bar.nope",
             "storage-1/foo/bar/bar.txt",
+            "storage-1/foo/foo_sample.txt",
+            "storage-1/foo/grass.png",
             "storage-1/plop/green.png",
+            "storage-1/sample.txt",
+            "storage-2/ping/grey.png",
             "storage-2/pong/sample.nope",
-            "storage-2/ping/grey.png"
         ],
     ),
     (
         ["*.nope"],
         [
             "storage-1/blue.png",
-            "storage-1/sample.txt",
+            "storage-1/foo/bar/bar.txt",
             "storage-1/foo/foo_sample.txt",
             "storage-1/foo/grass.png",
-            "storage-1/foo/bar/bar.txt",
             "storage-1/plop/green.png",
-            "storage-2/ping/grey.png"
+            "storage-1/sample.txt",
+            "storage-2/ping/grey.png",
         ],
     ),
     (
         ["foo/*.txt"],
         [
             "storage-1/blue.png",
-            "storage-1/sample.txt",
-            "storage-1/foo/grass.png",
             "storage-1/foo/bar/bar.nope",
+            "storage-1/foo/grass.png",
             "storage-1/plop/green.png",
+            "storage-1/sample.txt",
+            "storage-2/ping/grey.png",
             "storage-2/pong/sample.nope",
-            "storage-2/ping/grey.png"
         ],
     ),
     (
         ["foo/*"],
         [
             "storage-1/blue.png",
-            "storage-1/sample.txt",
             "storage-1/plop/green.png",
+            "storage-1/sample.txt",
+            "storage-2/ping/grey.png",
             "storage-2/pong/sample.nope",
-            "storage-2/ping/grey.png"
         ],
     ),
     (
@@ -164,9 +164,9 @@ def test_validate_reserved(tmp_path):
         ],
         [
             "storage-1/blue.png",
-            "storage-1/sample.txt",
             "storage-1/foo/grass.png",
-            "storage-2/ping/grey.png"
+            "storage-1/sample.txt",
+            "storage-2/ping/grey.png",
         ],
     ),
 ])
@@ -179,6 +179,7 @@ def test_iter_storages_files(settings, tests_settings, excludes, expected):
         Expected values are defined with a relative path which will be prefixed with
         'storage_samples' path during assertions.
     """
+    print("🚀")
     storage_samples = tests_settings.fixtures_path / "storage_samples"
     relative_basepath = storage_samples.relative_to(Path.cwd())
 
@@ -195,7 +196,13 @@ def test_iter_storages_files(settings, tests_settings, excludes, expected):
         storages_excludes=excludes,
     )
 
-    assert list(manager.iter_storages_files()) == [
+    results = sorted(list(manager.iter_storages_files()))
+    import json
+    from diskette.utils.jsons import ExtendedJsonEncoder
+    print("🎨")
+    print(json.dumps(results, indent=4, cls=ExtendedJsonEncoder))
+    print()
+    assert results == [
         (storage_samples / path, relative_basepath / path)
         for path in expected
     ]

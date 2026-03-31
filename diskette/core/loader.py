@@ -34,6 +34,21 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
     def __init__(self, logger=None):
         self.logger = logger or NoOperationLogger()
 
+    def get_dir_size(self, path):
+        """
+        Shortcut to get computed size of a directory files.
+
+        This exists in its own method to be able to mock it from tests because
+        size computation is not stable.
+
+        Arguments:
+            path (pathlib.Path): Directory Path object.
+
+        Returns:
+            integer: Computed size of directory files.
+        """
+        return directory_size(path)
+
     def download_archive(self, url, destination=None):
         """
         Download archive from given URL into destination directory.
@@ -267,7 +282,7 @@ class Loader(StorageMixin, LoaddataSerializerAbstract):
             # Move storage dump to destination
             self.logger.info(
                 "Restoring storage directory ({}): {}".format(
-                    filesizeformat(directory_size(storage_source)),
+                    filesizeformat(self.get_dir_size(storage_source)),
                     dump_path
                 )
             )
