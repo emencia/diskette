@@ -3,8 +3,8 @@
 Changelog
 =========
 
-Development
-***********
+Version 0.6.0 - 2026/03/31
+**************************
 
 * Fixed package setup with modern Python;
 * Added support for Python 3.12 and 3.13;

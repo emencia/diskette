@@ -132,6 +132,7 @@ install-backend:
 	@echo ""
 	@printf "$(FORMATBLUE)$(FORMATBOLD)---> Install everything for development <---$(FORMATRESET)\n"
 	@echo ""
+	$(PIP_BIN) install setuptools
 	$(PIP_BIN) install -e .[dev,quality,doc,doc-live,release]
 .PHONY: install-backend
 
